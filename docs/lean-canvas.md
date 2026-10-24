@@ -23,7 +23,12 @@ This is a team-review draft for transfer to Sonke, not a completed submission. I
 
 ## First pilot
 
-Recruit 10–20 consenting participants through one community partner. Run a four-week usability pilot with synthetic data during public judging, then use real data only with explicit informed consent and a documented deletion path. Compare weekly logging, action completion, and self-reported confidence against each participant's baseline. Publish sample size, dates and limitations with any result.
+Use synthetic data during public judging. After the release/privacy checks,
+propose a four-week usability pilot with 10–20 consenting participants through
+one community partner. Use real data only with explicit informed consent and a
+documented deletion path. Compare weekly logging, action completion and
+self-reported confidence against each participant's baseline. Publish sample
+size, dates and limitations with any result. This pilot is proposed, not run.
 
 ## Sonke handoff (ticket #40)
 
