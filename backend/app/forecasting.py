@@ -92,6 +92,7 @@ def build_forecast(
     daily_spending = sum(row["amount_cents"] for row in everyday) / observed_days if spending_known else 0
     scheduled = [row for row in expense_rows if today < row["day"] <= end]
     scheduled_cents = sum(row["amount_cents"] for row in scheduled)
+    costs_overlap_possible = daily_spending > 0 and any(not row.get("recurring") for row in scheduled)
     everyday_cents = round(daily_spending * horizon_days)
     projected_income = round(daily_income * horizon_days)
     costs = scheduled_cents + everyday_cents
@@ -105,7 +106,7 @@ def build_forecast(
             "days": stop - offset,
             "predicted_income_cents": round(daily_income * stop) - round(daily_income * offset),
         })
-    enough_history = weeks >= 6 and (spending_known or bool(scheduled))
+    enough_history = weeks >= 6 and (spending_known or bool(scheduled)) and not costs_overlap_possible
     gap = max(0, costs - projected_income - (available_balance_cents or 0))
     status = "insufficient_data" if not enough_history else "planning_gap" if gap else "no_gap_in_estimate"
     target = gap if enough_history else 0
@@ -115,6 +116,7 @@ def build_forecast(
         "Future dated costs are counted once. Marking a past expense recurring does not create a due date or repeat it.",
         "Everyday spending uses up to 30 recorded calendar days, only when the record spans at least 14 days. Unrecorded costs are unknown.",
         "Weekly income does not tell us which day a payout will arrive. No shortfall date or probability is predicted.",
+        "Upcoming non-recurring entries may overlap the everyday estimate. When both exist, costs are a conservative combined scenario and no gap recommendation is issued.",
     ]
     assumptions.append(
         "Available cash is unknown. The planning gap assumes no cash is available; recorded net income is not a bank balance."
@@ -144,6 +146,7 @@ def build_forecast(
         "expense_history_days": observed_days,
         "income_estimate_available": income_known,
         "everyday_estimate_available": spending_known,
+        "costs_overlap_possible": costs_overlap_possible,
         "shortfall": {"likely": False, "date": None, "amount_cents": gap if enough_history else 0, "status": status},
         "set_aside": {
             "weekly_cents": ceil(target * 7 / horizon_days),

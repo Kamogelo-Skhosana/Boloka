@@ -114,6 +114,10 @@ The response retains the income/expense totals, `series`, `shortfall`, and
   30, only when recent records span at least 14 calendar days. Recurring flags
   do not establish bill identity, cadence or due dates, so past recurring costs
   need an explicit future entry. Missing bills remain unknown.
+- `costs_overlap_possible`: true when upcoming non-recurring costs might already
+  be covered by the everyday estimate. The combined cost total is then a
+  conservative scenario, not a deduplicated prediction. No gap recommendation
+  is issued until that ambiguity is resolved; status is `insufficient_data`.
 - `available_balance_cents`: null when unknown; `recorded_net_cents` is a
   separate, incomplete ledger total. Savings contributions are transfers and
   do not automatically increase available cash or reduce the planning gap.

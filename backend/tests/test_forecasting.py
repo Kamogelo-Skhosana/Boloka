@@ -149,3 +149,16 @@ def test_fractional_daily_income_preserves_total_cents():
     result = build_forecast(income_history(today, cents=1), [], today=today)
     assert result["predicted_income_cents"] == 4
     assert sum(row["predicted_income_cents"] for row in result["series"]) == 4
+
+
+def test_overlapping_everyday_and_upcoming_costs_do_not_produce_a_recommendation():
+    today = date(2026, 10, 24)
+    expenses = [
+        {"spent_on": "2026-10-01", "amount_cents": 30000, "category": "food"},
+        {"spent_on": "2026-10-25", "amount_cents": 1000000, "category": "food"},
+    ]
+    result = build_forecast(income_history(today), expenses, today=today)
+    assert result["costs_overlap_possible"]
+    assert result["shortfall"]["status"] == "insufficient_data"
+    assert result["shortfall"]["amount_cents"] == 0
+    assert result["set_aside"]["total_cents"] == 0

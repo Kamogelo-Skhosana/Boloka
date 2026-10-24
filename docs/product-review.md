@@ -28,6 +28,10 @@ Explicit upcoming costs count once. Everyday costs use up to 30 days of
 non-recurring history spanning at least 14 days. Past recurring costs are not
 repeated without a due entry: the schema has no bill identity or cadence.
 Zero projected everyday costs can mean unknown spending, not free living.
+An upcoming non-recurring cost may overlap the everyday estimate. In that
+case the combined total is a conservative scenario and the product suppresses
+gap/set-aside recommendations. Resolving this requires a bill/budget identity
+and completeness model rather than category-based deduplication.
 
 Recorded net is an incomplete ledger total, not available cash. A separate
 optional cash scenario uses a validated POST body, is not saved/exported, and
@@ -111,7 +115,7 @@ cover preview create/edit/delete and totals, failed requests without local
 mutation, export allowlisting, locale fallback/interpolation and a raw-copy
 guard for main-screen JSX and accessible labels.
 
-Final local checks passed: 62 backend tests, seven frontend tests, Ruff, ESLint and production build. The existing dependency-level TestClient deprecation warning remains; no live forecast accuracy is inferred from tests.
+Final local checks passed: 63 backend tests, seven frontend tests, Ruff, ESLint and production build. The existing dependency-level TestClient deprecation warning remains; no live forecast accuracy is inferred from tests.
 
 Headless Chrome against the local preview exercised add, edit, cancel, delete
 confirmation/cancellation, JSON download and EN/isiZulu/Sesotho switching. It

@@ -184,6 +184,7 @@ Review financial meanings (recorded net versus available cash, conditional gap, 
 | yourStoryStartsHere | Your story starts here. | English fallback; review needed | English fallback; review needed |
 | yourWeeklyBuffer | YOUR WEEKLY BUFFER | English fallback; review needed | English fallback; review needed |
 | spendingAssumption | Everyday spending is estimated only when recent records span at least 14 days. Otherwise this total includes only explicit upcoming entries; other costs remain unknown. | English fallback; review needed | English fallback; review needed |
+| spendingOverlap | Some upcoming costs may already be included in the everyday spending estimate. The combined total is a conservative scenario. No gap or set-aside recommendation is available until these costs can be distinguished. | English fallback; review needed | English fallback; review needed |
 
 ## Existing translated keys
 
