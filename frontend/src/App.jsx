@@ -70,6 +70,7 @@ function App() {
   const [hasLoaded, setHasLoaded] = useState(false)
   const [loadError, setLoadError] = useState(false)
   const [message, setMessage] = useState('')
+  const [csvErrors, setCsvErrors] = useState([])
   const [online, setOnline] = useState(typeof navigator === 'undefined' ? true : navigator.onLine)
   const [language, setLanguage] = useState(currentLanguage)
   const [dataSaver, setDataSaver] = useState(() => {
@@ -175,6 +176,7 @@ function App() {
         setEntryLabel('')
         setSavingAmount('')
         setSavingNote('')
+        setCsvErrors([])
         setAuthPassword('')
         setCashInput('')
       }
@@ -321,6 +323,7 @@ function App() {
 
   async function importCsv(event) {
     event.preventDefault()
+    setCsvErrors([])
     const formElement = event.currentTarget
     const file = formElement.elements.csv.files?.[0]
     if (!file || !session) {
@@ -341,6 +344,7 @@ function App() {
       if (activeUser.current !== session.user.id) return
       await refresh()
       setMessage(tr('importResult', result))
+      setCsvErrors(result.errors || [])
       formElement.reset()
     } catch {
       setMessage(tr('couldNotImportThatFile'))
@@ -552,6 +556,8 @@ function App() {
             <details className="import-details">
               <summary>{tr('importIncomeFromACsv')}</summary>
               <p>{tr('csvInstructions')}</p>
+              <p>{tr('csvImportLimits')}</p>
+              {csvErrors.length ? <section aria-label={tr('csvErrors')}><h3>{tr('csvErrors')}</h3><ol lang="en">{csvErrors.map(error => <li key={error.line}>{t('en', 'csvRowError', error)}</li>)}</ol></section> : null}
               {session ? <form onSubmit={importCsv} className="import-form"><label className="field"><span>{tr('chooseACsvFile')}</span><input required name="csv" type="file" accept=".csv,text/csv" /></label><button className="button button--outline" type="submit" disabled={loading}>{tr('importIncome')}</button></form> : <p className="muted-note">{tr('signInToImportEntriesToYourAccount')}</p>}
             </details>
           </section>

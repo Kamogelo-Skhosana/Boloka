@@ -175,5 +175,8 @@ export const english = {
   "dateHelp": "For an upcoming cost, enter its due date. Past recurring costs are not automatically repeated.",
   "planningIntro": "Record your earnings and upcoming costs. Inspect a planning estimate, the history it uses and the assumptions behind it.",
   "spendingAssumption": "Everyday spending is estimated only when recent records span at least 14 days. Otherwise this total includes only explicit upcoming entries; other costs remain unknown.",
-  "spendingOverlap": "Some upcoming costs may already be included in the everyday spending estimate. The combined total is a conservative scenario. No gap or set-aside recommendation is available until these costs can be distinguished."
+  "spendingOverlap": "Some upcoming costs may already be included in the everyday spending estimate. The combined total is a conservative scenario. No gap or set-aside recommendation is available until these costs can be distinguished.",
+  "csvImportLimits": "Use UTF-8, at most 2 MB and 10,000 rows. Amounts use a dot and at most two decimal places. Reimporting a file adds duplicates; review existing entries first.",
+  "csvErrors": "First skipped-row errors (English diagnostics)",
+  "csvRowError": "Line {line}: {message}"
 }

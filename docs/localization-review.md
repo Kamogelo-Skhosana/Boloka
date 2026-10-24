@@ -185,6 +185,9 @@ Review financial meanings (recorded net versus available cash, conditional gap, 
 | yourWeeklyBuffer | YOUR WEEKLY BUFFER | English fallback; review needed | English fallback; review needed |
 | spendingAssumption | Everyday spending is estimated only when recent records span at least 14 days. Otherwise this total includes only explicit upcoming entries; other costs remain unknown. | English fallback; review needed | English fallback; review needed |
 | spendingOverlap | Some upcoming costs may already be included in the everyday spending estimate. The combined total is a conservative scenario. No gap or set-aside recommendation is available until these costs can be distinguished. | English fallback; review needed | English fallback; review needed |
+| csvImportLimits | Use UTF-8, at most 2 MB and 10,000 rows. Amounts use a dot and at most two decimal places. Reimporting a file adds duplicates; review existing entries first. | English fallback; review needed | English fallback; review needed |
+| csvErrors | First skipped-row errors (English diagnostics) | English fallback; review needed | English fallback; review needed |
+| csvRowError | Line {line}: {message} | English fallback; review needed | English fallback; review needed |
 
 ## Existing translated keys
 

@@ -54,7 +54,22 @@ List date bounds are inclusive; a `from` date after `to` returns 422.
     -> 204
 
     POST /api/v1/income/import   (multipart CSV: columns amount,source,received_on,note)
-    -> 200 { "imported": 42, "skipped": 0 }
+    -> 200 { "imported": 42, "skipped": 0, "errors": [] }
+
+CSV accepts UTF-8 with an optional BOM, normalized case/whitespace in column
+names, and at most 2,000,000 bytes / 10,000 nonblank rows. Duplicate/empty column
+names and malformed quoted files reject the whole import before writing any
+rows. Unknown columns are ignored; ownership always comes from the user token.
+
+Amounts use rands, a decimal dot and at most two decimal places (optional `R`
+prefix and correctly grouped quoted thousands commas). Non-finite, exponent,
+negative, zero, over-limit and sub-cent values are rejected rather than rounded.
+Dates must be valid `YYYY-MM-DD`. Source/note limits match direct entry; long
+text is skipped rather than silently truncated. Invalid rows are counted and
+up to ten `{line, message}` errors are returned without echoing row contents.
+Valid rows are sent in one batch only after the full file has been parsed.
+Reimporting the same file adds duplicate entries; no automatic deduplication is
+claimed because identical earning rows can be legitimate separate payouts.
 
 Income object:
 
