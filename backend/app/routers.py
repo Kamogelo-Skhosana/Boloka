@@ -243,15 +243,26 @@ def delete_savings_contribution(entry_id: UUID, user_id: str = Depends(get_curre
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.get("/forecast")
-def forecast(
-    available_balance_cents: int | None = Query(default=None, ge=0, le=2_000_000_000),
-    user_id: str = Depends(get_current_user_id),
-):
+class ForecastScenario(BaseModel):
+    available_balance_cents: int | None = Field(default=None, ge=0, le=2_000_000_000, strict=True)
+
+
+def _user_forecast(user_id: str, available_balance_cents: int | None = None) -> dict:
     owner = _user_uuid(user_id)
     incomes = request_table("GET", "income_events", user_id=owner, params={"select": "amount_cents,received_on", "order": "received_on.asc"}) or []
     expenses = request_table("GET", "expenses", user_id=owner, params={"select": "amount_cents,spent_on,recurring,category", "order": "spent_on.asc"}) or []
     return build_forecast(incomes, expenses, available_balance_cents=available_balance_cents)
+
+
+@router.get("/forecast")
+def forecast(user_id: str = Depends(get_current_user_id)) -> dict:
+    return _user_forecast(user_id)
+
+
+@router.post("/forecast/scenario")
+def forecast_scenario(body: ForecastScenario, user_id: str = Depends(get_current_user_id)) -> dict:
+    # Scenario cash is neither persisted nor placed in URLs/access logs.
+    return _user_forecast(user_id, body.available_balance_cents)
 
 
 @router.get("/summary")

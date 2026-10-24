@@ -94,9 +94,9 @@ Savings rows are owner-scoped and protected by the `savings_contributions` RLS p
 
 ## Forecast (the core)
 
-    GET /api/v1/forecast?available_balance_cents=10000
+    GET /api/v1/forecast\n    POST /api/v1/forecast/scenario\n    body: { "available_balance_cents": 10000 }
 
-The optional nonnegative available-cash input is a scenario value, not stored
+The nonnegative available-cash scenario body is a scenario value, not stored
 or bank verified. Without it, available cash is unknown. Recorded net income
 is never silently substituted for available cash. The endpoint covers tomorrow
 through today + 30 days, using the Africa/Johannesburg calendar.
@@ -133,7 +133,8 @@ weeks are zero recorded income, not proof of no work. The current partial week
 and future earnings are excluded. Older income does not extend the bounded
 window. Each series row has a start date and number of days; cumulative integer
 rounding ensures blocks sum exactly to the 30-day income total. No statistical
-confidence band is returned.
+confidence band is returned. When income history is insufficient, the series
+is empty rather than plotting unknown earnings as zero.
 
 ## Dashboard summary
 
@@ -144,5 +145,7 @@ confidence band is returned.
       "this_week_income_cents": 130000,
       "set_aside_progress_cents": 30000,
       "set_aside_target_cents": 60000,
-      "next_shortfall": { "date": "2026-11-22", "amount_cents": 48000 }
+      "next_shortfall": null
     }
+
+The summary balance is recorded net income less paid expenses, not available cash. `next_shortfall` remains null because no precise day/risk is established. Savings progress is the recorded current-month contribution sum, separate from the conditional horizon target; the UI does not present these as progress against a dated goal. Database reads paginate rather than silently truncating to one server page.

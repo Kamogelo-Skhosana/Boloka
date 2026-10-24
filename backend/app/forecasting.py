@@ -1,7 +1,7 @@
 """Transparent pandas cash-planning baseline; no calibrated risk prediction."""
 
 from collections.abc import Iterable
-from datetime import date, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from math import ceil
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -98,7 +98,7 @@ def build_forecast(
     # Allocate via rounded cumulative totals so the final two-day block and
     # the horizon totals agree exactly, including fractional daily cents.
     series = []
-    for offset in range(0, horizon_days, 7):
+    for offset in range(0, horizon_days, 7) if income_known else []:
         stop = min(offset + 7, horizon_days)
         series.append({
             "week_start": (today + timedelta(days=offset + 1)).isoformat(),
@@ -130,7 +130,7 @@ def build_forecast(
     past_income = _valid_rows(incomes, "received_on")
     recorded_net = sum(row["amount_cents"] for row in past_income if row["day"] <= today) - sum(row["amount_cents"] for row in expense_rows if row["day"] <= today)
     return {
-        "generated_at": datetime.now(ZoneInfo("Africa/Johannesburg")).isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
         "horizon_days": horizon_days,
         "horizon_start": (today + timedelta(days=1)).isoformat(),
         "horizon_end": end.isoformat(),

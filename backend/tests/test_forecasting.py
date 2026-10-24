@@ -63,6 +63,7 @@ def test_empty_history_is_not_a_reassuring_warning():
     assert result["available_balance_cents"] is None
     assert result["set_aside"]["weekly_cents"] == 0
     assert not result["income_estimate_available"]
+    assert result["series"] == []  # Unknown income must not be plotted as zero earnings.
     assert result["confidence"] == "low"
 
 
