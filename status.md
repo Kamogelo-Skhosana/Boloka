@@ -1,5 +1,13 @@
 ﻿# Project status: Boloka
 
+## Forecast API contract - 25 October 2026
+
+Ticket #21 adds a shared Pydantic/OpenAPI response contract to both authenticated
+forecast routes. Monetary fields, nullable cash, supported reason/action codes,
+baseline method and unvalidated confidence/date policy are explicit. Tests
+cover both contracts, unknown versus known-zero cash and database failure
+propagation without sample-data substitution. Live deployment remains separate.
+
 ## Sparse-history guidance - 25 October 2026
 
 Ticket #22 adds an input-specific checklist when history/costs are insufficient.

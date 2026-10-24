@@ -17,6 +17,7 @@ from pydantic import BaseModel, Field, field_validator
 from .auth import get_current_access_token, get_current_user_claims, get_current_user_id
 from .csv_import import CsvImportError, parse_income_csv
 from .database import request_table
+from .forecast_schema import ForecastResponse
 from .forecasting import build_forecast, local_today
 from .schemas import IncomeCreate
 
@@ -213,12 +214,12 @@ def _user_forecast(user_id: str, available_balance_cents: int | None = None, *, 
     return build_forecast(incomes, expenses, available_balance_cents=available_balance_cents)
 
 
-@router.get("/forecast")
+@router.get("/forecast", response_model=ForecastResponse)
 def forecast(user_id: str = Depends(get_current_user_id), access_token: str = Depends(get_current_access_token)) -> dict:
     return _user_forecast(user_id, access_token=access_token)
 
 
-@router.post("/forecast/scenario")
+@router.post("/forecast/scenario", response_model=ForecastResponse)
 def forecast_scenario(body: ForecastScenario, user_id: str = Depends(get_current_user_id), access_token: str = Depends(get_current_access_token)) -> dict:
     # Scenario cash is neither persisted nor placed in URLs/access logs.
     return _user_forecast(user_id, body.available_balance_cents, access_token=access_token)

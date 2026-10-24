@@ -180,6 +180,40 @@ def test_cash_scenario_requires_authentication():
     assert response.status_code == 401
 
 
+def test_forecast_routes_publish_the_same_typed_response_contract():
+    schema = app.openapi()
+    for path, method in [("/api/v1/forecast", "get"), ("/api/v1/forecast/scenario", "post")]:
+        response_schema = schema["paths"][path][method]["responses"]["200"]["content"]["application/json"]["schema"]
+        assert response_schema == {"$ref": "#/components/schemas/ForecastResponse"}
+
+
+def test_forecast_contract_keeps_unknown_and_known_zero_cash_distinct(authenticated_client, monkeypatch):
+    monkeypatch.setattr(routers, "request_table", lambda *a, **kw: [])
+    unknown = authenticated_client.get("/api/v1/forecast").json()
+    zero = authenticated_client.post("/api/v1/forecast/scenario", json={"available_balance_cents": 0}).json()
+    assert unknown["available_balance_cents"] is None
+    assert zero["available_balance_cents"] == 0
+    assert unknown["shortfall"]["date"] is zero["shortfall"]["date"] is None
+    assert unknown["series"] == zero["series"] == []
+    assert "check_available_cash" in unknown["next_steps"]
+    assert "check_available_cash" not in zero["next_steps"]
+
+
+@pytest.mark.parametrize("path,method", [("/forecast", "get"), ("/forecast/scenario", "post")])
+def test_forecast_database_failure_is_not_replaced_with_sample_data(authenticated_client, monkeypatch, path, method):
+    from fastapi import HTTPException
+
+    def unavailable(*args, **kwargs):
+        raise HTTPException(status_code=502, detail={"error": {"code": "database_unavailable", "message": "Could not reach the database"}})
+
+    monkeypatch.setattr(routers, "request_table", unavailable)
+    options = {"json": {}} if method == "post" else {}
+    response = getattr(authenticated_client, method)("/api/v1" + path, **options)
+    assert response.status_code == 502
+    assert response.json()["error"]["code"] == "database_unavailable"
+    assert "series" not in response.json()
+
+
 @pytest.mark.parametrize("resource", ["income", "expenses"])
 @pytest.mark.parametrize("method", ["patch", "delete"])
 def test_entry_mutation_is_owner_scoped_and_handles_not_found(authenticated_client, monkeypatch, resource, method):
