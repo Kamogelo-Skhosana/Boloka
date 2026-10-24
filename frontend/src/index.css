@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+/* Boloka theme tokens (see docs/design.md) */
+@theme {
+  --color-ink: #0C1512;
+  --color-surface: #15241F;
+  --color-accent: #32D6A6;
+  --color-warn: #F6C14B;
+  --color-fg: #F3F7F4;
+  --color-muted: #8CA399;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background-color: var(--color-ink);
+  color: var(--color-fg);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
