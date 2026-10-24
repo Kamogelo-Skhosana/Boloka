@@ -1,0 +1,58 @@
+name: Deploy
+
+# Continuous deployment. Fill the repository secrets to enable each job
+# (Settings -> Secrets and variables -> Actions). Until the secrets are set the
+# deploy steps are skipped and the workflow stays green.
+#   Frontend (Vercel): VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID
+#   Backend  (Render): RENDER_DEPLOY_HOOK_URL
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy-frontend:
+    name: Deploy frontend to Vercel
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - name: Check configuration
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "VERCEL_TOKEN not set — skipping frontend deploy."
+          fi
+
+      - uses: actions/checkout@v4
+        if: env.VERCEL_TOKEN != ''
+
+      - uses: actions/setup-node@v4
+        if: env.VERCEL_TOKEN != ''
+        with:
+          node-version: 20
+
+      - name: Deploy (Vercel)
+        if: env.VERCEL_TOKEN != ''
+        working-directory: frontend
+        run: |
+          npm i -g vercel@latest
+          vercel pull --yes --environment=production --token "$VERCEL_TOKEN"
+          vercel build --prod --token "$VERCEL_TOKEN"
+          vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN"
+
+  deploy-backend:
+    name: Deploy backend to Render
+    runs-on: ubuntu-latest
+    env:
+      RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+    steps:
+      - name: Trigger Render deploy hook
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "RENDER_DEPLOY_HOOK_URL not set — skipping backend deploy."
+          else
+            curl -fsSL -X POST "$RENDER_DEPLOY_HOOK_URL"
+          fi
