@@ -11,6 +11,14 @@ The repository contains the GitHub Actions deployment workflow. It runs only aft
 
 The workflow skips safely until all three values are configured. It passes the token through the step environment and pins the Vercel CLI version. Add the public frontend URL to the backend's `CORS_ORIGINS` after the first Vercel deployment.
 
+Production deploys only after successful CI from a push to this repository's
+`main`. It checks out that CI run's exact commit. Pull-request runs and fork
+runs cannot deploy. There is no manual dispatch that bypasses CI. To redeploy,
+rerun the successful push-to-main CI workflow for the desired release commit;
+confirm the intended release is still current before rerunning an older run.
+Repository CI/CD configuration can be complete while live hosting remains
+unconfigured; ticket #37 tracks the hosted API and its real health check.
+
 ## Render API
 
 The root `render.yaml` defines a Python web service in Frankfurt, checks `/api/v1/health`, pins Python 3.12.11, and deploys only when GitHub checks pass. Create a Render Blueprint from the repository and provide these values in Render's private environment prompt:
