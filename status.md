@@ -1,5 +1,14 @@
 ﻿# Project status: Boloka
 
+## Presentation content review - 25 October 2026
+
+Ticket #39 has corrected slide copy covering the user journey, actual forecast
+limits, architecture and private judge-access handoff. The existing PowerPoint
+still contains dated-warning and sparse-heuristic wording; submission/README.md
+flags it as outdated. The required presentation runtime/connected session is
+unavailable, so the deck was not edited, rendered or approved. Transferring the
+copy, visual review, live URLs and demo-access verification remain open.
+
 ## Judge README preparation - 25 October 2026
 
 Ticket #42 now documents the actual JWKS setup, preserves existing .env files
