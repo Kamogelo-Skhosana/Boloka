@@ -103,6 +103,15 @@ Expense object adds `category` (text) and `recurring` (boolean) in place of `sou
 
 When there is too little history to model, the backend returns the same shape with `"confidence": "low"` and a heuristic set-aside (cold-start fallback, issue #22).
 
+Income history is aggregated into Monday-to-Sunday weeks from the first valid
+earning through the current week. Missing weeks inside that window count as
+zero income; time before the first earning is unknown. Invalid dates, invalid
+amounts, and future earnings are excluded. The forecast uses the most recent
+eight completed weeks, including zero-income weeks. The unfinished current
+week is excluded unless no completed week exists, when its recorded income
+provides a low-confidence fallback. These estimates assume the recorded
+history is complete; missing entries can reduce the estimate.
+
 ## Dashboard summary
 
     GET /api/v1/summary
