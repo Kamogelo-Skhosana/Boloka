@@ -17,7 +17,6 @@ The root `render.yaml` defines a Python web service in Frankfurt, checks `/api/v
 
 - `SUPABASE_URL`
 - `SUPABASE_PUBLISHABLE_KEY`
-- `SUPABASE_JWT_SECRET`
 - `CORS_ORIGINS` (the exact Vercel origin, no trailing slash)
 
 No secrets are stored in the Blueprint. Render's region and compute plan should be confirmed in the team account before applying the Blueprint.
@@ -25,8 +24,12 @@ No secrets are stored in the Blueprint. Render's region and compute plan should 
 Migration for ticket #10: configure `SUPABASE_PUBLISHABLE_KEY` and remove
 `SUPABASE_SERVICE_ROLE_KEY` from the API service. User-data routes reject
 privileged project keys. Apply the updated schema grants/RLS before deployment.
-The current API verifier requires HS256 tokens from the configured project;
-an ES256/RS256 project needs a tested JWKS verifier before account-backed use.
+ES256/RS256 signing keys are fetched from the project's HTTPS JWKS endpoint
+automatically. Optional `SUPABASE_JWKS_URL` must match the project's
+`/auth/v1/.well-known/jwks.json` URL exactly. Only legacy HS256 projects need
+`SUPABASE_JWT_SECRET` added manually in Render. Secret API keys are not JWT
+signing secrets. Never configure an `sb_secret_` key for user-data routes.
+Signing-key rotation is observed within the 60-second public-key cache lifetime.
 
 ## Supabase
 

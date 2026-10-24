@@ -1,5 +1,14 @@
 ﻿# Project status: Boloka
 
+## Supabase signing keys - 25 October 2026
+
+Added ES256/RS256 verification using project public JWKS, retaining explicit
+legacy HS256 configuration. Local validation: 133 backend tests and Ruff pass.
+The configured project's public JWKS responds with ES256 keys; no private key
+is used or recorded. Live sign-in and the two-account hosted RLS test remain
+release requirements. Rotate any secret shared outside private environment
+settings; user-data routes need only the public key and caller JWT.
+
 ## Review branch - 24 October 2026
 
 The responsible money-planning review starts from merged main at c1a9067.
