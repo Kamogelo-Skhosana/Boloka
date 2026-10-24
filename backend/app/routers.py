@@ -1,7 +1,4 @@
-import csv
-import io
 from datetime import date, timedelta
-from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from typing import Any
 from uuid import UUID
 
@@ -18,17 +15,12 @@ from fastapi import (
 from pydantic import BaseModel, Field, field_validator
 
 from .auth import get_current_access_token, get_current_user_claims, get_current_user_id
+from .csv_import import CsvImportError, parse_income_csv
 from .database import request_table
 from .forecasting import build_forecast, local_today
+from .schemas import IncomeCreate
 
 router = APIRouter()
-
-
-class IncomeCreate(BaseModel):
-    amount_cents: int = Field(gt=0, le=2_000_000_000)
-    source: str | None = Field(default=None, max_length=120)
-    received_on: date
-    note: str | None = Field(default=None, max_length=1000)
 
 
 class IncomePatch(BaseModel):
@@ -134,17 +126,6 @@ def delete_income(entry_id: UUID, user_id: str = Depends(get_current_user_id), a
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-def _parse_amount(value: str) -> int:
-    try:
-        amount = Decimal(value.strip().replace("R", "").replace(",", ""))
-    except InvalidOperation as exc:
-        raise ValueError("amount must be a valid number") from exc
-    cents = int((amount * 100).quantize(Decimal(1), rounding=ROUND_HALF_UP))
-    if cents <= 0 or cents > 2_000_000_000:
-        raise ValueError("amount must be greater than zero and within the supported limit")
-    return cents
-
-
 @router.post("/income/import")
 async def import_income(file: UploadFile = File(...), user_id: str = Depends(get_current_user_id), access_token: str = Depends(get_current_access_token)):
     if not file.filename or not file.filename.lower().endswith(".csv"):
@@ -152,36 +133,14 @@ async def import_income(file: UploadFile = File(...), user_id: str = Depends(get
     raw = await file.read(2_000_001)
     if len(raw) > 2_000_000:
         raise HTTPException(status_code=413, detail={"error": {"code": "file_too_large", "message": "CSV files must be 2 MB or smaller"}})
-    try:
-        text = raw.decode("utf-8-sig")
-        reader = csv.DictReader(io.StringIO(text))
-        required = {"amount", "source", "received_on"}
-        if not reader.fieldnames or not required.issubset({name.strip() for name in reader.fieldnames}):
-            raise ValueError("CSV needs amount, source and received_on columns")
-    except (UnicodeDecodeError, csv.Error, ValueError) as exc:
-        raise HTTPException(status_code=400, detail={"error": {"code": "invalid_csv", "message": str(exc)}}) from exc
-
-    imported = 0
-    skipped = 0
     owner = _user_uuid(user_id)
-    batch: list[dict[str, Any]] = []
-    for row in reader:
-        try:
-            amount = _parse_amount(row.get("amount", ""))
-            received_on = date.fromisoformat((row.get("received_on") or "").strip())
-            batch.append({
-                "user_id": owner,
-                "amount_cents": amount,
-                "source": (row.get("source") or "").strip()[:120] or None,
-                "received_on": received_on.isoformat(),
-                "note": (row.get("note") or "").strip()[:1000] or None,
-            })
-        except (ValueError, TypeError):
-            skipped += 1
-    if batch:
-        request_table("POST", "income_events", access_token=access_token, user_id=owner, payload=batch, prefer="return=minimal")
-        imported = len(batch)
-    return {"imported": imported, "skipped": skipped}
+    try:
+        result = parse_income_csv(raw, owner)
+    except CsvImportError as exc:
+        raise HTTPException(status_code=400, detail={"error": {"code": "invalid_csv", "message": str(exc)}}) from exc
+    if result.rows:
+        request_table("POST", "income_events", access_token=access_token, user_id=owner, payload=result.rows, prefer="return=minimal")
+    return {"imported": len(result.rows), "skipped": result.skipped, "errors": result.errors}
 
 
 @router.get("/expenses")

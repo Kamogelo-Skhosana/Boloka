@@ -5,7 +5,14 @@
 The responsible money-planning review starts from merged main at c1a9067.
 PR #52 is merged. The follow-up for ticket #10 replaces service-role database
 access with the caller JWT and a public project key, and adds real PostgreSQL
-ownership checks to CI. Deployment migration and a real two-account test remain.
+ownership checks to CI. PR #53 passed all CI jobs and is merged. Deployment
+migration and a real two-account test remain.
+
+Ticket #13 adds bounded UTF-8 CSV parsing, shared income validation, precise
+money parsing and line-number errors. Malformed files are rejected before any
+write; valid rows preserve source/note text instead of silently truncating it.
+Reimports are explicitly documented as adding duplicates. Local validation:
+119 backend tests, seven frontend tests, Ruff, ESLint and production build pass.
 
 Implemented:
 
