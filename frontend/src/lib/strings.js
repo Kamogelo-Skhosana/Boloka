@@ -1,5 +1,10 @@
 // English source copy. Missing locale values deliberately fall back; see docs/localization-review.md.
 export const english = {
+  "startNextSteps": "Build your planning picture",
+  "startRecordIncome": "Record payouts you actually received, including earlier dates you can verify. A set-aside estimate needs six completed calendar weeks; check that weeks with no entries really are complete. Do not add invented earnings to fill gaps.",
+  "startAddCosts": "Add the bills you know are coming with their actual due dates. You can plan around these without guessing future income. Past recurring flags do not add future bills automatically.",
+  "startReviewCosts": "Check whether upcoming one-off costs are already covered by the everyday spending estimate. Until they can be distinguished, use the entries as a checklist rather than a set-aside recommendation.",
+  "startCheckCash": "If you know the cash available for these costs, enter it in the optional cash scenario below. Include only money available to spend; recorded net income and savings contributions are not a bank balance. You can leave this unknown.",
   "explainCalculation": "How this estimate is calculated",
   "explainHorizon": "Included dates: {start} through {end}.",
   "explainIncomeMath": "Income: {total} recorded across {historyDays} completed calendar days, divided by {historyDays}, then multiplied by {days} days = {estimate}, rounded to cents. Weeks without recorded income count as zero.",

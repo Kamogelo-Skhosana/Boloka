@@ -116,6 +116,35 @@ def test_partial_week_and_future_income_are_not_extrapolated():
     assert result["history_weeks"] == 0
 
 
+def test_empty_history_offers_actions_instead_of_a_fabricated_amount():
+    result = build_forecast([], [], today=date(2026, 10, 25))
+    assert result["next_steps"] == ["record_income", "add_upcoming_costs", "check_available_cash"]
+    assert result["set_aside"]["total_cents"] == 0
+    assert result["shortfall"]["status"] == "insufficient_data"
+    assert result["series"] == []
+
+
+@pytest.mark.parametrize("weeks", [1, 2, 5, 6])
+def test_sparse_guidance_tracks_completed_history_and_known_cash(weeks):
+    today = date(2026, 10, 25)
+    costs = [{"spent_on": "2026-10-26", "amount_cents": 1000000}]
+    result = build_forecast(income_history(today, count=weeks), costs, today=today,
+                            available_balance_cents=0)
+    assert result["next_steps"] == (["record_income"] if weeks < 6 else [])
+    assert (result["shortfall"]["status"] == "insufficient_data") == (weeks < 6)
+    assert result["shortfall"]["date"] is None
+
+
+def test_overlap_guidance_does_not_request_income_when_history_is_sufficient():
+    today = date(2026, 10, 25)
+    result = build_forecast(income_history(today), [
+        {"spent_on": "2026-10-01", "amount_cents": 10000},
+        {"spent_on": "2026-10-26", "amount_cents": 10000},
+    ], today=today, available_balance_cents=100)
+    assert result["next_steps"] == ["review_overlapping_costs"]
+    assert result["shortfall"]["status"] == "insufficient_data"
+
+
 def test_missing_weeks_reduce_mean_and_old_earnings_do_not_expand_window():
     today = date(2026, 10, 24)
     rows = [{"received_on": "2026-10-05", "amount_cents": 21000}, {"received_on": "2000-01-01", "amount_cents": 2000000000}]

@@ -1,5 +1,13 @@
 ﻿# Project status: Boloka
 
+## Sparse-history guidance - 25 October 2026
+
+Ticket #22 adds an input-specific checklist when history/costs are insufficient.
+It requests actual recorded payouts, dated bills, overlap review and optional
+cash only where needed. No invented income or numeric fallback is introduced.
+The existing insufficient-data state and forecast thresholds are preserved.
+New language keys require fluent review; hosted flow verification is separate.
+
 ## Forecast explanation layer - 25 October 2026
 
 Ticket #20: expose the exact income numerator/denominator and cash assumption,
