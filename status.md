@@ -7,7 +7,7 @@ Living status log of delivery and release readiness.
 - The feature work is on `feat/kamogelo-owned-issues` and awaits review in PR #46 to `main`.
 - `main` was fetched and merged into the feature branch before this round of UI work.
 - Backend API, synthetic seed, database schema/RLS, responsive preview UI, forecast and submission drafts are present in the branch.
-- CI and deployment workflows are configured but have not yet passed on the updated pull request. Hosting secrets and a Supabase project are not configured here.
+- Latest PR commit passed both GitHub CI jobs. Hosting secrets and a Boloka Supabase project are not configured here.
 - The sample dashboard uses fictional values. Preview changes are temporary and are never sent to Supabase.
 - No public deployment, real judge account, user pilot, recorded Hustle Pitch video, or Sonke final submission is claimed.
 
