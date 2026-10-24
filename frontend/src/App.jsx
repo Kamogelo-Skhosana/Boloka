@@ -77,6 +77,9 @@ function App() {
   const [dataSaver, setDataSaver] = useState(() => {
     try { return localStorage.getItem('boloka-data-saver') === 'true' || Boolean(navigator.connection?.saveData) } catch { return false }
   })
+  const [highContrast, setHighContrast] = useState(() => {
+    try { return localStorage.getItem('boloka-high-contrast') === 'true' } catch { return false }
+  })
   const [authMode, setAuthMode] = useState('signin')
   const [authEmail, setAuthEmail] = useState('')
   const [authPassword, setAuthPassword] = useState('')
@@ -113,6 +116,11 @@ function App() {
     document.documentElement.lang = language === 'zu' ? 'zu' : language === 'st' ? 'st' : 'en'
     try { localStorage.setItem('boloka-language', language) } catch { /* Language still works for this session. */ }
   }, [language])
+
+  useEffect(() => {
+    document.documentElement.dataset.contrast = highContrast ? 'high' : 'normal'
+    try { localStorage.setItem('boloka-high-contrast', String(highContrast)) } catch { /* Preference still works for this session. */ }
+  }, [highContrast])
 
   function completeOnboarding() {
     try { localStorage.setItem('boloka-onboarding-complete', 'true') } catch { /* Continue without local persistence. */ }
@@ -620,6 +628,7 @@ function App() {
             <div className="settings-preferences">
               <label className="field"><span>{t(language, 'language')}</span><select value={language} onChange={(event) => setLanguage(event.target.value)}>{supportedLanguages.map((item) => <option key={item.code} value={item.code}>{item.label}</option>)}</select></label>
               <div className="checkbox-field preference-toggle"><input id="data-saver" type="checkbox" checked={dataSaver} onChange={(event) => changeDataSaver(event.target.checked)} /><label htmlFor="data-saver"><strong>{t(language, 'dataSaver')}</strong><small>{tr('useSmallerTextOnlyForecastVisualsAndAsk')}</small></label></div>
+              <div className="checkbox-field preference-toggle"><input id="high-contrast" type="checkbox" checked={highContrast} onChange={(event) => setHighContrast(event.target.checked)} /><label htmlFor="high-contrast"><strong>{tr('highContrast')}</strong><small>{tr('highContrastHelp')}</small></label></div>
             </div>
             {supabase ? session ? <><p className="settings-email">{session.user.email}</p><button type="button" className="button button--outline" onClick={signOut}>{tr('signOut')}</button></> : (
               <form className="auth-form" onSubmit={signIn}>
