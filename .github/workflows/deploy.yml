@@ -37,7 +37,7 @@ jobs:
           if [[ "$enabled" == false ]]; then
             echo "Vercel deployment skipped: configure VERCEL_TOKEN, VERCEL_ORG_ID and VERCEL_PROJECT_ID."
           fi
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         if: steps.config.outputs.enabled == 'true'
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
