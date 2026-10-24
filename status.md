@@ -1,5 +1,12 @@
 ﻿# Project status: Boloka
 
+## Canvas scope review - 25 October 2026
+
+Ticket #40's draft now describes inspectable conditional planning instead of a
+predicted tight week. Proposed metrics are separate from measured results, and
+the draft includes a team-review/Sonke-save handoff. The actual page transfer
+and privacy decisions remain external; the ticket stays open.
+
 ## Presentation content review - 25 October 2026
 
 Ticket #39 has corrected slide copy covering the user journey, actual forecast
