@@ -71,13 +71,13 @@ def _list_entries(table: str, date_field: str, user_id: str, start: date | None,
 
 
 @router.get("/me")
-def me(claims: dict = Depends(get_current_user_claims)):  # noqa: B008 - FastAPI dependency injection
+def me(claims: dict = Depends(get_current_user_claims)):
     return {"id": _user_uuid(claims["sub"]), "email": claims.get("email"), "created_at": None}
 
 
 @router.get("/income")
 def list_income(
-    from_: date | None = Query(default=None, alias="from"),  # noqa: B008 - FastAPI parameter metadata
+    from_: date | None = Query(default=None, alias="from"),
     to: date | None = None,
     user_id: str = Depends(get_current_user_id),
 ):
@@ -122,7 +122,7 @@ def _parse_amount(value: str) -> int:
 
 
 @router.post("/income/import")
-async def import_income(file: UploadFile = File(...), user_id: str = Depends(get_current_user_id)):  # noqa: B008 - FastAPI parameter metadata
+async def import_income(file: UploadFile = File(...), user_id: str = Depends(get_current_user_id)):
     if not file.filename or not file.filename.lower().endswith(".csv"):
         raise HTTPException(status_code=400, detail={"error": {"code": "invalid_file", "message": "Upload a .csv file"}})
     raw = await file.read(2_000_001)
@@ -162,7 +162,7 @@ async def import_income(file: UploadFile = File(...), user_id: str = Depends(get
 
 @router.get("/expenses")
 def list_expenses(
-    from_: date | None = Query(default=None, alias="from"),  # noqa: B008 - FastAPI parameter metadata
+    from_: date | None = Query(default=None, alias="from"),
     to: date | None = None,
     user_id: str = Depends(get_current_user_id),
 ):

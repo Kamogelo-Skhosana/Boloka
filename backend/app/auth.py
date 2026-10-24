@@ -8,7 +8,7 @@ bearer = HTTPBearer(auto_error=False)
 
 
 def get_current_user_claims(
-    creds: HTTPAuthorizationCredentials | None = Depends(bearer),  # noqa: B008 - FastAPI dependency declaration
+    creds: HTTPAuthorizationCredentials | None = Depends(bearer),
 ) -> dict:
     """Verify a Supabase access token and return its trusted claims.
 
@@ -50,5 +50,5 @@ def get_current_user_claims(
     return payload
 
 
-def get_current_user_id(claims: dict = Depends(get_current_user_claims)) -> str:  # noqa: B008 - FastAPI dependency declaration
+def get_current_user_id(claims: dict = Depends(get_current_user_claims)) -> str:
     return claims["sub"]

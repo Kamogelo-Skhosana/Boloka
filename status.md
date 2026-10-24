@@ -1,23 +1,29 @@
 # Project Status: Boloka
 
-Living status log of agile standups. Most recent sprint first.
+Living status log of delivery and release readiness.
 
-## Snapshot
-- Methodology: Agile, three one-day sprints (Sat to Mon).
-- Backlog: 45 issues. Owners: Kamogelo 23, Thato 22.
-- CI/CD: configured (ci.yml and deploy.yml).
-- Deadline: Mon 26 Oct 23:59 (Sonke).
+## Snapshot — 24 October 2026
 
-## Sprint 1, Sat 24 Oct: Foundation
-- Done: repository created; 45-ticket backlog with owners; all tickets assigned; CI and CD workflows committed; project docs (planning, agents, status); Lean Canvas, SSDL and pitch prepared; Hustle Pitch video (due 13:30).
-- In progress: frontend scaffold, FastAPI skeleton, Supabase setup, authentication.
-- Next: income and expense entry, seed data.
-- Blockers: none.
+- The feature work is on `feat/kamogelo-owned-issues` and awaits review in PR #46 to `main`.
+- `main` was fetched and merged into the feature branch before this round of UI work.
+- Backend API, synthetic seed, database schema/RLS, responsive preview UI, forecast and submission drafts are present in the branch.
+- CI and deployment workflows are configured but have not yet passed on the updated pull request. Hosting secrets and a Supabase project are not configured here.
+- The sample dashboard uses fictional values. Preview changes are temporary and are never sent to Supabase.
+- No public deployment, real judge account, user pilot, recorded Hustle Pitch video, or Sonke final submission is claimed.
 
-## Sprint 2, Sun 25 Oct: Differentiator and product
-- Planned: forecasting engine, shortfall and set-aside logic, forecast API, dashboard and alert card, low-data mode and i18n, deploy to Vercel and Render.
-- To be updated at standup.
+## Completed in the current feature branch
 
-## Sprint 3, Mon 26 Oct: Package and submit
-- Planned: Capacitor signed APK and real-device test, end-to-end demo run, deck, finalise Lean Canvas, SSDL and README, submit by 20:00.
-- To be updated at standup.
+- Income and expense API routes with authenticated ownership checks, CSV import, and tests.
+- Weekly income aggregation, explainable shortfall/set-aside estimates, and sparse-history behavior.
+- Mobile-first dashboard, transaction entry, CSV upload, forecast, savings guidance, and account screens.
+- Keyboard-visible focus, skip link, labelled forms, semantic navigation, live status messages, reduced motion, and a small-screen layout check.
+- CI/deployment configuration, synthetic demo seed, judge runbook, award benchmark, Lean Canvas draft, pitch script, and editable deck.
+
+## Remaining release work
+
+- Review and merge PR #46 after CI passes.
+- Provision the team Supabase project, apply the schema, configure secrets, and create a private judge account.
+- Connect hosting, then test account sign-in and the API with seeded data on the deployed site.
+- Run the complete demo on a second device, including network-failure and keyboard checks.
+- Record the real 20-second pitch and complete the Sonke Canvas/final submission.
+- Conduct consented user walkthroughs and validate forecast quality before making impact or accuracy claims.

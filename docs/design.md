@@ -26,6 +26,9 @@ Keep one bold element per screen (usually the forecast or the alert), everything
 - One primary action per screen.
 - Always show real states: loading, empty, and error, never a blank screen.
 - Accessible contrast, large tap targets, tabular numerals for money so columns line up.
+- Target WCAG 2.2 AA: visible keyboard focus, skip navigation, labelled controls, semantic landmarks, and status announcements for loading and errors.
+- Never use colour alone to communicate a shortfall or transaction type; pair colour with text, icons, or symbols.
+- Give charts a text alternative, respect reduced-motion settings, and verify layouts at 360px, 414px, and 200% zoom.
 - Multilingual: English, isiZulu, Sesotho.
 
 ## Screens (MVP)

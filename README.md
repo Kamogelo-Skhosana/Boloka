@@ -6,7 +6,7 @@ Boloka is a prototype for the FNB App of the Year 2026 Financial Inclusion hacka
 
 ## What is in this repository
 
-- `frontend/` — React and Vite app shell, Supabase Auth client, dark-first theme.
+- `frontend/` — responsive React app with dashboard, forecast, entry/import, savings and account screens.
 - `backend/` — FastAPI v1 API, user-scoped CRUD, CSV import, and explainable cash-flow estimates.
 - `supabase/schema.sql` — PostgreSQL tables, ownership policies, and new-user profile trigger.
 - `supabase/seed.sql` — repeatable, synthetic demo income and expense history.
@@ -35,6 +35,7 @@ Set `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `SUPABASE_JWT_SECRET` in `b
 cd frontend
 npm ci
 Copy-Item .env.example .env
+npm run lint
 npm run dev
 ```
 
@@ -63,9 +64,10 @@ cd backend
 pip install -r requirements.txt
 pip install pytest ruff
 ruff check .
-pytest -q
+python -m pytest -q
 cd ..\frontend
 npm ci
+npm run lint
 npm run build
 ```
 
@@ -75,7 +77,7 @@ See [`docs/deployment.md`](docs/deployment.md) for one-time Vercel, Render, and 
 
 ## Current release status
 
-The local API, database definition, synthetic seed, and pitch materials are prepared. Live hosting, a real demo account, and final Sonke submission depend on team-owned credentials and account access. No live deployment or user pilot is claimed in this README.
+The frontend can be explored without an account using clearly labelled fictional sample data; preview edits are temporary and are not uploaded. Live account data requires team Supabase configuration. Live hosting, a real demo account, and final Sonke submission depend on team-owned credentials and account access. No live deployment or user pilot is claimed in this README.
 
 ## Team
 

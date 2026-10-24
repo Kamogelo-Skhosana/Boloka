@@ -7,7 +7,10 @@
 - Create a dedicated judge account and seed the synthetic data using `supabase/seed.sql`.
 - Keep the demo password out of GitHub and this public repository. Put it in Sonke's private submission field.
 - Test from a second browser/device with no developer session. Check mobile width, keyboard entry, slow network, and sign-out.
+- Check keyboard-only navigation and visible focus, confirm the chart has readable range labels, and check reduced-motion behavior.
 - Record a short backup walkthrough and confirm judges can access its link.
+
+Until Supabase is configured, use the clearly labelled sample preview only to demonstrate layout and interactions. Its values are fictional, preview entries are temporary, and it is not a substitute for the deployed, account-backed judge flow.
 
 ## Walkthrough
 
