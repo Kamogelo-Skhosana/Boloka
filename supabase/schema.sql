@@ -67,20 +67,24 @@ alter table public.expenses      enable row level security;
 alter table public.forecasts     enable row level security;
 
 -- profiles: the row is the user themselves
+drop policy if exists "profiles are self" on public.profiles;
 create policy "profiles are self" on public.profiles
-  for all using (id = auth.uid()) with check (id = auth.uid());
+  for all to authenticated using (id = (select auth.uid())) with check (id = (select auth.uid()));
 
 -- income_events
+drop policy if exists "own income" on public.income_events;
 create policy "own income" on public.income_events
-  for all using (user_id = auth.uid()) with check (user_id = auth.uid());
+  for all to authenticated using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
 
 -- expenses
+drop policy if exists "own expenses" on public.expenses;
 create policy "own expenses" on public.expenses
-  for all using (user_id = auth.uid()) with check (user_id = auth.uid());
+  for all to authenticated using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
 
 -- forecasts
+drop policy if exists "own forecasts" on public.forecasts;
 create policy "own forecasts" on public.forecasts
-  for all using (user_id = auth.uid()) with check (user_id = auth.uid());
+  for all to authenticated using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
 
 -- ---------------------------------------------------------------------------
 -- Mirror new auth users into profiles automatically
@@ -97,6 +101,8 @@ begin
   return new;
 end;
 $$;
+
+revoke all on function public.handle_new_user() from public, anon, authenticated;
 
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created

@@ -19,6 +19,8 @@ __pycache__/
 .venv/
 venv/
 *.egg-info/
+.codex-build/
+work/
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
