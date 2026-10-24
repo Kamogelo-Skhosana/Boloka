@@ -15,23 +15,37 @@ import pandas as pd
 
 
 def weekly_income(events: Iterable[dict[str, Any]], today: date) -> list[dict[str, Any]]:
+    """Aggregate Monday-start weeks, filling gaps through the current week.
+
+    The first valid earning establishes the observation window. Earlier weeks
+    are unknown rather than zero. Invalid and future entries are ignored.
+    """
     rows = [
-        {"date": event["received_on"], "amount_cents": int(event["amount_cents"])}
+        {"date": event.get("received_on"), "amount_cents": event.get("amount_cents")}
         for event in events
     ]
     if not rows:
         return []
     frame = pd.DataFrame(rows)
-    frame["date"] = pd.to_datetime(frame["date"], errors="coerce")
-    frame = frame.dropna(subset=["date"])
+    frame["date"] = pd.to_datetime(frame["date"], format="%Y-%m-%d", errors="coerce")
+    frame["amount_cents"] = pd.to_numeric(frame["amount_cents"], errors="coerce")
+    frame = frame.dropna(subset=["date", "amount_cents"])
+    frame = frame[
+        frame["amount_cents"].between(1, 2_000_000_000)
+        & (frame["amount_cents"] % 1 == 0)
+    ]
     frame = frame[frame["date"].dt.date <= today]
     if frame.empty:
         return []
-    frame["week_start"] = frame["date"].dt.to_period("W-SUN").dt.start_time.dt.date
-    grouped = frame.groupby("week_start", as_index=False)["amount_cents"].sum()
+    frame["amount_cents"] = frame["amount_cents"].astype("int64")
+    frame["week_start"] = frame["date"].dt.to_period("W-SUN").dt.start_time
+    grouped = frame.groupby("week_start")["amount_cents"].sum()
+    current_week = today - timedelta(days=today.weekday())
+    weeks = pd.date_range(grouped.index.min(), current_week, freq="W-MON")
+    grouped = grouped.reindex(weeks, fill_value=0)
     return [
-        {"week_start": row.week_start.isoformat(), "amount_cents": int(row.amount_cents)}
-        for row in grouped.itertuples(index=False)
+        {"week_start": week.date().isoformat(), "amount_cents": int(amount)}
+        for week, amount in grouped.items()
     ]
 
 
@@ -44,8 +58,12 @@ def build_forecast(
 ) -> dict[str, Any]:
     today = today or datetime.now(UTC).date()
     weekly = weekly_income(incomes, today)
-    recent = [row["amount_cents"] for row in weekly[-8:]]
-    history_weeks = len(weekly)
+    current_week = (today - timedelta(days=today.weekday())).isoformat()
+    completed = [row for row in weekly if row["week_start"] < current_week]
+    # Do not treat an unfinished week as a full week's earning pattern. If no
+    # completed week exists, use this week's recorded total as a cold start.
+    recent = [row["amount_cents"] for row in (completed or weekly)[-8:]]
+    history_weeks = len(completed)
     confidence = "high" if history_weeks >= 12 else "medium" if history_weeks >= 6 else "low"
     # Weighted average gives recent work a larger influence while reducing the
     # effect of one unusually large payout.
@@ -88,10 +106,12 @@ def build_forecast(
         })
 
     explanation = (
-        f"Based on {history_weeks} weeks of recorded income, your recent weekly "
+        f"Based on {history_weeks} completed weeks of recorded income, your recent weekly "
         f"average is R{weekly_income_cents / 100:,.2f}. Known costs over the next "
         f"month are about R{predicted_expenses / 100:,.2f}. "
     )
+    if weekly and not completed:
+        explanation += "With no completed week yet, this uses only the income recorded so far this week. "
     if history_weeks < 6:
         explanation += "This is an early estimate because there are fewer than six weeks of income history. Add more entries to improve it."
     elif gap:
