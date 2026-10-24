@@ -10,7 +10,7 @@ Version 1. This is the agreed interface between the frontend and the backend. Bu
 - Money is stored and sent as integer cents in ZAR (`amount_cents`). Example: R150.00 is `15000`. This avoids floating-point rounding bugs.
 - Dates are ISO `YYYY-MM-DD`. Timestamps are ISO 8601 UTC.
 - A user can only ever read or change their own rows. Ownership is enforced in the database (RLS) as well as in the API.
-- The backend forwards the verified caller JWT to PostgREST with a public project key. It never substitutes a service-role token. Tokens require a matching project issuer, audience, expiry, UUID subject and `authenticated` role. The current verifier supports HS256 only.
+- The backend forwards the verified caller JWT to PostgREST with a public project key. It never substitutes a service-role token. Tokens require a matching project issuer, audience, expiry, UUID subject and `authenticated` role. ES256/RS256 use project public signing keys; legacy HS256 requires an explicitly configured JWT signing secret.
 
 ## Error shape
 

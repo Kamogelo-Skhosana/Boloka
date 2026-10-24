@@ -12,7 +12,7 @@ Copy-Item .env.example .env
 uvicorn app.main:app --reload
 ```
 
-Set `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_JWT_SECRET`, and `CORS_ORIGINS` in `.env`. Run `../supabase/schema.sql` before using data routes. Never expose the service-role key to a client or commit `.env`.
+Set `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, and `CORS_ORIGINS` in `.env`. ES256/RS256 projects use public signing keys automatically. Only legacy HS256 projects need `SUPABASE_JWT_SECRET`. Run `../supabase/schema.sql` before using data routes. Never expose the service-role key to a client or commit `.env`.
 
 `GET /api/v1/health` is public. Other routes require `Authorization: Bearer <Supabase access token>`. The API verifies the token subject, validates request fields, and scopes database calls to that subject. The database adapter forwards the verified caller JWT with the public project key, so RLS enforces ownership as well as API filters.
 
@@ -27,11 +27,17 @@ used. The verified caller token is forwarded on every database page and write,
 including CSV imports. RLS evaluates that user's `auth.uid()`; API owner filters
 remain an additional boundary.
 
-The current verifier supports legacy HS256 projects only. Configure the matching
-project URL and JWT secret. Tokens must have a valid signature, matching issuer
-and audience, expiry, UUID subject and `authenticated` role. Asymmetric signing
-keys require a separately tested JWKS verifier; do not disable validation or
-reuse a service token to work around an incompatible project.
+The verifier supports ES256/RS256 through the project's HTTPS
+`/auth/v1/.well-known/jwks.json` endpoint. Optional `SUPABASE_JWKS_URL` must
+exactly match that endpoint. Token-provided key URLs are ignored. Public key
+sets are cached for 60 seconds; newly rotated keys may take that long to appear,
+and removed keys may remain accepted until the cache expires. Unknown key IDs
+return 401 without forcing a refresh; unavailable/malformed key services return
+503. Configure legacy HS256 explicitly with `SUPABASE_JWT_SECRET` when needed;
+an `sb_secret_` API key is not a JWT signing secret and is not needed by this app.
+All tokens require a valid signature, matching issuer and audience, expiry,
+UUID subject and `authenticated` role. Do not disable validation or substitute
+a service token.
 
 CI starts a disposable PostgreSQL instance, bootstraps test-only auth objects,
 applies the real schema, then runs `supabase/tests/rls.sql`. It checks two-user
