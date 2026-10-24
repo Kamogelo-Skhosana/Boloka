@@ -44,6 +44,11 @@ Sign-up, sign-in and sign-out are handled on the client by the Supabase Auth SDK
     body: any subset of { amount_cents, source, received_on, note }
     -> 200 Income
 
+PATCH accepts omitted fields unchanged. Required fields (`amount_cents`,
+`received_on`, and expense `spent_on`/`recurring`) reject explicit `null` with
+422. Optional text fields can be cleared with `null`. An empty PATCH returns 400.
+List date bounds are inclusive; a `from` date after `to` returns 422.
+
     DELETE /api/v1/income/{id}
     -> 204
 

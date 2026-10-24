@@ -1,5 +1,6 @@
 from uuid import UUID
 
+import pytest
 from fastapi.testclient import TestClient
 
 from app import routers
@@ -7,6 +8,81 @@ from app.auth import get_current_user_id
 from app.main import app
 
 USER_ID = "22eea3e4-4317-4794-93ec-2d5b18fcb67a"
+ENTRY_ID = "3a800bda-00c2-4cfa-9cd6-227357dc1a14"
+
+
+@pytest.fixture
+def authenticated_client():
+    app.dependency_overrides[get_current_user_id] = lambda: USER_ID
+    try:
+        yield TestClient(app)
+    finally:
+        app.dependency_overrides.clear()
+
+
+@pytest.mark.parametrize("resource,field", [
+    ("income", "amount_cents"), ("income", "received_on"),
+    ("expenses", "amount_cents"), ("expenses", "spent_on"),
+    ("expenses", "recurring"),
+])
+def test_patch_rejects_null_required_fields(authenticated_client, monkeypatch, resource, field):
+    def unexpected_request(*args, **kwargs):
+        pytest.fail("Invalid input must not reach the database")
+
+    monkeypatch.setattr(routers, "request_table", unexpected_request)
+    response = authenticated_client.patch(f"/api/v1/{resource}/{ENTRY_ID}", json={field: None})
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "validation_error"
+
+
+@pytest.mark.parametrize("resource", ["income", "expenses"])
+def test_patch_allows_clearing_optional_note(authenticated_client, monkeypatch, resource):
+    calls = []
+
+    def fake_request(method, table, **kwargs):
+        calls.append((method, table, kwargs))
+        return [{"id": ENTRY_ID, "note": None}]
+
+    monkeypatch.setattr(routers, "request_table", fake_request)
+    response = authenticated_client.patch(f"/api/v1/{resource}/{ENTRY_ID}", json={"note": None})
+    assert response.status_code == 200
+    assert calls[0][2]["payload"] == {"note": None}
+    assert calls[0][2]["user_id"] == USER_ID
+    assert calls[0][2]["params"] == {"id": f"eq.{ENTRY_ID}"}
+
+
+@pytest.mark.parametrize("resource,date_field", [("income", "received_on"), ("expenses", "spent_on")])
+@pytest.mark.parametrize("query,expected", [
+    ("?from=2026-10-01", {"DATE": "gte.2026-10-01"}),
+    ("?to=2026-10-24", {"DATE": "lte.2026-10-24"}),
+    ("?from=2026-10-01&to=2026-10-24", {"and": "(DATE.gte.2026-10-01,DATE.lte.2026-10-24)"}),
+    ("?from=2026-10-24&to=2026-10-24", {"and": "(DATE.gte.2026-10-24,DATE.lte.2026-10-24)"}),
+])
+def test_list_date_filters(authenticated_client, monkeypatch, resource, date_field, query, expected):
+    calls = []
+
+    def fake_request(method, table, **kwargs):
+        calls.append((method, table, kwargs))
+        return []
+
+    monkeypatch.setattr(routers, "request_table", fake_request)
+    response = authenticated_client.get(f"/api/v1/{resource}{query}")
+    assert response.status_code == 200
+    assert response.json() == {"items": []}
+    expected_filters = {key.replace("DATE", date_field): value.replace("DATE", date_field) for key, value in expected.items()}
+    assert calls[0][2]["params"] == {"order": f"{date_field}.desc,created_at.desc", **expected_filters}
+    assert calls[0][2]["user_id"] == USER_ID
+
+
+@pytest.mark.parametrize("resource", ["income", "expenses"])
+def test_list_rejects_reversed_dates(authenticated_client, monkeypatch, resource):
+    def unexpected_request(*args, **kwargs):
+        pytest.fail("Invalid input must not reach the database")
+
+    monkeypatch.setattr(routers, "request_table", unexpected_request)
+    response = authenticated_client.get(f"/api/v1/{resource}?from=2026-10-24&to=2026-10-01")
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "validation_error"
 
 
 def test_health_is_public():

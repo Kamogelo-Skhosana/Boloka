@@ -15,7 +15,7 @@ from fastapi import (
     UploadFile,
     status,
 )
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from .auth import get_current_user_claims, get_current_user_id
 from .database import request_table
@@ -37,6 +37,13 @@ class IncomePatch(BaseModel):
     received_on: date | None = None
     note: str | None = Field(default=None, max_length=1000)
 
+    @field_validator("amount_cents", "received_on")
+    @classmethod
+    def reject_null_required_fields(cls, value: Any) -> Any:
+        if value is None:
+            raise ValueError("This field cannot be null")
+        return value
+
 
 class ExpenseCreate(BaseModel):
     amount_cents: int = Field(gt=0, le=2_000_000_000)
@@ -53,6 +60,13 @@ class ExpensePatch(BaseModel):
     recurring: bool | None = None
     note: str | None = Field(default=None, max_length=1000)
 
+    @field_validator("amount_cents", "spent_on", "recurring")
+    @classmethod
+    def reject_null_required_fields(cls, value: Any) -> Any:
+        if value is None:
+            raise ValueError("This field cannot be null")
+        return value
+
 
 def _user_uuid(user_id: str) -> str:
     try:
@@ -62,11 +76,15 @@ def _user_uuid(user_id: str) -> str:
 
 
 def _list_entries(table: str, date_field: str, user_id: str, start: date | None, end: date | None):
+    if start and end and start > end:
+        raise HTTPException(status_code=422, detail={"error": {"code": "validation_error", "message": "The from date must be on or before the to date"}})
     filters: dict[str, str] = {"order": f"{date_field}.desc,created_at.desc"}
-    if start:
+    if start and end:
+        filters["and"] = f"({date_field}.gte.{start.isoformat()},{date_field}.lte.{end.isoformat()})"
+    elif start:
         filters[date_field] = f"gte.{start.isoformat()}"
-    if end:
-        filters[f"{date_field}.lte"] = end.isoformat()
+    elif end:
+        filters[date_field] = f"lte.{end.isoformat()}"
     return {"items": request_table("GET", table, user_id=user_id, params=filters) or []}
 
 
