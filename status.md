@@ -1,5 +1,13 @@
 ﻿# Project status: Boloka
 
+## Set-aside logic - 25 October 2026
+
+Ticket #18 confirms the conditional gap calculation and uses exact integer
+ceiling for the weekly pace. Tests cover a one-cent gap, short/partial horizons,
+large values and the minimal whole-cent pace property. Established zero-gap
+wording is distinct from an unavailable recommendation. No affordability,
+savings guarantee or precise bill-payment timing is claimed.
+
 ## Forecast API contract - 25 October 2026
 
 Ticket #21 adds a shared Pydantic/OpenAPI response contract to both authenticated

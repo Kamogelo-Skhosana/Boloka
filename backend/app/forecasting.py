@@ -2,7 +2,6 @@
 
 from collections.abc import Iterable
 from datetime import UTC, date, datetime, timedelta
-from math import ceil
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -179,9 +178,16 @@ def build_forecast(
         },
         "shortfall": {"likely": False, "date": None, "amount_cents": gap if enough_history else 0, "status": status},
         "set_aside": {
-            "weekly_cents": ceil(target * 7 / horizon_days),
+            # Integer ceiling preserves cents without a float conversion.
+            "weekly_cents": (target * 7 + horizon_days - 1) // horizon_days,
             "total_cents": target,
-            "reason": "A conditional planning gap, assuming the stated available cash. It is not a saving guarantee." if target else "No recommendation is available from these inputs; check your upcoming bills and cash.",
+            "reason": (
+                "A conditional planning gap, assuming the stated available cash. This weekly pace does not establish affordability or guarantee savings."
+                if target else
+                "No additional set-aside is indicated by this horizon estimate. Check individual bill dates and available cash."
+                if enough_history else
+                "No recommendation is available from these inputs; check your upcoming bills and cash."
+            ),
         },
         "confidence": "low",
         "model": {"method": "pandas_weekly_mean", "training_weeks": weeks, "reason": "unvalidated_baseline"},

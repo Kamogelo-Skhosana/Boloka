@@ -110,6 +110,12 @@ Savings rows are owner-scoped and protected by the `savings_contributions` RLS p
 
 ## Forecast (the core)
 
+For an established conditional planning gap, the weekly set-aside pace is
+`ceil(total_gap_cents * 7 / horizon_days)`, computed with integer arithmetic.
+This is the smallest whole-cent weekly pace covering that aggregate gap over
+the horizon, not proof of affordability or on-time bill coverage. Unavailable
+recommendations and established zero-gap estimates have distinct reasons.
+
 Both forecast routes publish the same typed `ForecastResponse` in `/openapi.json`
 and `/docs`. It constrains the baseline method, reason/action codes, nullable
 cash, nonnegative monetary estimates, and the unvalidated confidence/date
