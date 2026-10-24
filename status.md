@@ -3,7 +3,9 @@
 ## Review branch - 24 October 2026
 
 The responsible money-planning review starts from merged main at c1a9067.
-Changes are on fix/responsible-money-planning, pending review and merge.
+PR #52 is merged. The follow-up for ticket #10 replaces service-role database
+access with the caller JWT and a public project key, and adds real PostgreSQL
+ownership checks to CI. Deployment migration and a real two-account test remain.
 
 Implemented:
 
@@ -21,7 +23,8 @@ Remaining team decisions:
 
 - Fluent-speaker review; complete recurring-bill/history/cash concepts.
 - Full export scope, deletion identity verification, retention/backups, support ownership and contact route.
-- Database-layer ownership for backend requests: existing service-role access bypasses RLS; API filters alone do not satisfy that release gate.
+- Apply and verify database-layer ownership: the API now forwards caller JWTs;
+  configure the public project key and run the hosted two-account release test.
 
 External setup:
 

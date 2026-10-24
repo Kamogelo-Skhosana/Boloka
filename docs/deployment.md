@@ -16,15 +16,21 @@ The workflow skips safely until all three values are configured. It passes the t
 The root `render.yaml` defines a Python web service in Frankfurt, checks `/api/v1/health`, pins Python 3.12.11, and deploys only when GitHub checks pass. Create a Render Blueprint from the repository and provide these values in Render's private environment prompt:
 
 - `SUPABASE_URL`
-- `SUPABASE_SERVICE_ROLE_KEY`
+- `SUPABASE_PUBLISHABLE_KEY`
 - `SUPABASE_JWT_SECRET`
 - `CORS_ORIGINS` (the exact Vercel origin, no trailing slash)
 
 No secrets are stored in the Blueprint. Render's region and compute plan should be confirmed in the team account before applying the Blueprint.
 
+Migration for ticket #10: configure `SUPABASE_PUBLISHABLE_KEY` and remove
+`SUPABASE_SERVICE_ROLE_KEY` from the API service. User-data routes reject
+privileged project keys. Apply the updated schema grants/RLS before deployment.
+The current API verifier requires HS256 tokens from the configured project;
+an ES256/RS256 project needs a tested JWKS verifier before account-backed use.
+
 ## Supabase
 
-Create or select a team-owned project and region, run `supabase/schema.sql`, then copy the project's URL and server credentials into the private deployment settings above. The backend service key is server-only; the frontend must use only the publishable/anon key. Configure Supabase Auth's allowed redirect URLs for local development and the deployed frontend.
+Create or select a team-owned project and region, run `supabase/schema.sql`, then copy the project's URL and server credentials into the private deployment settings above. Both API and frontend use a publishable/anon project key. The API forwards the verified caller access token so database RLS checks ownership. No service-role key is needed for user-data routes. Configure Supabase Auth's allowed redirect URLs for local development and the deployed frontend.
 
 ## Release gate
 

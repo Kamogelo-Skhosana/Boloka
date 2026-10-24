@@ -10,6 +10,34 @@ permissions:
   contents: read
 
 jobs:
+  database:
+    name: Database ownership (PostgreSQL RLS)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          # Disposable CI database only; never a deployed credential.
+          POSTGRES_PASSWORD: boloka-ci-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Apply schema and exercise two-user ownership
+        env:
+          PGPASSWORD: boloka-ci-only
+        run: |
+          psql -h 127.0.0.1 -U postgres -v ON_ERROR_STOP=1 -f supabase/tests/bootstrap.sql
+          psql -h 127.0.0.1 -U postgres -v ON_ERROR_STOP=1 -f supabase/schema.sql
+          psql -h 127.0.0.1 -U postgres -v ON_ERROR_STOP=1 -f supabase/tests/rls.sql
+
   frontend:
     name: Frontend (React / Vite)
     runs-on: ubuntu-latest

@@ -106,6 +106,13 @@ reviewable and run the same behavior tests before and after.
 - Review the SSDL with the security owner, physical-device behavior and release
   signing. None is claimed complete by this review.
 
+Ticket #10 follow-up: the service-role bypass described above was replaced by
+caller-JWT database access. The API now requires a public project key and checks
+issuer, expiry, audience, UUID subject and authenticated role. CI applies the
+schema to PostgreSQL and checks two-subject ownership independently of API
+filters. The original finding remains above as review history; configuration
+migration and hosted two-account verification remain release requirements.
+
 ## Verification evidence
 
 Focused tests cover missing/partial/future earning weeks, bounded windows,

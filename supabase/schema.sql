@@ -80,6 +80,13 @@ alter table public.expenses      enable row level security;
 alter table public.savings_contributions enable row level security;
 alter table public.forecasts     enable row level security;
 
+-- The public project key identifies the app. Only authenticated user JWTs
+-- receive table privileges, and the policies below still check auth.uid().
+revoke all on public.profiles, public.income_events, public.expenses,
+  public.savings_contributions, public.forecasts from anon;
+grant select, insert, update, delete on public.profiles, public.income_events,
+  public.expenses, public.savings_contributions, public.forecasts to authenticated;
+
 -- profiles: the row is the user themselves
 drop policy if exists "profiles are self" on public.profiles;
 create policy "profiles are self" on public.profiles
