@@ -16,7 +16,7 @@ export default function ForecastChart({ series, formatAmount, formatDate, reduce
         <ComposedChart data={chartData} accessibilityLayer margin={{ top: 16, right: 16, left: 6, bottom: 8 }}>
           <CartesianGrid stroke="#33463d" strokeDasharray="4 5" vertical={false} />
           <XAxis dataKey="week_label" stroke="#b0c0b8" tickLine={false} axisLine={false} />
-          <YAxis stroke="#b0c0b8" tickLine={false} axisLine={false} width={64} tickFormatter={(value) => 'R' + Math.round(value / 1000) + 'k'} />
+          <YAxis stroke="#b0c0b8" tickLine={false} axisLine={false} width={90} tickFormatter={formatAmount} />
           <Tooltip
             labelFormatter={(_label, items) => items?.[0]?.payload?.week_start ? formatDate(items[0].payload.week_start, { day: 'numeric', month: 'long' }) : ''}
             formatter={(value, name) => [Array.isArray(value) ? value.map(formatAmount).join(' – ') : formatAmount(value), name === 'predicted_income_cents' ? 'Estimated income' : 'Possible range']}
