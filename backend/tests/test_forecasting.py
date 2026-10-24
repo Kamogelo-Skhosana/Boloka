@@ -67,6 +67,47 @@ def test_empty_history_is_not_a_reassuring_warning():
     assert result["confidence"] == "low"
 
 
+def test_explanation_exposes_exact_income_basis_and_cash_assumption():
+    today = date(2026, 10, 24)
+    incomes = income_history(today, cents=1)
+    # Current/future payouts must not enter the explanation's income basis.
+    incomes += [{"received_on": today.isoformat(), "amount_cents": 50000},
+                {"received_on": "2026-11-01", "amount_cents": 90000}]
+    costs = [{"spent_on": "2026-10-25", "amount_cents": 10000}]
+    result = build_forecast(incomes, costs, today=today, available_balance_cents=123)
+    assert result["calculation"] == {"income_history_cents": 8, "income_history_days": 56,
+                                      "cash_assumed_cents": 123}
+    assert result["predicted_income_cents"] == round(8 / 56 * 30)
+    assert result["recommendation_reason"] == "planning_gap"
+    assert result["shortfall"]["amount_cents"] == 10000 - 4 - 123
+
+
+@pytest.mark.parametrize("scenario,expected", [
+    ("empty", "insufficient_income_history"),
+    ("no_costs", "insufficient_cost_history"),
+    ("overlap", "overlapping_costs"),
+    ("covered", "no_gap_in_estimate"),
+])
+def test_explanation_identifies_why_recommendation_is_available_or_withheld(scenario, expected):
+    today = date(2026, 10, 24)
+    incomes = [] if scenario == "empty" else income_history(today)
+    expenses = [] if scenario in ("empty", "no_costs") else [
+        {"spent_on": "2026-10-25", "amount_cents": 10000, "recurring": scenario != "overlap"},
+    ]
+    if scenario == "overlap":
+        expenses.append({"spent_on": "2026-10-01", "amount_cents": 10000})
+    result = build_forecast(incomes, expenses, today=today)
+    assert result["recommendation_reason"] == expected
+    assert result["calculation"]["cash_assumed_cents"] == 0
+    assert result["available_balance_cents"] is None
+    assert "too little history" not in result["explanation"]
+    assert result["shortfall"]["date"] is None
+    if scenario == "overlap":
+        assert "overlap" in result["explanation"]
+    if scenario == "covered":
+        assert "every bill" in result["explanation"]
+
+
 def test_partial_week_and_future_income_are_not_extrapolated():
     today = date(2026, 10, 24)
     rows = [{"received_on": today.isoformat(), "amount_cents": 100000}, {"received_on": "2026-11-01", "amount_cents": 100000}]
