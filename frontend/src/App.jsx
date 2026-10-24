@@ -1,5 +1,8 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { api, supabase } from './lib/client'
+import { languageLocale, supportedLanguages, translate as t } from './lib/copy'
+
+const ForecastChart = lazy(() => import('./components/ForecastChart.jsx'))
 
 const sample = {
   summary: {
@@ -37,23 +40,29 @@ const sample = {
     { id: 'sample-e1', amount_cents: 22000, category: 'Transport', spent_on: '2026-10-23' },
     { id: 'sample-e2', amount_cents: 125000, category: 'Rent', spent_on: '2026-10-20', recurring: true },
   ],
+  savings: [
+    { id: 'sample-s1', amount_cents: 20000, saved_on: '2026-10-18', note: 'Payout set-aside' },
+    { id: 'sample-s2', amount_cents: 10000, saved_on: '2026-10-22', note: 'Payout set-aside' },
+  ],
 }
 
-const money = new Intl.NumberFormat('en-ZA', {
-  style: 'currency',
-  currency: 'ZAR',
-  minimumFractionDigits: 2,
-})
-
+const currentLanguage = () => {
+  try {
+    const saved = localStorage.getItem('boloka-language')
+    return ['en', 'zu', 'st'].includes(saved) ? saved : 'en'
+  } catch { return 'en' }
+}
 const dateLabel = (value, options = { day: 'numeric', month: 'short' }) => {
   if (!value) return 'Not available'
   const date = new Date(value + 'T12:00:00')
   return Number.isNaN(date.getTime())
     ? 'Not available'
-    : new Intl.DateTimeFormat('en-ZA', options).format(date)
+    : new Intl.DateTimeFormat(languageLocale(currentLanguage()), options).format(date)
 }
 
-const amount = (cents = 0) => money.format(Number(cents || 0) / 100)
+const amount = (cents = 0) => new Intl.NumberFormat(languageLocale(currentLanguage()), {
+  style: 'currency', currency: 'ZAR', minimumFractionDigits: 2,
+}).format(Number(cents || 0) / 100)
 const today = () => {
   const now = new Date()
   return [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('-')
@@ -96,10 +105,19 @@ function Metric({ label, value, hint, tone = '' }) {
 function App() {
   const [session, setSession] = useState(null)
   const [authReady, setAuthReady] = useState(!supabase)
-  const [page, setPage] = useState('home')
+  const [page, setPage] = useState(() => {
+    try { return localStorage.getItem('boloka-onboarding-complete') ? 'home' : 'onboarding' } catch { return 'onboarding' }
+  })
   const [data, setData] = useState(sample)
   const [loading, setLoading] = useState(false)
+  const [hasLoaded, setHasLoaded] = useState(false)
+  const [loadError, setLoadError] = useState(false)
   const [message, setMessage] = useState('')
+  const [online, setOnline] = useState(typeof navigator === 'undefined' ? true : navigator.onLine)
+  const [language, setLanguage] = useState(currentLanguage)
+  const [dataSaver, setDataSaver] = useState(() => {
+    try { return localStorage.getItem('boloka-data-saver') === 'true' || Boolean(navigator.connection?.saveData) } catch { return false }
+  })
   const [authMode, setAuthMode] = useState('signin')
   const [authEmail, setAuthEmail] = useState('')
   const [authPassword, setAuthPassword] = useState('')
@@ -108,33 +126,65 @@ function App() {
   const [entryLabel, setEntryLabel] = useState('')
   const [entryDate, setEntryDate] = useState(today)
   const [recurring, setRecurring] = useState(false)
+  const [savingAmount, setSavingAmount] = useState('')
+  const [savingNote, setSavingNote] = useState('')
+  const [savingDate, setSavingDate] = useState(today)
   const pageTitleRef = useRef(null)
 
   const preview = !session
   const profileName = session?.user?.email?.split('@')[0] || 'friend'
   const shortfall = data.forecast?.shortfall
 
+  useEffect(() => {
+    const updateOnline = () => setOnline(navigator.onLine)
+    window.addEventListener('online', updateOnline)
+    window.addEventListener('offline', updateOnline)
+    return () => {
+      window.removeEventListener('online', updateOnline)
+      window.removeEventListener('offline', updateOnline)
+    }
+  }, [])
+
+  useEffect(() => {
+    document.documentElement.lang = language === 'zu' ? 'zu' : language === 'st' ? 'st' : 'en'
+    try { localStorage.setItem('boloka-language', language) } catch { /* Language still works for this session. */ }
+  }, [language])
+
+  function completeOnboarding() {
+    try { localStorage.setItem('boloka-onboarding-complete', 'true') } catch { /* Continue without local persistence. */ }
+  }
+
+  function changeDataSaver(enabled) {
+    setDataSaver(enabled)
+    try { localStorage.setItem('boloka-data-saver', String(enabled)) } catch { /* Preference remains active for this session. */ }
+  }
+
   const refresh = useCallback(async () => {
     if (!session) return
     setLoading(true)
+    setLoadError(false)
     setMessage('')
     try {
-      const [summary, forecast, income, expenses] = await Promise.all([
+      const [summary, forecast, income, expenses, savings] = await Promise.all([
         api('/summary'),
         api('/forecast'),
         api('/income'),
         api('/expenses'),
+        api('/savings'),
       ])
       setData({
         summary,
         forecast,
         income: income.items || [],
         expenses: expenses.items || [],
+        savings: savings.items || [],
       })
     } catch (error) {
+      setLoadError(true)
       setMessage(error.message || 'We could not load your money picture. Try again.')
     } finally {
       setLoading(false)
+      setHasLoaded(true)
     }
   }, [session])
 
@@ -158,10 +208,12 @@ function App() {
         forecast: { confidence: 'low', horizon_days: 30, predicted_income_cents: 0, predicted_expenses_cents: 0, shortfall: { likely: false, date: null, amount_cents: 0 }, set_aside: { weekly_cents: 0, reason: 'Add entries to see a set-aside suggestion.' }, explanation: 'Add income and expense entries to build your estimate.', series: [] },
         income: [],
         expenses: [],
+        savings: [],
       })
       refresh()
     } else {
       setData(sample)
+      setHasLoaded(true)
     }
   }, [session, refresh])
 
@@ -198,7 +250,10 @@ function App() {
     if (!supabase) return
     const { error } = await supabase.auth.signOut()
     setMessage(error ? error.message : 'You have been signed out.')
-    setData(sample)
+    if (!error) {
+      setData(sample)
+      setPage('home')
+    }
   }
 
   async function saveEntry(event) {
@@ -215,10 +270,12 @@ function App() {
     setMessage('')
     try {
       if (session) {
+        if (!online) throw new Error('You are offline. Reconnect before saving to your account.')
         await api('/' + (entryKind === 'income' ? 'income' : 'expenses'), { method: 'POST', body: entry })
         await refresh()
         setMessage('Entry saved to your account.')
       } else {
+        completeOnboarding()
         const id = 'preview-' + Date.now()
         setData((current) => {
           const next = { ...current, income: [...current.income], expenses: [...current.expenses], summary: { ...current.summary } }
@@ -233,6 +290,7 @@ function App() {
         })
         setMessage('Added to this sample preview only. Sign in to save entries to your account.')
       }
+      completeOnboarding()
       setEntryAmount('')
       setEntryLabel('')
       setRecurring(false)
@@ -241,6 +299,70 @@ function App() {
       setMessage(error.message || 'Could not save this entry. Try again.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function saveContribution(event) {
+    event.preventDefault()
+    const cents = Math.round(Number(savingAmount) * 100)
+    if (!Number.isSafeInteger(cents) || cents < 1) {
+      setMessage('Enter an amount greater than R0.00.')
+      return
+    }
+    const contribution = { amount_cents: cents, saved_on: savingDate, note: savingNote.trim() || null }
+    setLoading(true)
+    setMessage('')
+    try {
+      if (session) {
+        if (!online) throw new Error('You are offline. Reconnect before saving this contribution.')
+        await api('/savings', { method: 'POST', body: contribution })
+        await refresh()
+        setMessage('Your set-aside was added to this month’s buffer progress.')
+      } else {
+        const contributionId = 'preview-s-' + Date.now()
+        const isCurrentMonth = savingDate.slice(0, 7) === today().slice(0, 7)
+        setData((current) => ({
+          ...current,
+          savings: [{ ...contribution, id: contributionId }, ...(current.savings || [])],
+          summary: {
+            ...current.summary,
+            set_aside_progress_cents: (current.summary?.set_aside_progress_cents || 0) + (isCurrentMonth ? cents : 0),
+          },
+        }))
+        setMessage('Added to this sample preview only. Sign in to keep the contribution in your account.')
+      }
+      setSavingAmount('')
+      setSavingNote('')
+    } catch (error) {
+      setMessage(error.message || 'Could not save that set-aside. Try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function removeContribution(item) {
+    try {
+      if (session) {
+        if (!online) throw new Error('You are offline. Reconnect before removing this contribution.')
+        await api('/savings/' + encodeURIComponent(item.id), { method: 'DELETE' })
+        await refresh()
+      } else {
+        const isCurrentMonth = item.saved_on?.slice(0, 7) === today().slice(0, 7)
+        setData((current) => ({
+          ...current,
+          savings: (current.savings || []).filter((entry) => entry.id !== item.id),
+          summary: {
+            ...current.summary,
+            set_aside_progress_cents: Math.max(
+              0,
+              (current.summary?.set_aside_progress_cents || 0) - (isCurrentMonth ? Number(item.amount_cents || 0) : 0),
+            ),
+          },
+        }))
+      }
+      setMessage('Set-aside removed.')
+    } catch (error) {
+      setMessage(error.message || 'Could not remove that set-aside. Try again.')
     }
   }
 
@@ -261,6 +383,7 @@ function App() {
     setLoading(true)
     setMessage('')
     try {
+      if (!online) throw new Error('You are offline. Reconnect before importing to your account.')
       const result = await api('/income/import', { method: 'POST', body: form })
       await refresh()
       setMessage('Imported ' + result.imported + ' entries. ' + result.skipped + ' rows were skipped.')
@@ -273,6 +396,7 @@ function App() {
   }
 
   function navigate(nextPage) {
+    if (page === 'onboarding' && nextPage !== 'onboarding') completeOnboarding()
     setPage(nextPage)
     setMessage('')
     window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
@@ -285,7 +409,7 @@ function App() {
         <a className="skip-link" href="#main-content">Skip to main content</a>
         <header className="topbar"><Brand /></header>
         <main id="main-content" className="main-layout">
-          <p className="eyebrow">YOUR MONEY, WITH A PLAN</p>
+          <p className="eyebrow">{t(language, 'onboardingEyebrow')}</p>
           <h1 className="loading-heading" tabIndex="-1">Getting your money picture ready.</h1>
           <p className="loading-line" role="status"><span className="spinner" aria-hidden="true" /> Checking your account securely…</p>
         </main>
@@ -294,12 +418,12 @@ function App() {
   }
 
   return (
-    <div className="app-shell">
+    <div className={'app-shell' + (page === 'onboarding' ? ' app-shell--onboarding' : '')}>
       <a className="skip-link" href="#main-content">Skip to main content</a>
       <header className="topbar" id="home">
         <Brand />
         <div className="topbar__right">
-          {preview ? <span className="preview-pill"><span aria-hidden="true" />Sample preview</span> : null}
+          {preview ? <span className="preview-pill"><span aria-hidden="true" />{t(language, 'previewLabel')}</span> : null}
           <button className="avatar-button" type="button" onClick={() => navigate('settings')} aria-label="Open account settings">
             {session ? profileName.slice(0, 1).toUpperCase() : <Icon name="settings" />}
           </button>
@@ -308,23 +432,44 @@ function App() {
 
       {preview ? (
         <div className="preview-notice" role="note">
-          <span><strong>Sample preview.</strong> Numbers are fictional and changes are saved only in this browser session.</span>
+          <span><strong>{t(language, 'previewLabel')}.</strong> {t(language, 'previewNotice').split('. ').slice(1).join('. ')}</span>
           {supabase ? <button className="text-button" onClick={() => navigate('settings')} type="button">Sign in to your account <span aria-hidden="true">↗</span></button> : null}
         </div>
       ) : null}
 
       <main id="main-content" className="main-layout">
-        <div className="page-heading">
+        {!online ? <div className="connection-banner" role="status"><strong>{t(language, 'offlineTitle')}</strong> {t(language, 'offlineBody')}</div> : null}
+        {online && !preview && page === 'home' && !hasLoaded ? <section className="panel dashboard-skeleton" aria-label="Loading dashboard" aria-busy="true"><span className="skeleton skeleton--wide" /><span className="skeleton" /><span className="skeleton" /><p className="sr-only" role="status">Loading your money picture…</p></section> : null}
+        {online && loadError && session ? <div className="error-banner" role="alert"><span>We couldn’t refresh your account data.</span><button type="button" className="button button--outline" onClick={refresh} disabled={loading}>{t(language, 'retry')}</button></div> : null}
+        {page !== 'onboarding' ? <div className="page-heading">
           <div>
-            <p className="eyebrow">YOUR MONEY, WITH A PLAN</p>
-            <h1 ref={pageTitleRef} tabIndex="-1">{page === 'home' ? 'A little more breathing room.' : page === 'add' ? 'Put it on the books.' : page === 'forecast' ? 'See what’s coming.' : page === 'savings' ? 'Build your buffer.' : page === 'settings' ? 'Your account.' : 'Your money.'}</h1>
-            <p className="page-heading__sub">{page === 'home' ? 'Small moves today can make a tight week easier.' : page === 'add' ? 'Keep the picture honest: add money as it comes and goes.' : page === 'forecast' ? 'A guide from your entries, never a promise.' : page === 'savings' ? 'A steady set-aside can soften an uneven month.' : page === 'settings' ? 'Your data belongs to you.' : ''}</p>
+            <p className="eyebrow">{t(language, 'onboardingEyebrow')}</p>
+            <h1 ref={pageTitleRef} tabIndex="-1">{page === 'home' ? t(language, 'homeTitle') : page === 'add' ? t(language, 'addTitle') : page === 'forecast' ? t(language, 'forecastTitle') : page === 'savings' ? t(language, 'savingsTitle') : page === 'settings' ? t(language, 'settingsTitle') : t(language, 'onboardingTitle')}</h1>
+            <p className="page-heading__sub">{page === 'home' ? t(language, 'homeSubtitle') : page === 'add' ? t(language, 'addSubtitle') : page === 'forecast' ? t(language, 'forecastSubtitle') : page === 'savings' ? t(language, 'savingsSubtitle') : page === 'settings' ? t(language, 'settingsSubtitle') : ''}</p>
           </div>
           <p className="date-chip"><span className="status-dot" aria-hidden="true" /> Updated {dateLabel(new Date().toISOString().slice(0, 10), { day: 'numeric', month: 'long' })}</p>
-        </div>
+        </div> : null}
 
         {message ? <div className="status-message" role="status" aria-live="polite">{message}<button type="button" aria-label="Dismiss message" onClick={() => setMessage('')}>×</button></div> : null}
         {loading ? <p className="loading-line" role="status"><span className="spinner" aria-hidden="true" /> Updating your money picture…</p> : null}
+
+        {page === 'onboarding' ? (
+          <section className="panel onboarding-panel" aria-labelledby="onboarding-title">
+            <p className="eyebrow">{t(language, 'onboardingEyebrow')}</p>
+            <h2 id="onboarding-title">{t(language, 'onboardingTitle')}</h2>
+            <p className="onboarding-panel__lead">{t(language, 'onboardingDescription')}</p>
+            <ol className="onboarding-steps">
+              <li><span aria-hidden="true">1</span>{t(language, 'onboardingStepOne')}</li>
+              <li><span aria-hidden="true">2</span>{t(language, 'onboardingStepTwo')}</li>
+              <li><span aria-hidden="true">3</span>{t(language, 'onboardingStepThree')}</li>
+            </ol>
+            <div className="onboarding-actions">
+              <button type="button" className="button button--primary" onClick={() => { setEntryKind('income'); setPage('add') }}>{t(language, 'onboardingStart')} <span aria-hidden="true">→</span></button>
+              <button type="button" className="button button--outline" onClick={() => { completeOnboarding(); setPage('home') }}>{t(language, 'onboardingPreview')}</button>
+              {supabase ? <button type="button" className="text-button" onClick={() => { completeOnboarding(); setPage('settings') }}>{t(language, 'onboardingSignIn')}</button> : null}
+            </div>
+          </section>
+        ) : null}
 
         {page === 'home' ? (
           <>
@@ -336,7 +481,7 @@ function App() {
                 </div>
                 <p className="balance-card__value">{amount(data.summary?.balance_cents)}</p>
                 <p className="balance-card__caption">From income and expenses you’ve logged</p>
-                <button type="button" className="button button--light" onClick={() => navigate('add')}><Icon name="add" /> Add an entry</button>
+                <button type="button" className="button button--light" onClick={() => navigate('add')}><Icon name="add" /> {t(language, 'addEntry')}</button>
                 <div className="balance-card__orb" aria-hidden="true" />
               </article>
 
@@ -346,7 +491,7 @@ function App() {
                 <p className="alert-card__text">{shortfall?.likely ? 'The estimate sees a possible gap around ' + dateLabel(shortfall.date) + '.' : 'Keep logging income and bills so the estimate can keep up.'}</p>
                 <div className="alert-card__bottom">
                   <div><span className="eyebrow">ESTIMATED GAP</span><strong>{shortfall?.likely ? amount(shortfall.amount_cents) : '—'}</strong></div>
-                  <button type="button" className="button button--dark" onClick={() => navigate('forecast')}>See the forecast <span aria-hidden="true">→</span></button>
+                  <button type="button" className="button button--dark" onClick={() => navigate('forecast')}>{t(language, 'showForecast')} <span aria-hidden="true">→</span></button>
                 </div>
               </article>
             </section>
@@ -373,7 +518,7 @@ function App() {
                       </li>
                     ))}
                   </ul>
-                ) : <div className="empty-state"><span aria-hidden="true">✳</span><h3>Your story starts here.</h3><p>Add income or a bill to get a picture that’s yours.</p><button type="button" className="button button--outline" onClick={() => navigate('add')}>Add your first entry</button></div>}
+                ) : <div className="empty-state"><span aria-hidden="true">✳</span><h3>Your story starts here.</h3><p>Add income or a bill to get a picture that’s yours.</p><button type="button" className="button button--outline" onClick={() => navigate('add')}>{t(language, 'firstEntry')}</button></div>}
               </article>
 
               <article className="panel nudge-panel">
@@ -397,12 +542,12 @@ function App() {
               <button type="button" aria-pressed={entryKind === 'expense'} className={entryKind === 'expense' ? 'is-active' : ''} onClick={() => { setEntryKind('expense'); setEntryLabel('') }}>Money out</button>
             </div>
             <form className="entry-form" onSubmit={saveEntry}>
-              <label className="field field--amount"><span>Amount</span><span className="amount-input"><span aria-hidden="true">R</span><input required inputMode="decimal" type="number" min="0.01" step="0.01" max="20000000" value={entryAmount} onChange={(event) => setEntryAmount(event.target.value)} placeholder="0.00" aria-describedby="amount-help" /></span><small id="amount-help">Use rands and cents, for example 150.00</small></label>
-              <label className="field"><span>{entryKind === 'income' ? 'Where did it come from?' : 'What was it for?'}</span><input required maxLength="120" value={entryLabel} onChange={(event) => setEntryLabel(event.target.value)} placeholder={entryKind === 'income' ? 'Delivery shift, market order…' : 'Transport, rent…'} /></label>
-              <label className="field"><span>{entryKind === 'income' ? 'Date received' : 'Date paid'}</span><input required type="date" max={today()} value={entryDate} onChange={(event) => setEntryDate(event.target.value)} /></label>
-              {entryKind === 'expense' ? <div className="checkbox-field"><input id="recurring-expense" type="checkbox" checked={recurring} onChange={(event) => setRecurring(event.target.checked)} /><label htmlFor="recurring-expense"><strong>It comes around regularly</strong><small>For example, rent or a monthly phone bill</small></label></div> : null}
+              <label className="field field--amount"><span>{t(language, 'amount')}</span><span className="amount-input"><span aria-hidden="true">R</span><input required inputMode="decimal" type="number" min="0.01" step="0.01" max="20000000" value={entryAmount} onChange={(event) => setEntryAmount(event.target.value)} placeholder="0.00" aria-describedby="amount-help" /></span><small id="amount-help">Use rands and cents, for example 150.00</small></label>
+              <label className="field"><span>{entryKind === 'income' ? t(language, 'incomeSource') : t(language, 'expenseCategory')}</span><input required maxLength="120" value={entryLabel} onChange={(event) => setEntryLabel(event.target.value)} placeholder={entryKind === 'income' ? 'Delivery shift, market order…' : 'Transport, rent…'} /></label>
+              <label className="field"><span>{entryKind === 'income' ? t(language, 'receivedDate') : t(language, 'paidDate')}</span><input required type="date" max={today()} value={entryDate} onChange={(event) => setEntryDate(event.target.value)} /></label>
+              {entryKind === 'expense' ? <div className="checkbox-field"><input id="recurring-expense" type="checkbox" checked={recurring} onChange={(event) => setRecurring(event.target.checked)} /><label htmlFor="recurring-expense"><strong>{t(language, 'recurring')}</strong><small>For example, rent or a monthly phone bill</small></label></div> : null}
               <div className="form-note"><span aria-hidden="true">🔒</span> Your entries stay private to your account. Preview entries are not uploaded.</div>
-              <button type="submit" className="button button--primary button--wide" disabled={loading}>Save {entryKind === 'income' ? 'income' : 'expense'} <span aria-hidden="true">→</span></button>
+              <button type="submit" className="button button--primary button--wide" disabled={loading}>{entryKind === 'income' ? t(language, 'saveIncome') : t(language, 'saveExpense')} <span aria-hidden="true">→</span></button>
             </form>
             <details className="import-details">
               <summary>Import income from a CSV</summary>
@@ -427,17 +572,13 @@ function App() {
             </article>
             <article className="panel chart-panel">
               <div className="panel__heading"><div><p className="eyebrow">WEEK BY WEEK</p><h2>Income outlook</h2></div><span className="chart-key"><span aria-hidden="true" /> Estimated income</span></div>
-              <ol className="income-chart" aria-label="Estimated weekly income">
-                {(data.forecast?.series || []).map((week, index) => {
-                  const values = data.forecast.series.map((item) => item.upper_cents || item.predicted_income_cents || item.amount_cents || 0)
-                  const max = Math.max(...values, 1)
-                  const value = week.predicted_income_cents ?? week.amount_cents ?? 0
-                  const lower = week.lower_cents ?? Math.round(value * 0.5)
-                  const upper = week.upper_cents ?? Math.round(value * 1.5)
-                  return <li key={week.week_start} className="income-chart__week"><span className="income-chart__amount">{amount(value)}</span><div className="income-chart__track" aria-hidden="true"><span className="income-chart__range" style={{ bottom: (lower / max * 100) + '%', height: Math.max(3, (upper - lower) / max * 100) + '%' }} /><span className="income-chart__bar" style={{ height: Math.max(2, value / max * 100) + '%' }} /></div><span className="income-chart__date">Week {index + 1}<small>{dateLabel(week.week_start)}</small><span className="sr-only">Estimated range {amount(lower)} to {amount(upper)}</span></span></li>
-                })}
-              </ol>
-              <p className="chart-note">The shaded band shows a possible range. Real income can land above or below this estimate.</p>
+              {dataSaver ? <ol className="forecast-list" aria-label="Estimated weekly income">
+                {(data.forecast?.series || []).map((week, index) => <li key={week.week_start}><strong>Week {index + 1}</strong><span>{dateLabel(week.week_start)}</span><span>{amount(week.predicted_income_cents ?? week.amount_cents ?? 0)}</span></li>)}
+              </ol> : data.forecast?.series?.length ? <Suspense fallback={<div className="chart-loading" role="status">Loading forecast chart…</div>}><ForecastChart series={data.forecast.series} formatAmount={amount} formatDate={dateLabel} reducedMotion={window.matchMedia('(prefers-reduced-motion: reduce)').matches} /></Suspense> : <div className="empty-state chart-empty"><h3>No estimate yet.</h3><p>Add income entries to create a weekly outlook.</p><button type="button" className="button button--outline" onClick={() => navigate('add')}>{t(language, 'firstEntry')}</button></div>}
+              {!dataSaver && data.forecast?.series?.length ? <ol className="forecast-list forecast-list--accessible" aria-label="Weekly forecast values">
+                {data.forecast.series.map((week, index) => <li key={week.week_start}><strong>Week {index + 1}</strong><span>{dateLabel(week.week_start)}</span><span>{amount(week.predicted_income_cents ?? week.amount_cents ?? 0)}</span></li>)}
+              </ol> : null}
+              <p className="chart-note">{dataSaver ? 'Low-data mode is showing a compact text summary.' : 'The shaded band shows a possible range. Real income can land above or below this estimate.'}</p>
             </article>
           </section>
         ) : null}
@@ -447,9 +588,21 @@ function App() {
             <p className="eyebrow">YOUR WEEKLY BUFFER</p>
             <h2>A small cushion, built at your pace.</h2>
             <p className="savings-panel__lead">From the current estimate, setting aside <strong>{amount(data.forecast?.set_aside?.weekly_cents)}</strong> each week could help cover the next possible gap.</p>
-            <div className="buffer-progress"><div><span>Progress tracker</span><span>Not yet connected</span></div><div className="progress-track" aria-hidden="true"><span /></div></div>
-            <p className="muted-note">A savings tracker is not live yet. We won’t show a progress number until real set-aside entries can be tracked.</p>
-            <button type="button" className="button button--primary" onClick={() => navigate('add')}>Log a payout <span aria-hidden="true">→</span></button>
+            {(() => {
+              const progress = Number(data.summary?.set_aside_progress_cents || 0)
+              const target = Number(data.summary?.set_aside_target_cents || 0)
+              const progressPercent = target > 0 ? Math.min(100, Math.round(progress / target * 100)) : 0
+              return <div className="buffer-progress"><div><span>Set aside this month</span><span>{amount(progress)} of {amount(target)}</span></div><div className="progress-track" role="progressbar" aria-label="Monthly set-aside progress" aria-valuemin="0" aria-valuemax={target} aria-valuenow={Math.min(progress, target)} aria-valuetext={`${amount(progress)} of ${amount(target)} set aside this month`}><span style={{ width: progressPercent + '%' }} /></div><p className="buffer-progress__remaining">{target > 0 ? (progress >= target ? 'You’ve reached this month’s suggested buffer.' : amount(target - progress) + ' to reach this month’s suggested buffer.') : 'Add income and costs to get a suggested buffer target.'}</p></div>
+            })()}
+            <form className="contribution-form" onSubmit={saveContribution}>
+              <h3>Record money you’ve put aside</h3>
+              <label className="field field--amount"><span>Amount</span><span className="amount-input"><span aria-hidden="true">R</span><input required inputMode="decimal" type="number" min="0.01" step="0.01" max="20000000" value={savingAmount} onChange={(event) => setSavingAmount(event.target.value)} placeholder="0.00" /></span></label>
+              <label className="field"><span>Date set aside</span><input required type="date" max={today()} value={savingDate} onChange={(event) => setSavingDate(event.target.value)} /></label>
+              <label className="field"><span>Optional note</span><input maxLength="120" value={savingNote} onChange={(event) => setSavingNote(event.target.value)} placeholder="Buffer, emergency fund…" /></label>
+              <button type="submit" className="button button--primary" disabled={loading}>Add to my buffer <span aria-hidden="true">→</span></button>
+            </form>
+            <h3 className="contribution-list-heading">Recent set-asides</h3>
+            {(data.savings || []).length ? <ul className="contribution-list">{data.savings.slice(0, 8).map((item) => <li key={item.id}><span><strong>{amount(item.amount_cents)}</strong><small>{dateLabel(item.saved_on)}{item.note ? ' · ' + item.note : ''}</small></span><button type="button" className="text-button" onClick={() => removeContribution(item)} aria-label={'Remove set-aside ' + amount(item.amount_cents) + ' from ' + dateLabel(item.saved_on)}>Remove</button></li>)}</ul> : <p className="muted-note">No set-asides recorded yet. You can start with any amount that feels manageable.</p>}
           </section>
         ) : null}
 
@@ -458,32 +611,38 @@ function App() {
             <div className="settings-avatar" aria-hidden="true">{session ? profileName.slice(0, 1).toUpperCase() : 'b'}</div>
             <p className="eyebrow">ACCOUNT & PRIVACY</p>
             <h2>{session ? 'Good to see you, ' + profileName + '.' : 'Your money stays yours.'}</h2>
+            <div className="settings-preferences">
+              <label className="field"><span>{t(language, 'language')}</span><select value={language} onChange={(event) => setLanguage(event.target.value)}>{supportedLanguages.map((item) => <option key={item.code} value={item.code}>{item.label}</option>)}</select></label>
+              <div className="checkbox-field preference-toggle"><input id="data-saver" type="checkbox" checked={dataSaver} onChange={(event) => changeDataSaver(event.target.checked)} /><label htmlFor="data-saver"><strong>{t(language, 'dataSaver')}</strong><small>Use smaller text-only forecast visuals and ask the API to reduce transfer when supported.</small></label></div>
+            </div>
             {supabase ? session ? <><p className="settings-email">{session.user.email}</p><button type="button" className="button button--outline" onClick={signOut}>Sign out</button></> : (
               <form className="auth-form" onSubmit={signIn}>
                 <p>{authMode === 'signup' ? 'Create an account to save your entries privately.' : 'Sign in to see your private dashboard.'}</p>
-                <label className="field"><span>Email address</span><input required type="email" autoComplete="email" value={authEmail} onChange={(event) => setAuthEmail(event.target.value)} /></label>
-                <label className="field"><span>Password</span><input required type="password" minLength="8" autoComplete={authMode === 'signup' ? 'new-password' : 'current-password'} value={authPassword} onChange={(event) => setAuthPassword(event.target.value)} /></label>
-                <button type="submit" className="button button--primary button--wide" disabled={loading}>{authMode === 'signup' ? 'Create account' : 'Sign in'}</button>
+                <label className="field"><span>{t(language, 'email')}</span><input required type="email" autoComplete="email" value={authEmail} onChange={(event) => setAuthEmail(event.target.value)} /></label>
+                <label className="field"><span>{t(language, 'password')}</span><input required type="password" minLength="8" autoComplete={authMode === 'signup' ? 'new-password' : 'current-password'} value={authPassword} onChange={(event) => setAuthPassword(event.target.value)} /></label>
+                <button type="submit" className="button button--primary button--wide" disabled={loading}>{authMode === 'signup' ? t(language, 'createAccount') : t(language, 'signIn')}</button>
                 <button type="button" className="text-button auth-toggle" onClick={() => setAuthMode(authMode === 'signup' ? 'signin' : 'signup')}>{authMode === 'signup' ? 'Already have an account? Sign in' : 'New to Boloka? Create an account'}</button>
               </form>
             ) : <p className="settings-email">Account sign-in will be available when the team connects the Supabase project.</p>}
-            <div className="privacy-note"><strong>Private by design</strong><p>Boloka never asks for your bank password. Your entries are protected by account sign-in and row-level security.</p></div>
+            <div className="privacy-note"><strong>{t(language, 'privateTitle')}</strong><p>Boloka never asks for your bank password. Your entries are protected by account sign-in and row-level security.</p></div>
           </section>
         ) : null}
+
+        {page === 'home' ? <aside className="panel safety-panel" aria-labelledby="safety-heading"><span className="eyebrow">SAFETY</span><h2 id="safety-heading">{t(language, 'scamTitle')}</h2><p>{t(language, 'scamBody')}</p></aside> : null}
       </main>
 
-      <nav className="bottom-nav" aria-label="Main navigation">
+      {page !== 'onboarding' ? <nav className="bottom-nav" aria-label="Main navigation">
         {[
-          ['home', 'Home', 'home'],
-          ['add', 'Add', 'add'],
-          ['forecast', 'Forecast', 'forecast'],
-          ['savings', 'Savings', 'savings'],
+          ['home', t(language, 'navHome'), 'home'],
+          ['add', t(language, 'navAdd'), 'add'],
+          ['forecast', t(language, 'navForecast'), 'forecast'],
+          ['savings', t(language, 'navSavings'), 'savings'],
         ].map(([target, label, icon]) => (
           <button key={target} type="button" onClick={() => navigate(target)} className={page === target ? 'nav-item is-current' : 'nav-item'} aria-current={page === target ? 'page' : undefined}>
             <Icon name={icon} /><span>{label}</span>
           </button>
         ))}
-      </nav>
+      </nav> : null}
     </div>
   )
 }

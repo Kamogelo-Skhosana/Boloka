@@ -40,6 +40,18 @@ create table if not exists public.expenses (
 );
 
 -- ---------------------------------------------------------------------------
+-- savings_contributions: user-confirmed amounts actually put aside
+-- ---------------------------------------------------------------------------
+create table if not exists public.savings_contributions (
+  id           uuid primary key default gen_random_uuid(),
+  user_id      uuid not null references auth.users (id) on delete cascade,
+  amount_cents integer not null check (amount_cents > 0),
+  saved_on     date not null,
+  note         text,
+  created_at   timestamptz not null default now()
+);
+
+-- ---------------------------------------------------------------------------
 -- forecasts: cached output of the forecasting engine (payload is the API body)
 -- ---------------------------------------------------------------------------
 create table if not exists public.forecasts (
@@ -56,6 +68,7 @@ create table if not exists public.forecasts (
 -- ---------------------------------------------------------------------------
 create index if not exists income_user_date_idx   on public.income_events (user_id, received_on desc);
 create index if not exists expense_user_date_idx   on public.expenses      (user_id, spent_on desc);
+create index if not exists savings_user_date_idx    on public.savings_contributions (user_id, saved_on desc);
 create index if not exists forecast_user_gen_idx   on public.forecasts     (user_id, generated_at desc);
 
 -- ---------------------------------------------------------------------------
@@ -64,6 +77,7 @@ create index if not exists forecast_user_gen_idx   on public.forecasts     (user
 alter table public.profiles      enable row level security;
 alter table public.income_events enable row level security;
 alter table public.expenses      enable row level security;
+alter table public.savings_contributions enable row level security;
 alter table public.forecasts     enable row level security;
 
 -- profiles: the row is the user themselves
@@ -79,6 +93,10 @@ create policy "own income" on public.income_events
 -- expenses
 drop policy if exists "own expenses" on public.expenses;
 create policy "own expenses" on public.expenses
+  for all to authenticated using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
+
+drop policy if exists "own savings contributions" on public.savings_contributions;
+create policy "own savings contributions" on public.savings_contributions
   for all to authenticated using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
 
 -- forecasts

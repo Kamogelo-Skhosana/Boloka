@@ -15,6 +15,9 @@ export async function api(path, { method = 'GET', body } = {}) {
   const headers = {}
   const isFormData = typeof FormData !== 'undefined' && body instanceof FormData
   if (body && !isFormData) headers['Content-Type'] = 'application/json'
+  try {
+    if (localStorage.getItem('boloka-data-saver') === 'true' || navigator.connection?.saveData) headers['Save-Data'] = 'on'
+  } catch { /* The request still works when browser storage is unavailable. */ }
 
   if (supabase) {
     const {

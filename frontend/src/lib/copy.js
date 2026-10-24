@@ -1,0 +1,82 @@
+export const supportedLanguages = [
+  { code: 'en', label: 'English', locale: 'en-ZA' },
+  { code: 'zu', label: 'isiZulu', locale: 'zu-ZA' },
+  { code: 'st', label: 'Sesotho', locale: 'st-ZA' },
+]
+
+const messages = {
+  en: {
+    navHome: 'Home', navAdd: 'Add', navForecast: 'Forecast', navSavings: 'Savings', navSettings: 'Settings',
+    homeTitle: 'A little more breathing room.', homeSubtitle: 'Small moves today can make a tight week easier.',
+    addTitle: 'Put it on the books.', addSubtitle: 'Keep the picture honest: add money as it comes and goes.',
+    forecastTitle: 'See what’s coming.', forecastSubtitle: 'A guide from your entries, never a promise.',
+    savingsTitle: 'Build your buffer.', savingsSubtitle: 'A steady set-aside can soften an uneven month.',
+    settingsTitle: 'Your account.', settingsSubtitle: 'Your data belongs to you.',
+    onboardingEyebrow: 'YOUR MONEY, WITH A PLAN', onboardingTitle: 'Make uneven income easier to plan.',
+    onboardingDescription: 'Log what comes in and what goes out. Boloka helps you spot a possible tight week and plan a buffer, using estimates you can inspect.',
+    onboardingStepOne: 'Record income as it arrives', onboardingStepTwo: 'Add bills and everyday costs', onboardingStepThree: 'See an explainable 30-day estimate',
+    onboardingStart: 'Record your first income', onboardingPreview: 'Explore the sample dashboard', onboardingSignIn: 'Sign in or create an account',
+    previewLabel: 'Sample preview', previewNotice: 'Sample preview. Numbers are fictional and changes stay in this browser session.',
+    offlineTitle: 'You’re offline.', offlineBody: 'Sample mode still works. Account data and saved changes need a connection.',
+    onlineTitle: 'Connection restored.', retry: 'Try again', dataSaver: 'Low-data mode', language: 'Language',
+    amount: 'Amount', incomeSource: 'Where did it come from?', expenseCategory: 'What was it for?',
+    receivedDate: 'Date received', paidDate: 'Date paid', recurring: 'It comes around regularly',
+    saveIncome: 'Save income', saveExpense: 'Save expense', accountTitle: 'Your money stays yours.',
+    email: 'Email address', password: 'Password', signIn: 'Sign in', createAccount: 'Create account',
+    privateTitle: 'Private by design',
+    scamTitle: 'A quick safety check', scamBody: 'Boloka will never ask for your bank PIN, password or one-time PIN (OTP). Stop and verify through your bank’s official app or number if anyone pressures you to share a code or move money.',
+    showForecast: 'See the forecast', addEntry: 'Add an entry', firstEntry: 'Add your first entry',
+  },
+  zu: {
+    navHome: 'Ikhaya', navAdd: 'Faka', navForecast: 'Isibikezelo', navSavings: 'Ukonga', navSettings: 'Izilungiselelo',
+    homeTitle: 'Thola indawo yokuphefumula ngemali yakho.', homeSubtitle: 'Izinyathelo ezincane namuhla zingasiza ukwenza isonto elinzima libe lula.',
+    addTitle: 'Bhala imali engenayo nephumayo.', addSubtitle: 'Bhala imali engenayo nephumayo ukuze ubone isimo sakho sangempela.',
+    forecastTitle: 'Bona okuzayo.', forecastSubtitle: 'Lesi isiqondiso esisekelwe kulokho okubhalile, asisona isiqinisekiso.',
+    savingsTitle: 'Yakha isikhwama sakho.', savingsSubtitle: 'Ukubeka imali eceleni njalo kungasiza ezinyangeni ezingalingani.',
+    settingsTitle: 'I-akhawunti yakho.', settingsSubtitle: 'Idatha yakho ingeyakho.',
+    onboardingEyebrow: 'IMALI YAKHO, NGESU', onboardingTitle: 'Hlela kangcono imali engenayo engalingani.',
+    onboardingDescription: 'Bhala imali engenayo nephumayo. IBoloka ikusiza ukubona isonto elingase libe nzima nokuhlela imali ozoyibeka eceleni.',
+    onboardingStepOne: 'Bhala imali engenayo uma ifika', onboardingStepTwo: 'Faka izikweletu nezindleko zansuku zonke', onboardingStepThree: 'Bona isilinganiso sezinsuku ezingu-30 esichazekayo',
+    onboardingStart: 'Bhala imali yakho yokuqala engenayo', onboardingPreview: 'Buka isibonelo sedeshibhodi', onboardingSignIn: 'Ngena ngemvume noma dala i-akhawunti',
+    previewLabel: 'Isibonelo', previewNotice: 'Lesi isibonelo. Izinombolo zingamanga futhi izinguquko zigcinwa kulesi siphequluli kuphela.',
+    offlineTitle: 'Awuxhunyiwe ku-inthanethi.', offlineBody: 'Imodi yesibonelo isasebenza. Idatha ye-akhawunti nezinguquko ezigciniwe zidinga uxhumano.',
+    onlineTitle: 'Uxhumano lubuyile.', retry: 'Zama futhi', dataSaver: 'Imodi yokonga idatha', language: 'Ulimi',
+    amount: 'Inani', incomeSource: 'Livelaphi leli nani?', expenseCategory: 'Lisetshenziselweni?',
+    receivedDate: 'Usuku olitholwe ngalo', paidDate: 'Usuku olukhokhwe ngalo', recurring: 'Liyaphindaphindeka njalo',
+    saveIncome: 'Londoloza imali engenayo', saveExpense: 'Londoloza izindleko', accountTitle: 'Imali yakho ihlala ingeyakho.',
+    email: 'Ikheli le-imeyili', password: 'Iphasiwedi', signIn: 'Ngena ngemvume', createAccount: 'Dala i-akhawunti',
+    privateTitle: 'Kuvikelwe kusukela ekuqaleni',
+    scamTitle: 'Hlola ukuphepha', scamBody: 'IBoloka ayisoze yacela i-PIN yasebhange, iphasiwedi noma i-PIN yesikhathi esisodwa (OTP). Yima uqinisekise ngohlelo lokusebenza noma inombolo esemthethweni yebhange lakho uma othile ekucindezela ukuthi wabelane ngekhodi noma uthumele imali.',
+    showForecast: 'Bona isibikezelo', addEntry: 'Faka okufakiwe', firstEntry: 'Faka imali yakho yokuqala',
+  },
+  st: {
+    navHome: 'Lehae', navAdd: 'Kenya', navForecast: 'Khakanyo', navSavings: 'Poloko', navSettings: 'Litlhophiso',
+    homeTitle: 'Etsa hore chelete ea hao e u fe phomolo.', homeSubtitle: 'Mehato e menyenyane kajeno e ka nolofatsa beke e thata.',
+    addTitle: 'Ngola chelete e kenang le e tsoang.', addSubtitle: 'Ngola chelete ha e kena le ha e tsoa hore setšoantšo se nepahale.',
+    forecastTitle: 'Sheba se tlang.', forecastSubtitle: 'Ena ke tataiso e tsoang ho seo u se ngotseng, eseng tiisetso.',
+    savingsTitle: 'Haha polokelo ea hao.', savingsSubtitle: 'Ho behella chelete ka thoko khafetsa ho ka thusa khoeling e sa tsitsang.',
+    settingsTitle: 'Akhaonto ea hao.', settingsSubtitle: 'Lintlha tsa hao ke tsa hao.',
+    onboardingEyebrow: 'CHELETE EA HAO, KA MORALO', onboardingTitle: 'Rera chelete e kenang e sa tsitsang habonolo.',
+    onboardingDescription: 'Ngola chelete e kenang le e tsoang. Boloka e u thusa ho bona beke e ka bang thata le ho rera chelete ea polokelo ka likhakanyo tse hlakileng.',
+    onboardingStepOne: 'Ngola chelete ha e fihla', onboardingStepTwo: 'Kenya likoloto le litšenyehelo tsa letsatsi le letsatsi', onboardingStepThree: 'Sheba khakanyo ea matsatsi a 30 e hlalosehang',
+    onboardingStart: 'Ngola chelete ea hao ea pele', onboardingPreview: 'Sheba mohlala oa dashboard', onboardingSignIn: 'Kena kapa u thehe akhaonto',
+    previewLabel: 'Mohlala', previewNotice: 'Ona ke mohlala. Lipalo ke tsa boiqapelo; liphetoho li lula sebatling sena feela.',
+    offlineTitle: 'Ha ua hokeloa inthaneteng.', offlineBody: 'Mokhoa oa mohlala o ntse o sebetsa. Lintlha tsa akhaonto le liphetoho tse bolokiloeng li hloka khokahano.',
+    onlineTitle: 'Khokahano e khutlile.', retry: 'Leka hape', dataSaver: 'Mokhoa oa ho boloka data', language: 'Puo',
+    amount: 'Chelete', incomeSource: 'E tsoa hokae?', expenseCategory: 'E sebeliselitsoe eng?',
+    receivedDate: 'Letsatsi leo e amohetsoeng ka lona', paidDate: 'Letsatsi leo e lefiloeng ka lona', recurring: 'E etsahala khafetsa',
+    saveIncome: 'Boloka chelete e kenang', saveExpense: 'Boloka litšenyehelo', accountTitle: 'Chelete ea hao ke ea hao.',
+    email: 'Aterese ea lengolo-tsoibila', password: 'Lekunutu', signIn: 'Kena', createAccount: 'Theha akhaonto',
+    privateTitle: 'Tšireletso ke karolo ea moralo',
+    scamTitle: 'Tlhahlobo e potlakileng ea tšireletso', scamBody: 'Boloka e ke ke ea u botsa PIN ea banka, password kapa PIN ea nako e le ’ngoe (OTP). Ema ’me u netefatse ka app kapa nomoro ea banka ea hao haeba motho a u potlakisetsa ho fana ka khoutu kapa ho romela chelete.',
+    showForecast: 'Sheba khakanyo', addEntry: 'Kenya tlaleho', firstEntry: 'Kenya chelete ea pele',
+  },
+}
+
+export function translate(language, key) {
+  return messages[language]?.[key] ?? messages.en[key] ?? key
+}
+
+export function languageLocale(language) {
+  return supportedLanguages.find((item) => item.code === language)?.locale ?? 'en-ZA'
+}
