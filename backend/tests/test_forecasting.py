@@ -221,6 +221,31 @@ def test_fractional_daily_income_preserves_total_cents():
     assert sum(row["predicted_income_cents"] for row in result["series"]) == 4
 
 
+@pytest.mark.parametrize("horizon,gap", [(1, 1), (7, 1), (30, 1), (30, 100000), (90, 1999999999)])
+def test_weekly_set_aside_is_smallest_whole_cent_pace_covering_horizon(horizon, gap):
+    today = date(2026, 10, 25)
+    # Sufficient observed history with zero recent recorded earnings. Older
+    # income establishes the window but does not enter the completed-week mean.
+    income = [{"received_on": "2020-01-01", "amount_cents": 1}]
+    expense = [{"spent_on": (today + timedelta(days=horizon)).isoformat(), "amount_cents": gap}]
+    result = build_forecast(income, expense, today=today, horizon_days=horizon)
+    weekly = result["set_aside"]["weekly_cents"]
+    assert result["set_aside"]["total_cents"] == gap
+    assert weekly * horizon >= gap * 7
+    assert (weekly - 1) * horizon < gap * 7
+    assert "affordability" in result["set_aside"]["reason"]
+
+
+def test_zero_gap_reason_is_distinct_from_unavailable_recommendation():
+    today = date(2026, 10, 25)
+    result = build_forecast(income_history(today), [
+        {"spent_on": "2026-10-26", "amount_cents": 100},
+    ], today=today)
+    assert result["set_aside"]["total_cents"] == result["set_aside"]["weekly_cents"] == 0
+    assert "No additional set-aside" in result["set_aside"]["reason"]
+    assert "No recommendation is available" not in result["set_aside"]["reason"]
+
+
 def test_overlapping_everyday_and_upcoming_costs_do_not_produce_a_recommendation():
     today = date(2026, 10, 24)
     expenses = [
