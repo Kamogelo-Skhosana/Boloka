@@ -1,58 +1,75 @@
 name: Deploy
 
-# Continuous deployment. Fill the repository secrets to enable each job
-# (Settings -> Secrets and variables -> Actions). Until the secrets are set the
-# deploy steps are skipped and the workflow stays green.
-#   Frontend (Vercel): VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID
-#   Backend  (Render): RENDER_DEPLOY_HOOK_URL
-
+# Production deployments run only after main CI succeeds. Vercel settings are
+# checked in a step because GitHub does not permit secrets in an `if` expression.
+# Render uses render.yaml with autoDeployTrigger: checksPass.
 on:
-  push:
-    branches: [ main ]
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   deploy-frontend:
     name: Deploy frontend to Vercel
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
-    env:
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
-      - name: Check configuration
+      - name: Check Vercel configuration
+        id: config
+        shell: bash
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
         run: |
-          if [ -z "$VERCEL_TOKEN" ]; then
-            echo "VERCEL_TOKEN not set — skipping frontend deploy."
+          enabled=false
+          if [[ -n "$VERCEL_TOKEN" && -n "$VERCEL_ORG_ID" && -n "$VERCEL_PROJECT_ID" ]]; then
+            enabled=true
           fi
-
-      - uses: actions/checkout@v4
-        if: env.VERCEL_TOKEN != ''
-
-      - uses: actions/setup-node@v4
-        if: env.VERCEL_TOKEN != ''
+          echo "enabled=$enabled" >> "$GITHUB_OUTPUT"
+          if [[ "$enabled" == false ]]; then
+            echo "Vercel deployment skipped: configure VERCEL_TOKEN, VERCEL_ORG_ID and VERCEL_PROJECT_ID."
+          fi
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: steps.config.outputs.enabled == 'true'
         with:
-          node-version: 20
-
-      - name: Deploy (Vercel)
-        if: env.VERCEL_TOKEN != ''
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        if: steps.config.outputs.enabled == 'true'
+        with:
+          node-version: 22
+      - name: Install Vercel CLI
+        if: steps.config.outputs.enabled == 'true'
+        run: npm install --global vercel@65.2.0
+      - name: Pull production settings
+        if: steps.config.outputs.enabled == 'true'
         working-directory: frontend
-        run: |
-          npm i -g vercel@latest
-          vercel pull --yes --environment=production --token "$VERCEL_TOKEN"
-          vercel build --prod --token "$VERCEL_TOKEN"
-          vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN"
-
-  deploy-backend:
-    name: Deploy backend to Render
-    runs-on: ubuntu-latest
-    env:
-      RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
-    steps:
-      - name: Trigger Render deploy hook
-        run: |
-          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
-            echo "RENDER_DEPLOY_HOOK_URL not set — skipping backend deploy."
-          else
-            curl -fsSL -X POST "$RENDER_DEPLOY_HOOK_URL"
-          fi
+        run: vercel pull --yes --environment=production
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+      - name: Build production bundle
+        if: steps.config.outputs.enabled == 'true'
+        working-directory: frontend
+        run: vercel build --prod
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+      - name: Deploy tested build to production
+        if: steps.config.outputs.enabled == 'true'
+        working-directory: frontend
+        run: vercel deploy --prebuilt --prod
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}

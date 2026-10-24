@@ -12,7 +12,9 @@ export const supabase =
 // Thin wrapper around the Boloka backend API (see docs/api.md). It attaches the
 // current user's access token so the backend can verify the request.
 export async function api(path, { method = 'GET', body } = {}) {
-  const headers = { 'Content-Type': 'application/json' }
+  const headers = {}
+  const isFormData = typeof FormData !== 'undefined' && body instanceof FormData
+  if (body && !isFormData) headers['Content-Type'] = 'application/json'
 
   if (supabase) {
     const {
@@ -26,7 +28,7 @@ export async function api(path, { method = 'GET', body } = {}) {
   const res = await fetch(`${apiBaseUrl}${path}`, {
     method,
     headers,
-    body: body ? JSON.stringify(body) : undefined,
+    body: body ? (isFormData ? body : JSON.stringify(body)) : undefined,
   })
 
   if (!res.ok) {

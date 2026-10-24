@@ -1,24 +1,27 @@
-# Boloka Backend
+# Boloka API
 
-Python + FastAPI. Serves the CRUD and forecasting API over the Supabase Postgres database. The forecasting engine uses pandas with Prophet / scikit-learn.
+FastAPI service for authenticated income and expense tracking, CSV import, and transparent shortfall estimates.
 
-This folder is a placeholder until the API is scaffolded (issue #3).
+## Start
 
-## Run (once scaffolded)
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+Copy-Item .env.example .env
+uvicorn app.main:app --reload
+```
 
-    python -m venv .venv
-    source .venv/bin/activate
-    pip install -r requirements.txt
-    uvicorn app.main:app --reload
+Set `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET`, and `CORS_ORIGINS` in `.env`. Run `../supabase/schema.sql` before using data routes. Never expose the service-role key to a client or commit `.env`.
 
-## Environment
+`GET /api/v1/health` is public. Other routes require `Authorization: Bearer <Supabase access token>`. The API verifies the token subject, validates request fields, and scopes database calls to that subject. The database adapter uses the service-role key only on this server.
 
-Copy .env.example to .env and set:
+See [`../docs/api.md`](../docs/api.md), [`../docs/judge-demo.md`](../docs/judge-demo.md), and [`../supabase/schema.sql`](../supabase/schema.sql).
 
-- SUPABASE_URL
-- SUPABASE_SERVICE_ROLE_KEY   (server-side only, never shipped to the client)
-- SUPABASE_JWT_SECRET         (used to verify user access tokens)
+## Forecast method and limits
 
-Never commit .env.
+Income is grouped into weeks using pandas and a recency-weighted average. Known recent outflows and median observed recurring costs form the expense estimate. Confidence is labelled low with fewer than six observed weeks, medium from six to eleven, and high at twelve or more. This is an explainable prototype baseline, not a validated financial forecast. No Prophet or scikit-learn performance is claimed.
 
-See ../docs/api.md for the API contract and ../supabase/schema.sql for the database schema.
+## Checks
+
+From `backend/`, run `pip install pytest ruff`, `ruff check .`, and `pytest -q`.
