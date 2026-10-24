@@ -1,5 +1,14 @@
 ﻿# Project status: Boloka
 
+## Synthetic demo dataset - 25 October 2026
+
+Ticket #14: seed data now requires explicit account selection and confirmation,
+replaces only marked fictional rows, preserves other entries, and uses the
+South African calendar. Fixtures cover eight completed weeks with earning gaps
+and explicitly dated costs at/after the horizon. PostgreSQL CI exercises repeat
+runs, account isolation, missing configuration and scheduled totals. No hosted
+data was changed; account provisioning and the live judge flow remain external.
+
 ## Supabase signing keys - 25 October 2026
 
 Added ES256/RS256 verification using project public JWKS, retaining explicit
