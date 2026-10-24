@@ -7,7 +7,7 @@ This is a submission-ready draft. It contains hypotheses where the team has not 
 | **Problem** | People paid through gigs or informal work cannot rely on a fixed payday. Essential costs such as rent, transport, food and data still arrive on schedule. A balance alone does not show when cash may run short. |
 | **Customer segments** | South African gig workers, freelancers, informal traders and households that combine several irregular income sources. Initial segment to test: workers with recurring monthly bills and at least two income sources. |
 | **Unique value proposition** | Know which week may be tight, why, and what small amount to set aside before the bill is due. |
-| **Solution** | Quick income and expense logging; CSV history import; a 30-day estimate; a dated shortfall warning; a transparent weekly set-aside suggestion; confidence labels for sparse history. |
+| **Solution** | Quick income and expense logging; CSV history import; a 30-day planning estimate; a conditional gap without a predicted date; an inspectable set-aside allocation; explicit history and cash assumptions. |
 | **Channels** | Direct pilot with worker communities; referrals through community organisations and financial-literacy programmes; potential partnerships with gig platforms after evidence and consent flows are established. |
 | **Revenue streams** | Hypothesis: free core cash-flow planning for individuals; later, an opt-in employer/platform or financial-education partnership tier. No pricing or partner demand has been validated. Do not sell personal transaction data. |
 | **Cost structure** | Hosting and database, customer support, security and privacy work, product development, and pilot operations. Early costs depend on chosen hosting plans and usage. |

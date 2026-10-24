@@ -3,7 +3,7 @@
 Guidance for humans and AI coding agents working in the Boloka repository. Read this before making changes.
 
 ## What Boloka is
-A money app for people with irregular incomes. It learns a user's earning pattern, forecasts upcoming cash shortfalls, and tells the user how much to set aside now. Built for the Financial Inclusion track of FNB App of the Year 2026.
+A money app for people with irregular incomes. It records earnings and upcoming costs, shows an inspectable pandas-based planning estimate, and explains conditional set-aside amounts. Do not claim calibrated accuracy, confidence, likely risk or a precise shortfall date without supporting evidence. Built for the Financial Inclusion track of FNB App of the Year 2026.
 
 ## Tech stack
 - Frontend: React (Vite), Tailwind CSS, Themeloom, PWA. Charts with Recharts.
