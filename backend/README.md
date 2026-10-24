@@ -20,7 +20,13 @@ See [`../docs/api.md`](../docs/api.md), [`../docs/judge-demo.md`](../docs/judge-
 
 ## Forecast method and limits
 
-Income is grouped into weeks using pandas and a recency-weighted average. Known recent outflows and median observed recurring costs form the expense estimate. Confidence is labelled low with fewer than six observed weeks, medium from six to eleven, and high at twelve or more. This is an explainable prototype baseline, not a validated financial forecast. No Prophet or scikit-learn performance is claimed.
+Income is grouped into continuous weeks using pandas, including zero-income gaps. With at least twelve completed weeks, a scikit-learn Ridge trend model is fitted to the preceding weeks and compared with the recency-weighted baseline on the last four completed weeks. It is selected only when its mean absolute error is at least 10% lower; otherwise the baseline remains. A selected model is refitted on up to 52 completed weeks. Predictions are bounded between zero and twice the largest earning in the last eight training weeks.
+
+The current partial week is excluded from training, except for a low-confidence baseline when there are no completed weeks. Known recent outflows and median observed recurring costs form the expense estimate. Confidence is low below six completed weeks and capped at medium thereafter. The four-week comparison is a model-selection check, not a population accuracy claim. Planning ranges are illustrative, not calibrated confidence intervals. Shortfall dating remains the existing heuristic pending issue #19.
+
+The 30-day income total equals the sum of the displayed seven-day forecast blocks, with the final two-day block prorated. Expense estimates scale from the observed monthly budget to the horizon. Synthetic regression tests verify trend selection, fallback, no holdout leakage, bounds, and total consistency; opt-in real-user evaluation is still required.
+
+References: [Ridge regression](https://scikit-learn.org/1.5/modules/generated/sklearn.linear_model.Ridge.html) and [chronological validation for time series](https://scikit-learn.org/1.5/modules/cross_validation.html#time-series-split).
 
 ## Checks
 

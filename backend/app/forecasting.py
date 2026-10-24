@@ -1,9 +1,8 @@
 """Explainable, low-data cash-flow forecast for irregular income.
 
-This baseline deliberately avoids fitting an overconfident time-series model
-to a short, noisy gig-income history. It uses a weekly pandas aggregation,
-recent weighted income, known recurring expenses, and a visible confidence
-level. A learned model can replace the estimator when validated history exists.
+Weekly pandas aggregation feeds a bounded scikit-learn trend model, selected
+only when it improves on the weighted baseline on held-out later weeks.
+Sparse history retains the baseline and an explicit low confidence label.
 """
 
 from collections.abc import Iterable
@@ -12,6 +11,8 @@ from statistics import median
 from typing import Any
 
 import pandas as pd
+
+from .income_model import estimate_income
 
 
 def weekly_income(events: Iterable[dict[str, Any]], today: date) -> list[dict[str, Any]]:
@@ -57,22 +58,21 @@ def build_forecast(
     horizon_days: int = 30,
 ) -> dict[str, Any]:
     today = today or datetime.now(UTC).date()
+    if not 1 <= horizon_days <= 90:
+        raise ValueError("horizon_days must be between 1 and 90")
     weekly = weekly_income(incomes, today)
     current_week = (today - timedelta(days=today.weekday())).isoformat()
     completed = [row for row in weekly if row["week_start"] < current_week]
     # Do not treat an unfinished week as a full week's earning pattern. If no
     # completed week exists, use this week's recorded total as a cold start.
-    recent = [row["amount_cents"] for row in (completed or weekly)[-8:]]
     history_weeks = len(completed)
-    confidence = "high" if history_weeks >= 12 else "medium" if history_weeks >= 6 else "low"
-    # Weighted average gives recent work a larger influence while reducing the
-    # effect of one unusually large payout.
-    if recent:
-        weights = list(range(1, len(recent) + 1))
-        weekly_income_cents = round(sum(v * w for v, w in zip(recent, weights)) / sum(weights))
-        weekly_income_cents = min(weekly_income_cents, round(median(recent) * 2))
-    else:
-        weekly_income_cents = 0
+    confidence = "medium" if history_weeks >= 6 else "low"
+    estimate = estimate_income(
+        [row["amount_cents"] for row in completed],
+        (horizon_days + 6) // 7,
+        partial=weekly[-1]["amount_cents"] if weekly else 0,
+    )
+    weekly_income_cents = estimate.weeks[0]
 
     lookback = today - timedelta(days=30)
     recent_expenses = [
@@ -89,27 +89,38 @@ def build_forecast(
     recurring_monthly = sum(round(median(amounts)) for amounts in recurring_categories.values())
     # For a cold start, still account for fixed known costs without projecting
     # unobserved discretionary spending.
-    predicted_income = weekly_income_cents * max(1, round(horizon_days / 7))
-    predicted_expenses = max(monthly_expenses, recurring_monthly, 0)
+    series = []
+    for week, weekly_amount in enumerate(estimate.weeks):
+        start = today + timedelta(days=week * 7)
+        days = min(7, horizon_days - week * 7)
+        amount = round(weekly_amount * days / 7)
+        # These are illustrative planning ranges, not calibrated probabilities.
+        validation_error = (
+            estimate.model_mae_cents if estimate.method == "ridge_trend"
+            else estimate.baseline_mae_cents
+        )
+        spread = max(weekly_amount * 0.5, validation_error or 0) * days / 7
+        series.append({
+            "week_start": start.isoformat(),
+            "predicted_income_cents": amount,
+            "lower_cents": max(0, round(amount - spread)),
+            "upper_cents": round(amount + spread),
+        })
+    predicted_income = sum(row["predicted_income_cents"] for row in series)
+    predicted_expenses = round(max(monthly_expenses, recurring_monthly, 0) * horizon_days / 30)
     gap = max(0, predicted_expenses - predicted_income)
     shortfall_date = today + timedelta(days=min(horizon_days, 21)) if gap else None
     weekly_saving = round(gap / max(1, (shortfall_date - today).days // 7)) if gap else 0
 
-    series = []
-    for week in range(max(1, (horizon_days + 6) // 7)):
-        start = today + timedelta(days=week * 7)
-        series.append({
-            "week_start": start.isoformat(),
-            "predicted_income_cents": weekly_income_cents,
-            "lower_cents": round(weekly_income_cents * 0.5),
-            "upper_cents": round(weekly_income_cents * 1.5),
-        })
-
     explanation = (
-        f"Based on {history_weeks} completed weeks of recorded income, your recent weekly "
-        f"average is R{weekly_income_cents / 100:,.2f}. Known costs over the next "
-        f"month are about R{predicted_expenses / 100:,.2f}. "
+        f"Based on {history_weeks} completed weeks of recorded income, the next week's "
+        f"income estimate is R{weekly_income_cents / 100:,.2f}. Estimated costs over the next "
+        f"{horizon_days} days are about R{predicted_expenses / 100:,.2f}. "
     )
+    if estimate.method == "ridge_trend":
+        explanation += "A trend model was used because it had lower error than the weighted average on the last four completed weeks. "
+    else:
+        explanation += "This uses a recency-weighted income baseline. "
     if weekly and not completed:
         explanation += "With no completed week yet, this uses only the income recorded so far this week. "
     if history_weeks < 6:
@@ -137,6 +148,14 @@ def build_forecast(
             ),
         },
         "confidence": confidence,
+        "model": {
+            "method": estimate.method,
+            "reason": estimate.reason,
+            "training_weeks": min(history_weeks, 52),
+            "validation_weeks": estimate.validation_weeks,
+            "model_mae_cents": estimate.model_mae_cents,
+            "baseline_mae_cents": estimate.baseline_mae_cents,
+        },
         "explanation": explanation,
         "series": series,
     }
