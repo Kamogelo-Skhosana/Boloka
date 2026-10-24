@@ -103,6 +103,7 @@ npm run build
 ```
 
 See [`docs/judge-demo.md`](docs/judge-demo.md) for the manual judge flow and [`docs/award-benchmark.md`](docs/award-benchmark.md) for product standards drawn from the FNB App of the Year materials.
+For the Android debug build and team-key-signed release build, see [`docs/android-release.md`](docs/android-release.md).
 
 See [`docs/deployment.md`](docs/deployment.md) for one-time Vercel, Render, and Supabase setup. A public live URL and judge account are not committed because the project has not been provisioned with team credentials.
 
