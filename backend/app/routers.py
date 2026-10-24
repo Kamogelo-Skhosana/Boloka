@@ -17,7 +17,7 @@ from fastapi import (
 )
 from pydantic import BaseModel, Field, field_validator
 
-from .auth import get_current_user_claims, get_current_user_id
+from .auth import get_current_access_token, get_current_user_claims, get_current_user_id
 from .database import request_table
 from .forecasting import build_forecast, local_today
 
@@ -81,7 +81,7 @@ def _user_uuid(user_id: str) -> str:
         raise HTTPException(status_code=401, detail={"error": {"code": "invalid_token", "message": "Invalid user token"}}) from exc
 
 
-def _list_entries(table: str, date_field: str, user_id: str, start: date | None, end: date | None):
+def _list_entries(table: str, date_field: str, user_id: str, start: date | None, end: date | None, access_token: str):
     if start and end and start > end:
         raise HTTPException(status_code=422, detail={"error": {"code": "validation_error", "message": "The from date must be on or before the to date"}})
     filters: dict[str, str] = {"order": f"{date_field}.desc,created_at.desc"}
@@ -91,7 +91,7 @@ def _list_entries(table: str, date_field: str, user_id: str, start: date | None,
         filters[date_field] = f"gte.{start.isoformat()}"
     elif end:
         filters[date_field] = f"lte.{end.isoformat()}"
-    return {"items": request_table("GET", table, user_id=user_id, params=filters) or []}
+    return {"items": request_table("GET", table, access_token=access_token, user_id=user_id, params=filters) or []}
 
 
 @router.get("/me")
@@ -103,32 +103,32 @@ def me(claims: dict = Depends(get_current_user_claims)):
 def list_income(
     from_: date | None = Query(default=None, alias="from"),
     to: date | None = None,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_current_user_id), access_token: str = Depends(get_current_access_token),
 ):
-    return _list_entries("income_events", "received_on", _user_uuid(user_id), from_, to)
+    return _list_entries("income_events", "received_on", _user_uuid(user_id), from_, to, access_token)
 
 
 @router.post("/income", status_code=status.HTTP_201_CREATED)
-def create_income(body: IncomeCreate, user_id: str = Depends(get_current_user_id)):
+def create_income(body: IncomeCreate, user_id: str = Depends(get_current_user_id), access_token: str = Depends(get_current_access_token)):
     data = body.model_dump(mode="json") | {"user_id": _user_uuid(user_id)}
-    rows = request_table("POST", "income_events", user_id=user_id, payload=data, prefer="return=representation")
+    rows = request_table("POST", "income_events", access_token=access_token, user_id=user_id, payload=data, prefer="return=representation")
     return rows[0]
 
 
 @router.patch("/income/{entry_id}")
-def update_income(entry_id: UUID, body: IncomePatch, user_id: str = Depends(get_current_user_id)):
+def update_income(entry_id: UUID, body: IncomePatch, user_id: str = Depends(get_current_user_id), access_token: str = Depends(get_current_access_token)):
     fields = body.model_dump(mode="json", exclude_unset=True)
     if not fields:
         raise HTTPException(status_code=400, detail={"error": {"code": "empty_patch", "message": "Provide at least one field to update"}})
-    rows = request_table("PATCH", "income_events", user_id=_user_uuid(user_id), params={"id": f"eq.{entry_id}"}, payload=fields, prefer="return=representation")
+    rows = request_table("PATCH", "income_events", access_token=access_token, user_id=_user_uuid(user_id), params={"id": f"eq.{entry_id}"}, payload=fields, prefer="return=representation")
     if not rows:
         raise HTTPException(status_code=404, detail={"error": {"code": "not_found", "message": "Income entry not found"}})
     return rows[0]
 
 
 @router.delete("/income/{entry_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_income(entry_id: UUID, user_id: str = Depends(get_current_user_id)):
-    rows = request_table("DELETE", "income_events", user_id=_user_uuid(user_id), params={"id": f"eq.{entry_id}", "select": "id"}, prefer="return=representation")
+def delete_income(entry_id: UUID, user_id: str = Depends(get_current_user_id), access_token: str = Depends(get_current_access_token)):
+    rows = request_table("DELETE", "income_events", access_token=access_token, user_id=_user_uuid(user_id), params={"id": f"eq.{entry_id}", "select": "id"}, prefer="return=representation")
     if not rows:
         raise HTTPException(status_code=404, detail={"error": {"code": "not_found", "message": "Income entry not found"}})
     return Response(status_code=status.HTTP_204_NO_CONTENT)
@@ -146,7 +146,7 @@ def _parse_amount(value: str) -> int:
 
 
 @router.post("/income/import")
-async def import_income(file: UploadFile = File(...), user_id: str = Depends(get_current_user_id)):
+async def import_income(file: UploadFile = File(...), user_id: str = Depends(get_current_user_id), access_token: str = Depends(get_current_access_token)):
     if not file.filename or not file.filename.lower().endswith(".csv"):
         raise HTTPException(status_code=400, detail={"error": {"code": "invalid_file", "message": "Upload a .csv file"}})
     raw = await file.read(2_000_001)
@@ -179,7 +179,7 @@ async def import_income(file: UploadFile = File(...), user_id: str = Depends(get
         except (ValueError, TypeError):
             skipped += 1
     if batch:
-        request_table("POST", "income_events", user_id=owner, payload=batch, prefer="return=minimal")
+        request_table("POST", "income_events", access_token=access_token, user_id=owner, payload=batch, prefer="return=minimal")
         imported = len(batch)
     return {"imported": imported, "skipped": skipped}
 
@@ -188,32 +188,32 @@ async def import_income(file: UploadFile = File(...), user_id: str = Depends(get
 def list_expenses(
     from_: date | None = Query(default=None, alias="from"),
     to: date | None = None,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_current_user_id), access_token: str = Depends(get_current_access_token),
 ):
-    return _list_entries("expenses", "spent_on", _user_uuid(user_id), from_, to)
+    return _list_entries("expenses", "spent_on", _user_uuid(user_id), from_, to, access_token)
 
 
 @router.post("/expenses", status_code=status.HTTP_201_CREATED)
-def create_expense(body: ExpenseCreate, user_id: str = Depends(get_current_user_id)):
+def create_expense(body: ExpenseCreate, user_id: str = Depends(get_current_user_id), access_token: str = Depends(get_current_access_token)):
     data = body.model_dump(mode="json") | {"user_id": _user_uuid(user_id)}
-    rows = request_table("POST", "expenses", user_id=user_id, payload=data, prefer="return=representation")
+    rows = request_table("POST", "expenses", access_token=access_token, user_id=user_id, payload=data, prefer="return=representation")
     return rows[0]
 
 
 @router.patch("/expenses/{entry_id}")
-def update_expense(entry_id: UUID, body: ExpensePatch, user_id: str = Depends(get_current_user_id)):
+def update_expense(entry_id: UUID, body: ExpensePatch, user_id: str = Depends(get_current_user_id), access_token: str = Depends(get_current_access_token)):
     fields = body.model_dump(mode="json", exclude_unset=True)
     if not fields:
         raise HTTPException(status_code=400, detail={"error": {"code": "empty_patch", "message": "Provide at least one field to update"}})
-    rows = request_table("PATCH", "expenses", user_id=_user_uuid(user_id), params={"id": f"eq.{entry_id}"}, payload=fields, prefer="return=representation")
+    rows = request_table("PATCH", "expenses", access_token=access_token, user_id=_user_uuid(user_id), params={"id": f"eq.{entry_id}"}, payload=fields, prefer="return=representation")
     if not rows:
         raise HTTPException(status_code=404, detail={"error": {"code": "not_found", "message": "Expense entry not found"}})
     return rows[0]
 
 
 @router.delete("/expenses/{entry_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_expense(entry_id: UUID, user_id: str = Depends(get_current_user_id)):
-    rows = request_table("DELETE", "expenses", user_id=_user_uuid(user_id), params={"id": f"eq.{entry_id}", "select": "id"}, prefer="return=representation")
+def delete_expense(entry_id: UUID, user_id: str = Depends(get_current_user_id), access_token: str = Depends(get_current_access_token)):
+    rows = request_table("DELETE", "expenses", access_token=access_token, user_id=_user_uuid(user_id), params={"id": f"eq.{entry_id}", "select": "id"}, prefer="return=representation")
     if not rows:
         raise HTTPException(status_code=404, detail={"error": {"code": "not_found", "message": "Expense entry not found"}})
     return Response(status_code=status.HTTP_204_NO_CONTENT)
@@ -223,21 +223,21 @@ def delete_expense(entry_id: UUID, user_id: str = Depends(get_current_user_id)):
 def list_savings(
     from_: date | None = Query(default=None, alias="from"),
     to: date | None = None,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_current_user_id), access_token: str = Depends(get_current_access_token),
 ):
-    return _list_entries("savings_contributions", "saved_on", _user_uuid(user_id), from_, to)
+    return _list_entries("savings_contributions", "saved_on", _user_uuid(user_id), from_, to, access_token)
 
 
 @router.post("/savings", status_code=status.HTTP_201_CREATED)
-def create_savings_contribution(body: SavingsContributionCreate, user_id: str = Depends(get_current_user_id)):
+def create_savings_contribution(body: SavingsContributionCreate, user_id: str = Depends(get_current_user_id), access_token: str = Depends(get_current_access_token)):
     data = body.model_dump(mode="json") | {"user_id": _user_uuid(user_id)}
-    rows = request_table("POST", "savings_contributions", user_id=user_id, payload=data, prefer="return=representation")
+    rows = request_table("POST", "savings_contributions", access_token=access_token, user_id=user_id, payload=data, prefer="return=representation")
     return rows[0]
 
 
 @router.delete("/savings/{entry_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_savings_contribution(entry_id: UUID, user_id: str = Depends(get_current_user_id)):
-    rows = request_table("DELETE", "savings_contributions", user_id=_user_uuid(user_id), params={"id": f"eq.{entry_id}", "select": "id"}, prefer="return=representation")
+def delete_savings_contribution(entry_id: UUID, user_id: str = Depends(get_current_user_id), access_token: str = Depends(get_current_access_token)):
+    rows = request_table("DELETE", "savings_contributions", access_token=access_token, user_id=_user_uuid(user_id), params={"id": f"eq.{entry_id}", "select": "id"}, prefer="return=representation")
     if not rows:
         raise HTTPException(status_code=404, detail={"error": {"code": "not_found", "message": "Savings entry not found"}})
     return Response(status_code=status.HTTP_204_NO_CONTENT)
@@ -247,30 +247,30 @@ class ForecastScenario(BaseModel):
     available_balance_cents: int | None = Field(default=None, ge=0, le=2_000_000_000, strict=True)
 
 
-def _user_forecast(user_id: str, available_balance_cents: int | None = None) -> dict:
+def _user_forecast(user_id: str, available_balance_cents: int | None = None, *, access_token: str) -> dict:
     owner = _user_uuid(user_id)
-    incomes = request_table("GET", "income_events", user_id=owner, params={"select": "amount_cents,received_on", "order": "received_on.asc"}) or []
-    expenses = request_table("GET", "expenses", user_id=owner, params={"select": "amount_cents,spent_on,recurring,category", "order": "spent_on.asc"}) or []
+    incomes = request_table("GET", "income_events", access_token=access_token, user_id=owner, params={"select": "amount_cents,received_on", "order": "received_on.asc"}) or []
+    expenses = request_table("GET", "expenses", access_token=access_token, user_id=owner, params={"select": "amount_cents,spent_on,recurring,category", "order": "spent_on.asc"}) or []
     return build_forecast(incomes, expenses, available_balance_cents=available_balance_cents)
 
 
 @router.get("/forecast")
-def forecast(user_id: str = Depends(get_current_user_id)) -> dict:
-    return _user_forecast(user_id)
+def forecast(user_id: str = Depends(get_current_user_id), access_token: str = Depends(get_current_access_token)) -> dict:
+    return _user_forecast(user_id, access_token=access_token)
 
 
 @router.post("/forecast/scenario")
-def forecast_scenario(body: ForecastScenario, user_id: str = Depends(get_current_user_id)) -> dict:
+def forecast_scenario(body: ForecastScenario, user_id: str = Depends(get_current_user_id), access_token: str = Depends(get_current_access_token)) -> dict:
     # Scenario cash is neither persisted nor placed in URLs/access logs.
-    return _user_forecast(user_id, body.available_balance_cents)
+    return _user_forecast(user_id, body.available_balance_cents, access_token=access_token)
 
 
 @router.get("/summary")
-def summary(user_id: str = Depends(get_current_user_id)):
+def summary(user_id: str = Depends(get_current_user_id), access_token: str = Depends(get_current_access_token)):
     owner = _user_uuid(user_id)
-    incomes = request_table("GET", "income_events", user_id=owner, params={"select": "amount_cents,received_on"}) or []
-    expenses = request_table("GET", "expenses", user_id=owner, params={"select": "amount_cents,spent_on,recurring,category"}) or []
-    savings = request_table("GET", "savings_contributions", user_id=owner, params={"select": "amount_cents,saved_on"}) or []
+    incomes = request_table("GET", "income_events", access_token=access_token, user_id=owner, params={"select": "amount_cents,received_on"}) or []
+    expenses = request_table("GET", "expenses", access_token=access_token, user_id=owner, params={"select": "amount_cents,spent_on,recurring,category"}) or []
+    savings = request_table("GET", "savings_contributions", access_token=access_token, user_id=owner, params={"select": "amount_cents,saved_on"}) or []
     today = local_today()
     week_start = today - timedelta(days=today.weekday())
     month_start = today.replace(day=1)

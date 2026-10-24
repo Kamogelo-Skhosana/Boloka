@@ -27,7 +27,7 @@ Copy-Item .env.example .env
 uvicorn app.main:app --reload
 ```
 
-Set `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `SUPABASE_JWT_SECRET` in `backend/.env`. The service-role key must remain server-side. The public health route works without database credentials; authenticated data endpoints return `503` until configured.
+Set `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, and `SUPABASE_JWT_SECRET` in `backend/.env`. Use a public publishable/anon project key here; privileged project keys are rejected by user-data routes. The public health route works without database credentials; authenticated data endpoints return `503` until configured.
 
 ### Frontend
 

@@ -11,7 +11,7 @@
 
 - React/Vite browser app. Supabase Auth issues the user access token. Only the public/anon key may be included in the browser bundle.
 - FastAPI API validates Supabase JWTs and derives the owner from the verified subject claim.
-- Supabase Postgres stores income and expense events. Row-level security restricts access by owner. The backend uses a service-role key server-side and scopes queries using the authenticated subject.
+- Supabase Postgres stores income and expense events. Row-level security restricts access by owner. The backend forwards the verified caller JWT with a public project key and keeps explicit API owner filters as an additional check.
 - Browser-to-API and API-to-Supabase traffic crosses network trust boundaries. Production must use HTTPS.
 - CSV imports are untrusted user uploads and are parsed server-side with a 2 MB size limit.
 
@@ -30,7 +30,7 @@ The sample dashboard uses fictional data. Preview changes remain in memory and a
 
 ## Security controls present in code
 
-- JWT signature, audience and token-expiry checks are implemented in the API auth dependency; invalid identities are rejected. Issuer enforcement is not currently configured and must not be claimed as verified.
+- JWT signature, project issuer, audience, required expiry, UUID subject and authenticated role checks are implemented in the API auth dependency; invalid identities and privileged tokens are rejected. The current verifier supports HS256 only.
 - API ownership comes from verified JWT claims, not a client-supplied user ID.
 - Schema enables row-level security and owner policies. Review and exercise those policies in the provisioned team project before launch.
 - Service-role credentials are server-only. Frontend examples use only the publishable/anon key. `.env` files and build output are ignored by Git.
@@ -44,7 +44,7 @@ The sample dashboard uses fictional data. Preview changes remain in memory and a
 
 | Threat | Mitigation | Residual work |
 | --- | --- | --- |
-| Cross-user transaction access | JWT-derived API owner filters; direct-client RLS policies | Backend service-role requests bypass RLS; choose caller-scoped database enforcement and verify with two real test accounts |
+| Cross-user transaction access | Caller JWT forwarded to database RLS, explicit API owner filters, PostgreSQL ownership tests in CI | Apply configuration/schema and verify hosted behavior with two real test accounts |
 | Credential leakage | Server-side secret configuration; public client key only | Configure secrets in team-owned hosting and inspect deployed bundle/logs |
 | Malformed or oversized CSV | 2 MB limit, strict columns, bounded fields and per-row validation | Confirm operational rate limits and abuse monitoring |
 | Browser XSS / script supply-chain risk | React text rendering, locked dependencies, HTTPS deployment | Add dependency update/security scanning and review future HTML insertion |
@@ -77,4 +77,10 @@ Do not put passwords, JWTs, service-role keys, real transaction data, judge-acco
 
 ## Product-review correction
 
-The existing service-role database adapter bypasses RLS for backend calls. API owner filters are not database-layer enforcement. See `docs/product-review.md` for the required caller-JWT or restricted database-role/function decision and release test. This draft does not claim that gate has passed. Forecast confidence remains unvalidated, no likely warning/date is produced, preview forecasts are frozen fictional references, and loaded-entry export does not implement full account deletion/export.
+The service-role bypass found in the product review is addressed by ticket #10:
+the API forwards the verified caller JWT with a public project key, and CI
+exercises the schema's policies using two PostgreSQL roles/subjects. Deployment
+configuration and a hosted two-account test are still required; that release
+gate is not claimed complete. Forecast confidence remains unvalidated, no likely
+warning/date is produced, preview forecasts are frozen fictional references,
+and loaded-entry export does not implement full account deletion/export.

@@ -12,11 +12,35 @@ Copy-Item .env.example .env
 uvicorn app.main:app --reload
 ```
 
-Set `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET`, and `CORS_ORIGINS` in `.env`. Run `../supabase/schema.sql` before using data routes. Never expose the service-role key to a client or commit `.env`.
+Set `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_JWT_SECRET`, and `CORS_ORIGINS` in `.env`. Run `../supabase/schema.sql` before using data routes. Never expose the service-role key to a client or commit `.env`.
 
-`GET /api/v1/health` is public. Other routes require `Authorization: Bearer <Supabase access token>`. The API verifies the token subject, validates request fields, and scopes database calls to that subject. The database adapter uses the service-role key only on this server.
+`GET /api/v1/health` is public. Other routes require `Authorization: Bearer <Supabase access token>`. The API verifies the token subject, validates request fields, and scopes database calls to that subject. The database adapter forwards the verified caller JWT with the public project key, so RLS enforces ownership as well as API filters.
 
 See [`../docs/api.md`](../docs/api.md), [`../docs/judge-demo.md`](../docs/judge-demo.md), and [`../supabase/schema.sql`](../supabase/schema.sql).
+
+## Database ownership and token configuration
+
+User-data routes require `SUPABASE_PUBLISHABLE_KEY` (a `sb_publishable_...`
+key or legacy `anon` JWT). Secret/service-role keys fail closed. Remove the old
+`SUPABASE_SERVICE_ROLE_KEY` setting from the API deployment; it is no longer
+used. The verified caller token is forwarded on every database page and write,
+including CSV imports. RLS evaluates that user's `auth.uid()`; API owner filters
+remain an additional boundary.
+
+The current verifier supports legacy HS256 projects only. Configure the matching
+project URL and JWT secret. Tokens must have a valid signature, matching issuer
+and audience, expiry, UUID subject and `authenticated` role. Asymmetric signing
+keys require a separately tested JWKS verifier; do not disable validation or
+reuse a service token to work around an incompatible project.
+
+CI starts a disposable PostgreSQL instance, bootstraps test-only auth objects,
+applies the real schema, then runs `supabase/tests/rls.sql`. It checks two-user
+reads, writes, ownership transfers and anonymous denial. Never run
+`supabase/tests/bootstrap.sql` against hosted Supabase. A deployed two-account
+test with real user JWTs remains necessary after project configuration.
+
+References: [Supabase RLS](https://supabase.com/docs/guides/database/postgres/row-level-security)
+and [API keys](https://supabase.com/docs/guides/getting-started/api-keys).
 
 ## Forecast method and limits
 

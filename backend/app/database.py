@@ -1,13 +1,15 @@
 """Small, explicit Supabase PostgREST adapter.
 
-The API verifies the caller's JWT first, then scopes every database query to the
-verified subject. The service key is only read on the server and is never sent
-back to the client.
+The API verifies the caller's JWT and forwards it as database Authorization.
+The public project key identifies the application; the caller's JWT establishes
+auth.uid() and the authenticated role, so RLS enforces ownership independently
+of the API filters. Privileged application keys are never used here.
 """
 
 from typing import Any
 
 import httpx
+import jwt
 from fastapi import HTTPException, status
 
 from .config import settings
@@ -18,19 +20,31 @@ def request_table(
     table: str,
     *,
     user_id: str,
+    access_token: str,
     params: dict[str, str] | None = None,
     payload: Any = None,
     prefer: str | None = None,
 ) -> Any:
-    if not settings.supabase_url or not settings.supabase_service_role_key:
+    public_key = settings.supabase_publishable_key
+    is_public_key = public_key.startswith("sb_publishable_")
+    if public_key and not is_public_key:
+        try:
+            # Classify legacy API keys only. This is NOT caller authentication;
+            # the Supabase gateway verifies whether the public key is valid.
+            is_public_key = jwt.decode(public_key, options={"verify_signature": False}).get("role") == "anon"
+        except jwt.PyJWTError:
+            pass
+    if not settings.supabase_url or not is_public_key:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail={"error": {"code": "database_unconfigured", "message": "Database is not configured"}},
         )
 
+    if not access_token:
+        raise HTTPException(status_code=401, detail="A user access token is required")
     headers = {
-        "apikey": settings.supabase_service_role_key,
-        "Authorization": f"Bearer {settings.supabase_service_role_key}",
+        "apikey": public_key,
+        "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/json",
     }
     if prefer:

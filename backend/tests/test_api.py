@@ -4,7 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app import routers
-from app.auth import get_current_user_id
+from app.auth import get_current_access_token, get_current_user_id
 from app.main import app
 
 USER_ID = "22eea3e4-4317-4794-93ec-2d5b18fcb67a"
@@ -14,6 +14,7 @@ ENTRY_ID = "3a800bda-00c2-4cfa-9cd6-227357dc1a14"
 @pytest.fixture
 def authenticated_client():
     app.dependency_overrides[get_current_user_id] = lambda: USER_ID
+    app.dependency_overrides[get_current_access_token] = lambda: "test-user-access-token"
     try:
         yield TestClient(app)
     finally:
@@ -99,6 +100,7 @@ def test_protected_routes_reject_missing_token():
 
 def test_create_income_uses_verified_user_not_body_user(monkeypatch):
     app.dependency_overrides[get_current_user_id] = lambda: USER_ID
+    app.dependency_overrides[get_current_access_token] = lambda: "test-user-access-token"
     calls = []
 
     def fake_request(method, table, **kwargs):
@@ -127,6 +129,7 @@ def test_create_income_uses_verified_user_not_body_user(monkeypatch):
 
 def test_invalid_income_is_reported_as_validation_error():
     app.dependency_overrides[get_current_user_id] = lambda: USER_ID
+    app.dependency_overrides[get_current_access_token] = lambda: "test-user-access-token"
     try:
         response = TestClient(app).post(
             "/api/v1/income",
