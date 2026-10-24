@@ -1,5 +1,14 @@
 ﻿# Project status: Boloka
 
+## CI/CD gating - 25 October 2026
+
+Ticket #45: CI covers frontend, backend and PostgreSQL ownership/seed checks.
+Production frontend deployment now requires a successful push-to-main CI run
+from this repository and checks out exactly its tested commit. The manual
+CI-bypass trigger is removed. Render is configured for checksPass. Vercel/Render
+account configuration and actual deployment verification remain external release
+work; skipped deployment is not reported as live hosting success.
+
 ## Set-aside logic - 25 October 2026
 
 Ticket #18 confirms the conditional gap calculation and uses exact integer
