@@ -4,7 +4,7 @@
 
 - Deploy the frontend and API; verify the public HTTPS URLs and `GET /api/v1/health`.
 - Configure Supabase redirect URLs and confirm sign-in works from the deployed site.
-- Create a dedicated judge account and seed the synthetic data using `supabase/seed.sql`.
+- Create a dedicated judge account and follow [synthetic dataset setup](../supabase/README.md) before running `supabase/seed.sql`.
 - Keep the demo password out of GitHub and this public repository. Put it in Sonke's private submission field.
 - Test from a second browser/device with no developer session. Check mobile width, keyboard entry, slow network, and sign-out.
 - Check keyboard-only navigation and visible focus, confirm the chart has readable range labels, and check reduced-motion behavior.
@@ -26,7 +26,7 @@ Until Supabase is configured, use the clearly labelled sample preview only to de
 
 - If there is no network, explain that the current prototype requires a connection for authenticated data. Do not imply offline writes are supported.
 - If the account is locked or an endpoint is unavailable, show the backup recording and report the issue rather than changing data on a shared account.
-- Delete demo data only after the judging window; the seed script intentionally clears and recreates rows for the selected demo user.
+- Delete demo data only after the judging window. Rerunning the seed replaces only its marked fictional rows; other entries remain and affect totals. It does not reset the account.
 
 ## Technical acceptance checklist
 

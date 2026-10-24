@@ -46,7 +46,7 @@ Set the Supabase URL and publishable/anon key plus the API base URL in `frontend
 1. Create a Supabase project in the team's chosen organization and region.
 2. Run `supabase/schema.sql` in its SQL editor.
 3. Create a dedicated demo user in Supabase Auth.
-4. Change `demo@boloka.app` in `supabase/seed.sql` to that user's email and run the seed script.
+4. Follow [synthetic dataset setup](supabase/README.md) to select that dedicated user's email, explicitly confirm seeding, and run `supabase/seed.sql`. Only marked synthetic rows are replaced; other entries remain.
 5. Configure redirect URLs in Supabase Auth for the local frontend and deployed site.
 
 The repository does not contain a live Supabase project URL, credentials, hosted URL, or demo password. Add those through the team's private configuration and share demo login details through the hackathon submission, never in this public repository.

@@ -37,6 +37,15 @@ jobs:
           psql -h 127.0.0.1 -U postgres -v ON_ERROR_STOP=1 -f supabase/tests/bootstrap.sql
           psql -h 127.0.0.1 -U postgres -v ON_ERROR_STOP=1 -f supabase/schema.sql
           psql -h 127.0.0.1 -U postgres -v ON_ERROR_STOP=1 -f supabase/tests/rls.sql
+          psql -h 127.0.0.1 -U postgres -v ON_ERROR_STOP=1 -f supabase/tests/seed.sql
+          if psql -h 127.0.0.1 -U postgres -v ON_ERROR_STOP=1 -f supabase/seed.sql; then
+            echo "Seed unexpectedly accepted missing confirmation"
+            exit 1
+          fi
+          if psql -h 127.0.0.1 -U postgres -v ON_ERROR_STOP=1 -c "set boloka.demo_email = 'missing@example.invalid'; set boloka.confirm_demo_seed = 'yes';" -f supabase/seed.sql; then
+            echo "Seed unexpectedly accepted a missing account"
+            exit 1
+          fi
 
   frontend:
     name: Frontend (React / Vite)
