@@ -1824,3 +1824,48 @@ button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visibl
     animation: none;
   }
 }
+
+/* Transaction corrections share the existing controls and surface tokens. */
+.transaction-row--editable {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.transaction-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.transaction-row--editable .transaction-actions {
+  grid-column: 2 / -1;
+}
+
+.transaction-actions .text-button {
+  min-height: 44px;
+  padding: 0.5rem;
+}
+
+.forecast-assumptions,
+.cash-scenario p {
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.65;
+}
+
+.forecast-assumptions li {
+  margin-bottom: 0.6rem;
+}
+
+.cash-scenario {
+  display: grid;
+  gap: 0.5rem;
+  max-width: 30rem;
+  margin: 1rem 0;
+}
+
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
