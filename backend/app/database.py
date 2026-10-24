@@ -60,4 +60,3 @@ def request_table(
             detail={"error": {"code": "database_error", "message": "The database request failed"}},
         )
     return response.json() if response.content else None
-

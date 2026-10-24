@@ -233,4 +233,3 @@ def summary(user_id: str = Depends(get_current_user_id)):
         "set_aside_target_cents": model["set_aside"]["weekly_cents"] * 4,
         "next_shortfall": {"date": gap["date"], "amount_cents": gap["amount_cents"]} if gap["likely"] else None,
     }
-

@@ -120,4 +120,3 @@ def build_forecast(
         "explanation": explanation,
         "series": series,
     }
-
