@@ -54,6 +54,12 @@ class ExpensePatch(BaseModel):
     note: str | None = Field(default=None, max_length=1000)
 
 
+class SavingsContributionCreate(BaseModel):
+    amount_cents: int = Field(gt=0, le=2_000_000_000)
+    saved_on: date
+    note: str | None = Field(default=None, max_length=120)
+
+
 def _user_uuid(user_id: str) -> str:
     try:
         return str(UUID(user_id))
@@ -195,6 +201,30 @@ def delete_expense(entry_id: UUID, user_id: str = Depends(get_current_user_id)):
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
+@router.get("/savings")
+def list_savings(
+    from_: date | None = Query(default=None, alias="from"),
+    to: date | None = None,
+    user_id: str = Depends(get_current_user_id),
+):
+    return _list_entries("savings_contributions", "saved_on", _user_uuid(user_id), from_, to)
+
+
+@router.post("/savings", status_code=status.HTTP_201_CREATED)
+def create_savings_contribution(body: SavingsContributionCreate, user_id: str = Depends(get_current_user_id)):
+    data = body.model_dump(mode="json") | {"user_id": _user_uuid(user_id)}
+    rows = request_table("POST", "savings_contributions", user_id=user_id, payload=data, prefer="return=representation")
+    return rows[0]
+
+
+@router.delete("/savings/{entry_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_savings_contribution(entry_id: UUID, user_id: str = Depends(get_current_user_id)):
+    rows = request_table("DELETE", "savings_contributions", user_id=_user_uuid(user_id), params={"id": f"eq.{entry_id}", "select": "id"}, prefer="return=representation")
+    if not rows:
+        raise HTTPException(status_code=404, detail={"error": {"code": "not_found", "message": "Savings entry not found"}})
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
 @router.get("/forecast")
 def forecast(user_id: str = Depends(get_current_user_id)):
     owner = _user_uuid(user_id)
@@ -208,8 +238,10 @@ def summary(user_id: str = Depends(get_current_user_id)):
     owner = _user_uuid(user_id)
     incomes = request_table("GET", "income_events", user_id=owner, params={"select": "amount_cents,received_on"}) or []
     expenses = request_table("GET", "expenses", user_id=owner, params={"select": "amount_cents,spent_on,recurring,category"}) or []
+    savings = request_table("GET", "savings_contributions", user_id=owner, params={"select": "amount_cents,saved_on"}) or []
     today = datetime.now(UTC).date()
     week_start = today - timedelta(days=today.weekday())
+    month_start = today.replace(day=1)
     week_income = sum(
         int(item["amount_cents"])
         for item in incomes
@@ -229,7 +261,11 @@ def summary(user_id: str = Depends(get_current_user_id)):
     return {
         "balance_cents": recorded_balance,
         "this_week_income_cents": week_income,
-        "set_aside_progress_cents": 0,
+        "set_aside_progress_cents": sum(
+            int(item["amount_cents"])
+            for item in savings
+            if month_start <= date.fromisoformat(item["saved_on"]) <= today
+        ),
         "set_aside_target_cents": model["set_aside"]["weekly_cents"] * 4,
         "next_shortfall": {"date": gap["date"], "amount_cents": gap["amount_cents"]} if gap["likely"] else None,
     }

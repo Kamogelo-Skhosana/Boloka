@@ -71,6 +71,22 @@ Same shape as income at `/api/v1/expenses`.
 
 Expense object adds `category` (text) and `recurring` (boolean) in place of `source`, and uses `spent_on` for the date.
 
+## Savings contributions
+
+Contributions record amounts the user has actually put aside. The monthly dashboard progress sums entries from the first day of the current month through today; it never treats a forecast suggestion as a saved amount.
+
+    GET /api/v1/savings?from=2026-10-01&to=2026-10-31
+    -> 200 { "items": [ { "id": "uuid", "amount_cents": 10000, "saved_on": "2026-10-24", "note": "Buffer" } ] }
+
+    POST /api/v1/savings
+    body: { "amount_cents": 10000, "saved_on": "2026-10-24", "note": "Buffer" }
+    -> 201 SavingsContribution
+
+    DELETE /api/v1/savings/{id}
+    -> 204
+
+Savings rows are owner-scoped and protected by the `savings_contributions` RLS policy in `supabase/schema.sql`. Apply the updated schema before deploying a backend that uses these endpoints.
+
 ## Forecast (the core)
 
     GET /api/v1/forecast

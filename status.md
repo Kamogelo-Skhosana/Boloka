@@ -1,29 +1,30 @@
 # Project Status: Boloka
 
-Living status log of delivery and release readiness.
+Living status log of implementation and release readiness.
 
 ## Snapshot — 24 October 2026
 
-- The feature work is on `feat/kamogelo-owned-issues` and awaits review in PR #46 to `main`.
-- `main` was fetched and merged into the feature branch before this round of UI work.
-- Backend API, synthetic seed, database schema/RLS, responsive preview UI, forecast and submission drafts are present in the branch.
-- Latest PR commit passed both GitHub CI jobs. Hosting secrets and a Boloka Supabase project are not configured here.
-- The sample dashboard uses fictional values. Preview changes are temporary and are never sent to Supabase.
-- No public deployment, real judge account, user pilot, recorded Hustle Pitch video, or Sonke final submission is claimed.
+- Latest `origin/main` was fetched before work; this branch starts at `1d752c8`.
+- Current work is on `feat/complete-assigned-tickets`, prepared for review in a PR targeting `main`.
+- Frontend lint/build and backend Ruff/pytest pass locally. Android debug APK builds and installs on the available Android emulator.
+- The preview uses fictional values. Preview edits stay in memory and are never sent to Supabase.
+- No production Supabase project or credentials are configured in this checkout. The live account-backed journey still needs team setup.
 
-## Completed in the current feature branch
+## Implemented in this branch
 
-- Income and expense API routes with authenticated ownership checks, CSV import, and tests.
-- Weekly income aggregation, explainable shortfall/set-aside estimates, and sparse-history behavior.
-- Mobile-first dashboard, transaction entry, CSV upload, forecast, savings guidance, and account screens.
-- Keyboard-visible focus, skip link, labelled forms, semantic navigation, live status messages, reduced motion, and a small-screen layout check.
-- CI/deployment configuration, synthetic demo seed, judge runbook, award benchmark, Lean Canvas draft, pitch script, and editable deck.
+- Themeloom theme integration using the team's source repository as a pinned submodule; React/Vite/Tailwind frontend configuration.
+- Supabase email/password UI and session-backed API use, income and expense forms, forecast dashboard, savings contribution API/UI, shortfall card and onboarding.
+- English/isiZulu/Sesotho key-screen copy, low-data option, privacy-safe app-shell caching, and scam-awareness nudge.
+- Loading, retry, offline, empty and error states; responsive layouts, labels, keyboard focus, skip link, reduced-motion support, and forecast values alongside the chart.
+- Capacitor Android project and debug APK build workflow.
+- SSDL engineering draft and API contract updates.
 
-## Remaining release work
+## Still needs team input or external setup
 
-- Review and merge PR #46 after CI passes.
-- Provision the team Supabase project, apply the schema, configure secrets, and create a private judge account.
-- Connect hosting, then test account sign-in and the API with seeded data on the deployed site.
-- Run the complete demo on a second device, including network-failure and keyboard checks.
-- Record the real 20-second pitch and complete the Sonke Canvas/final submission.
-- Conduct consented user walkthroughs and validate forecast quality before making impact or accuracy claims.
+- Apply the updated Supabase schema, set hosting secrets, configure auth redirects/CORS, and test with two non-production accounts.
+- Review isiZulu and Sesotho with fluent speakers; current strings are draft translations.
+- Confirm the required SSDL submission template and security-owner review; `submission/ssdl-security.md` is a working draft.
+- Install on a physical phone and sign a release APK with the team's release key. Only an emulator and debug signing are available here.
+- Complete Vercel setup/deployment and verify the app is publicly reachable with the team's approved backend configuration.
+- Post the remaining scheduled Sonke updates when those dates arrive; no future update is being claimed as completed.
+- Complete the actual Sonke submission, pitch video, consented user walkthroughs and forecast validation before impact or accuracy claims.

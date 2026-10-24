@@ -1,0 +1,3 @@
+[submodule "frontend/vendor/themeloom"]
+	path = frontend/vendor/themeloom
+	url = https://github.com/Kamogelo-Skhosana/themeloom.git

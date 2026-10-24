@@ -1,0 +1,14 @@
+{
+  "name": "Boloka — your money, with a plan",
+  "short_name": "Boloka",
+  "description": "A clear cash-flow estimate for people with irregular incomes.",
+  "lang": "en-ZA",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0c1512",
+  "theme_color": "#0c1512",
+  "icons": [
+    { "src": "/boloka-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

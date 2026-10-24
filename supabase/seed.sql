@@ -18,6 +18,7 @@ begin
   -- Clear any previous seed rows for this user so the script is repeatable
   delete from public.income_events where user_id = uid;
   delete from public.expenses      where user_id = uid;
+  delete from public.savings_contributions where user_id = uid;
 
   -- Irregular income over the last ~9 weeks: varying amounts, some gaps,
   -- and a thinning-out toward the most recent weeks so a shortfall is predictable.
@@ -48,5 +49,9 @@ begin
     (uid,  35000, 'groceries', current_date - 18, false),
     (uid,   4500, 'airtime',   current_date -  6, false);
 
-  raise notice 'Seeded 12 income events and 10 expenses for %.', demo_email;
+  insert into public.savings_contributions (user_id, amount_cents, saved_on, note) values
+    (uid, 10000, current_date - 12, 'Buffer contribution'),
+    (uid,  5000, current_date -  4, 'Buffer contribution');
+
+  raise notice 'Seeded 12 income events, 10 expenses, and 2 savings contributions for %.', demo_email;
 end $$;
