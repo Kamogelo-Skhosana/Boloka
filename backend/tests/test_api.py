@@ -145,8 +145,50 @@ def test_forecast_endpoint_exposes_model_and_consistent_totals(authenticated_cli
     response = authenticated_client.get("/api/v1/forecast")
     assert response.status_code == 200
     body = response.json()
-    assert body["model"]["method"] == "weighted_average"
-    assert body["model"]["reason"] == "insufficient_history"
-    assert body["model"]["model_mae_cents"] is None
+    assert body["model"]["method"] == "pandas_weekly_mean"
+    assert body["model"]["reason"] == "unvalidated_baseline"
+    assert body["shortfall"]["date"] is None
     assert body["predicted_income_cents"] == sum(week["predicted_income_cents"] for week in body["series"])
     assert body["confidence"] == "low"
+
+
+@pytest.mark.parametrize("balance", [-1, 1.5, True, 2_000_000_001])
+def test_cash_scenario_rejects_invalid_inputs(authenticated_client, balance):
+    response = authenticated_client.post("/api/v1/forecast/scenario", json={"available_balance_cents": balance})
+    assert response.status_code == 422
+
+
+def test_cash_scenario_is_not_persisted(authenticated_client, monkeypatch):
+    calls = []
+
+    def fake_request(method, table, **kwargs):
+        calls.append((method, table))
+        return []
+
+    monkeypatch.setattr(routers, "request_table", fake_request)
+    response = authenticated_client.post("/api/v1/forecast/scenario", json={"available_balance_cents": 10000})
+    assert response.status_code == 200
+    assert response.json()["available_balance_cents"] == 10000
+    assert all(method == "GET" for method, _ in calls)
+
+
+def test_cash_scenario_requires_authentication():
+    response = TestClient(app).post("/api/v1/forecast/scenario", json={"available_balance_cents": 1000})
+    assert response.status_code == 401
+
+
+@pytest.mark.parametrize("resource", ["income", "expenses"])
+@pytest.mark.parametrize("method", ["patch", "delete"])
+def test_entry_mutation_is_owner_scoped_and_handles_not_found(authenticated_client, monkeypatch, resource, method):
+    calls = []
+
+    def fake_request(*args, **kwargs):
+        calls.append(kwargs)
+        return []
+
+    monkeypatch.setattr(routers, "request_table", fake_request)
+    options = {"json": {"amount_cents": 1000}} if method == "patch" else {}
+    response = getattr(authenticated_client, method)(f"/api/v1/{resource}/{ENTRY_ID}", **options)
+    assert response.status_code == 404
+    assert calls[0]["user_id"] == USER_ID
+    assert calls[0]["params"]["id"] == f"eq.{ENTRY_ID}"

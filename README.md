@@ -55,7 +55,7 @@ The repository does not contain a live Supabase project URL, credentials, hosted
 
 The contract is in [`docs/api.md`](docs/api.md). Routes are rooted at `/api/v1`; all routes except `/health` require a Supabase access token. Income and expense amounts are positive integer cents in ZAR. The API derives ownership from a verified token and scopes every database operation to that user.
 
-The forecasting baseline groups income into weeks, weights recent weeks more heavily, accounts for known recent and recurring costs, and lowers confidence when history is sparse. It intentionally uses a transparent heuristic for this prototype rather than claiming model accuracy that has not been measured.
+The pandas baseline averages up to eight completed earning weeks, preserves zero-record weeks and distinguishes explicitly dated upcoming costs from historical everyday spending. Available cash is an optional unsaved scenario, not the recorded ledger net. It does not predict a precise shortfall date or calibrated probability. Confidence is unvalidated. See the API contract for observation thresholds and assumptions.
 
 ## Verify locally
 
@@ -77,7 +77,9 @@ See [`docs/deployment.md`](docs/deployment.md) for one-time Vercel, Render, and 
 
 ## Current release status
 
-The frontend can be explored without an account using clearly labelled fictional sample data; preview edits are temporary and are not uploaded. Live account data requires team Supabase configuration. Live hosting, a real demo account, and final Sonke submission depend on team-owned credentials and account access. No live deployment or user pilot is claimed in this README.
+The frontend can be explored without an account using clearly labelled fictional sample data. Preview edits recalculate recorded totals, but the fictional reference recommendation stays unchanged and explicitly labelled. Nothing from preview is uploaded. Live account data requires team Supabase configuration. Live hosting, a real demo account, and final Sonke submission depend on team-owned credentials and account access. No live deployment or user pilot is claimed in this README.
+
+See [the product review](docs/product-review.md) for acceptance criteria, engineering findings and remaining privacy/release decisions, and [the localization inventory](docs/localization-review.md) for the fluent-speaker review backlog. Run `npm test` as well as frontend lint/build. Fresh clones must run `git submodule update --init --recursive` before building Themeloom.
 
 ## Team
 

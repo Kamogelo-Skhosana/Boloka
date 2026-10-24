@@ -1,30 +1,30 @@
-# Project Status: Boloka
+﻿# Project status: Boloka
 
-Living status log of implementation and release readiness.
+## Review branch - 24 October 2026
 
-## Snapshot — 24 October 2026
+The responsible money-planning review starts from merged main at c1a9067.
+Changes are on fix/responsible-money-planning, pending review and merge.
 
-- Latest `origin/main` was fetched before work; this branch starts at `1d752c8`.
-- Current work is on `feat/complete-assigned-tickets`, prepared for review in a PR targeting `main`.
-- Frontend lint/build and backend Ruff/pytest pass locally. Android debug APK builds and installs on the available Android emulator.
-- The preview uses fictional values. Preview edits stay in memory and are never sent to Supabase.
-- No production Supabase project or credentials are configured in this checkout. The live account-backed journey still needs team setup.
+Implemented:
 
-## Implemented in this branch
+- Transparent pandas-only baseline, bounded completed-week history, explicit upcoming costs/cash assumptions, exact horizon totals, no precise date/likely warning, unvalidated confidence.
+- Paginated reads, optional unsaved cash scenario in a validated POST body, owner-scoped mutation checks.
+- Consistent preview totals with frozen fictional recommendations clearly labelled; no preview API requests.
+- Accessible income/expense edit/delete, confirmation/cancellation, scoped loaded-record JSON export and honest account-deletion limitations.
+- Catalogued main-screen copy, named placeholders, visible English fallbacks and a fluent-speaker review inventory.
+- Small transaction/preview/format/account-data modules and readable CSS preserving the original rule/declaration signature.
 
-- Themeloom theme integration using the team's source repository as a pinned submodule; React/Vite/Tailwind frontend configuration.
-- Supabase email/password UI and session-backed API use, income and expense forms, forecast dashboard, savings contribution API/UI, shortfall card and onboarding.
-- English/isiZulu/Sesotho key-screen copy, low-data option, privacy-safe app-shell caching, and scam-awareness nudge.
-- Loading, retry, offline, empty and error states; responsive layouts, labels, keyboard focus, skip link, reduced-motion support, and forecast values alongside the chart.
-- Capacitor Android project and debug APK build workflow.
-- SSDL engineering draft and API contract updates.
+Validation evidence and findings are in docs/product-review.md.
+No forecast accuracy, language approval, user impact or live deployment is claimed.
 
-## Still needs team input or external setup
+Remaining team decisions:
 
-- Apply the updated Supabase schema, set hosting secrets, configure auth redirects/CORS, and test with two non-production accounts.
-- Review isiZulu and Sesotho with fluent speakers; current strings are draft translations.
-- Confirm the required SSDL submission template and security-owner review; `submission/ssdl-security.md` is a working draft.
-- Install on a physical phone and sign a release APK with the team's release key. Only an emulator and debug signing are available here.
-- Complete Vercel setup/deployment and verify the app is publicly reachable with the team's approved backend configuration.
-- Post the remaining scheduled Sonke updates when those dates arrive; no future update is being claimed as completed.
-- Complete the actual Sonke submission, pitch video, consented user walkthroughs and forecast validation before impact or accuracy claims.
+- Fluent-speaker review; complete recurring-bill/history/cash concepts.
+- Full export scope, deletion identity verification, retention/backups, support ownership and contact route.
+- Database-layer ownership for backend requests: existing service-role access bypasses RLS; API filters alone do not satisfy that release gate.
+
+External setup:
+
+- Team Supabase/hosting, schema, secrets, redirects and CORS.
+- Two-account security and live account-backed flow tests, physical-device/release-signing checks and SSDL approval.
+- Actual Sonke submission, pitch recording and consented user evaluation.

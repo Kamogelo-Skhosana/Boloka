@@ -1,18 +1,16 @@
-"""Explainable, low-data cash-flow forecast for irregular income.
-
-Weekly pandas aggregation feeds a bounded scikit-learn trend model, selected
-only when it improves on the weighted baseline on held-out later weeks.
-Sparse history retains the baseline and an explicit low confidence label.
-"""
+"""Transparent pandas cash-planning baseline; no calibrated risk prediction."""
 
 from collections.abc import Iterable
 from datetime import UTC, date, datetime, timedelta
-from statistics import median
+from math import ceil
 from typing import Any
+from zoneinfo import ZoneInfo
 
 import pandas as pd
 
-from .income_model import estimate_income
+
+def local_today() -> date:
+    return datetime.now(ZoneInfo("Africa/Johannesburg")).date()
 
 
 def weekly_income(events: Iterable[dict[str, Any]], today: date) -> list[dict[str, Any]]:
@@ -42,12 +40,26 @@ def weekly_income(events: Iterable[dict[str, Any]], today: date) -> list[dict[st
     frame["week_start"] = frame["date"].dt.to_period("W-SUN").dt.start_time
     grouped = frame.groupby("week_start")["amount_cents"].sum()
     current_week = today - timedelta(days=today.weekday())
-    weeks = pd.date_range(grouped.index.min(), current_week, freq="W-MON")
+    weeks = pd.date_range(max(grouped.index.min(), pd.Timestamp(current_week - timedelta(weeks=8))), current_week, freq="W-MON")
     grouped = grouped.reindex(weeks, fill_value=0)
     return [
         {"week_start": week.date().isoformat(), "amount_cents": int(amount)}
         for week, amount in grouped.items()
     ]
+
+
+def _valid_rows(rows: list[dict[str, Any]], field: str) -> list[dict[str, Any]]:
+    valid = []
+    for row in rows:
+        try:
+            day = date.fromisoformat(str(row.get(field, "")))
+            amount = row.get("amount_cents")
+            if type(amount) is not int or not 0 < amount <= 2_000_000_000:
+                continue
+            valid.append({**row, "day": day})
+        except (ValueError, TypeError):
+            continue
+    return valid
 
 
 def build_forecast(
@@ -56,106 +68,94 @@ def build_forecast(
     *,
     today: date | None = None,
     horizon_days: int = 30,
+    available_balance_cents: int | None = None,
 ) -> dict[str, Any]:
-    today = today or datetime.now(UTC).date()
-    if not 1 <= horizon_days <= 90:
+    today = today or local_today()
+    if type(horizon_days) is not int or not 1 <= horizon_days <= 90:
         raise ValueError("horizon_days must be between 1 and 90")
+    if available_balance_cents is not None and (type(available_balance_cents) is not int or available_balance_cents < 0):
+        raise ValueError("available_balance_cents must be a nonnegative integer or None")
     weekly = weekly_income(incomes, today)
     current_week = (today - timedelta(days=today.weekday())).isoformat()
-    completed = [row for row in weekly if row["week_start"] < current_week]
-    # Do not treat an unfinished week as a full week's earning pattern. If no
-    # completed week exists, use this week's recorded total as a cold start.
-    history_weeks = len(completed)
-    confidence = "medium" if history_weeks >= 6 else "low"
-    estimate = estimate_income(
-        [row["amount_cents"] for row in completed],
-        (horizon_days + 6) // 7,
-        partial=weekly[-1]["amount_cents"] if weekly else 0,
-    )
-    weekly_income_cents = estimate.weeks[0]
-
-    lookback = today - timedelta(days=30)
-    recent_expenses = [
-        int(row["amount_cents"])
-        for row in expenses
-        if date.fromisoformat(str(row["spent_on"])) >= lookback
-    ]
-    monthly_expenses = sum(recent_expenses)
-    recurring_categories: dict[str, list[int]] = {}
-    for row in expenses:
-        if row.get("recurring") and date.fromisoformat(str(row["spent_on"])) >= today - timedelta(days=90):
-            category = str(row.get("category") or "other recurring cost").strip().lower()
-            recurring_categories.setdefault(category, []).append(int(row["amount_cents"]))
-    recurring_monthly = sum(round(median(amounts)) for amounts in recurring_categories.values())
-    # For a cold start, still account for fixed known costs without projecting
-    # unobserved discretionary spending.
+    completed = [row for row in weekly if row["week_start"] < current_week][-8:]
+    weeks = len(completed)
+    income_known = weeks >= 2
+    daily_income = sum(row["amount_cents"] for row in completed) / (weeks * 7) if income_known else 0
+    end = today + timedelta(days=horizon_days)
+    expense_rows = _valid_rows(expenses, "spent_on")
+    historic = [row for row in expense_rows if today - timedelta(days=29) <= row["day"] <= today]
+    # Recurring is only a flag: there is no bill identity, cadence or due date.
+    # Do not invent repeats or collapse separate bills with the same category.
+    everyday = [row for row in historic if not row.get("recurring")]
+    observed_days = (today - min(row["day"] for row in historic)).days + 1 if historic else 0
+    spending_known = observed_days >= 14
+    daily_spending = sum(row["amount_cents"] for row in everyday) / observed_days if spending_known else 0
+    scheduled = [row for row in expense_rows if today < row["day"] <= end]
+    scheduled_cents = sum(row["amount_cents"] for row in scheduled)
+    costs_overlap_possible = daily_spending > 0 and any(not row.get("recurring") for row in scheduled)
+    everyday_cents = round(daily_spending * horizon_days)
+    projected_income = round(daily_income * horizon_days)
+    costs = scheduled_cents + everyday_cents
+    # Allocate via rounded cumulative totals so the final two-day block and
+    # the horizon totals agree exactly, including fractional daily cents.
     series = []
-    for week, weekly_amount in enumerate(estimate.weeks):
-        start = today + timedelta(days=week * 7)
-        days = min(7, horizon_days - week * 7)
-        amount = round(weekly_amount * days / 7)
-        # These are illustrative planning ranges, not calibrated probabilities.
-        validation_error = (
-            estimate.model_mae_cents if estimate.method == "ridge_trend"
-            else estimate.baseline_mae_cents
-        )
-        spread = max(weekly_amount * 0.5, validation_error or 0) * days / 7
+    for offset in range(0, horizon_days, 7) if income_known else []:
+        stop = min(offset + 7, horizon_days)
         series.append({
-            "week_start": start.isoformat(),
-            "predicted_income_cents": amount,
-            "lower_cents": max(0, round(amount - spread)),
-            "upper_cents": round(amount + spread),
+            "week_start": (today + timedelta(days=offset + 1)).isoformat(),
+            "days": stop - offset,
+            "predicted_income_cents": round(daily_income * stop) - round(daily_income * offset),
         })
-    predicted_income = sum(row["predicted_income_cents"] for row in series)
-    predicted_expenses = round(max(monthly_expenses, recurring_monthly, 0) * horizon_days / 30)
-    gap = max(0, predicted_expenses - predicted_income)
-    shortfall_date = today + timedelta(days=min(horizon_days, 21)) if gap else None
-    weekly_saving = round(gap / max(1, (shortfall_date - today).days // 7)) if gap else 0
-
-    explanation = (
-        f"Based on {history_weeks} completed weeks of recorded income, the next week's "
-        f"income estimate is R{weekly_income_cents / 100:,.2f}. Estimated costs over the next "
-        f"{horizon_days} days are about R{predicted_expenses / 100:,.2f}. "
+    enough_history = weeks >= 6 and (spending_known or bool(scheduled)) and not costs_overlap_possible
+    gap = max(0, costs - projected_income - (available_balance_cents or 0))
+    status = "insufficient_data" if not enough_history else "planning_gap" if gap else "no_gap_in_estimate"
+    target = gap if enough_history else 0
+    assumptions = [
+        "Weeks without recorded earnings count as zero inside the observed window; missing entries can lower the estimate.",
+        "Only the last eight completed weeks are used. The current partial week and future income are excluded.",
+        "Future dated costs are counted once. Marking a past expense recurring does not create a due date or repeat it.",
+        "Everyday spending uses up to 30 recorded calendar days, only when the record spans at least 14 days. Unrecorded costs are unknown.",
+        "Weekly income does not tell us which day a payout will arrive. No shortfall date or probability is predicted.",
+        "Upcoming non-recurring entries may overlap the everyday estimate. When both exist, costs are a conservative combined scenario and no gap recommendation is issued.",
+    ]
+    assumptions.append(
+        "Available cash is unknown. The planning gap assumes no cash is available; recorded net income is not a bank balance."
+        if available_balance_cents is None else
+        "The cash scenario uses the available amount you entered, not a bank-verified balance."
     )
-    if estimate.method == "ridge_trend":
-        explanation += "A trend model was used because it had lower error than the weighted average on the last four completed weeks. "
-    else:
-        explanation += "This uses a recency-weighted income baseline. "
-    if weekly and not completed:
-        explanation += "With no completed week yet, this uses only the income recorded so far this week. "
-    if history_weeks < 6:
-        explanation += "This is an early estimate because there are fewer than six weeks of income history. Add more entries to improve it."
-    elif gap:
-        explanation += "The estimate shows a likely gap; setting aside a little each week can build a buffer."
-    else:
-        explanation += "No shortfall is visible in this estimate; keep recording income and expenses to track changes."
-
+    explanation = (
+        f"This is a planning estimate from {weeks} completed weeks, not a prediction of earnings. "
+        f"It covers tomorrow through {end.isoformat()}. "
+        + ("There is too little history for a set-aside recommendation. " if not enough_history else "Any gap depends on complete records and the cash assumption. ")
+        + "Past recurring bills need an explicit upcoming entry before they are included as due costs."
+    )
+    past_income = _valid_rows(incomes, "received_on")
+    recorded_net = sum(row["amount_cents"] for row in past_income if row["day"] <= today) - sum(row["amount_cents"] for row in expense_rows if row["day"] <= today)
     return {
         "generated_at": datetime.now(UTC).isoformat(),
         "horizon_days": horizon_days,
-        "predicted_income_cents": predicted_income,
-        "predicted_expenses_cents": predicted_expenses,
-        "shortfall": {
-            "likely": bool(gap),
-            "date": shortfall_date.isoformat() if shortfall_date else None,
-            "amount_cents": gap,
-        },
+        "horizon_start": (today + timedelta(days=1)).isoformat(),
+        "horizon_end": end.isoformat(),
+        "predicted_income_cents": projected_income,
+        "predicted_expenses_cents": costs,
+        "scheduled_expenses_cents": scheduled_cents,
+        "everyday_expenses_cents": everyday_cents,
+        "available_balance_cents": available_balance_cents,
+        "recorded_net_cents": recorded_net,
+        "history_weeks": weeks,
+        "expense_history_days": observed_days,
+        "income_estimate_available": income_known,
+        "everyday_estimate_available": spending_known,
+        "costs_overlap_possible": costs_overlap_possible,
+        "shortfall": {"likely": False, "date": None, "amount_cents": gap if enough_history else 0, "status": status},
         "set_aside": {
-            "weekly_cents": weekly_saving,
-            "reason": (
-                f"Saving about R{weekly_saving / 100:,.2f} each week builds toward the estimated gap."
-                if gap else "No set-aside is suggested from the current estimate."
-            ),
+            "weekly_cents": ceil(target * 7 / horizon_days),
+            "total_cents": target,
+            "reason": "A conditional planning gap, assuming the stated available cash. It is not a saving guarantee." if target else "No recommendation is available from these inputs; check your upcoming bills and cash.",
         },
-        "confidence": confidence,
-        "model": {
-            "method": estimate.method,
-            "reason": estimate.reason,
-            "training_weeks": min(history_weeks, 52),
-            "validation_weeks": estimate.validation_weeks,
-            "model_mae_cents": estimate.model_mae_cents,
-            "baseline_mae_cents": estimate.baseline_mae_cents,
-        },
+        "confidence": "low",
+        "model": {"method": "pandas_weekly_mean", "training_weeks": weeks, "reason": "unvalidated_baseline"},
         "explanation": explanation,
+        "assumptions": assumptions,
         "series": series,
     }

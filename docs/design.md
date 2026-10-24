@@ -44,7 +44,7 @@ Keep one bold element per screen (usually the forecast or the alert), everything
 
 ## Signature component
 
-The shortfall alert card: amber left border, a short heads-up line, and the action in bold. Example: "The 22nd looks tight. Set aside R150 this week." This is the thing a judge and a user should remember.
+The planning card keeps warm amber for a conditional gap, with a short plain-language heading and visible cash/history assumptions. Do not show a precise shortfall date or likely-risk warning from weekly earnings. Use a neutral information state when inputs are insufficient and label the fictional preview recommendation as unchanged by preview edits.
 
 ## Navigation
 

@@ -94,62 +94,51 @@ Savings rows are owner-scoped and protected by the `savings_contributions` RLS p
 
 ## Forecast (the core)
 
-    GET /api/v1/forecast
-    -> 200
-    {
-      "generated_at": "2026-10-24T18:00:00Z",
-      "horizon_days": 30,
-      "predicted_income_cents": 520000,
-      "predicted_expenses_cents": 610000,
-      "shortfall": {
-        "likely": true,
-        "date": "2026-11-22",
-        "amount_cents": 48000
-      },
-      "set_aside": {
-        "weekly_cents": 15000,
-        "reason": "Covers the predicted gap around the 22nd with a small buffer."
-      },
-      "confidence": "medium",
-      "explanation": "Based on your last 8 weeks, income dips in the final third of the month while rent falls due. Setting aside R150 a week closes the gap.",
-      "series": [
-        { "week_start": "2026-10-27", "predicted_income_cents": 130000, "lower_cents": 90000, "upper_cents": 170000 }
-      ]
-    }
+    GET /api/v1/forecast\n    POST /api/v1/forecast/scenario\n    body: { "available_balance_cents": 10000 }
 
-When there is too little history to model, the backend returns the same shape with `"confidence": "low"` and a heuristic set-aside (cold-start fallback, issue #22).
+The nonnegative available-cash scenario body is a scenario value, not stored
+or bank verified. Without it, available cash is unknown. Recorded net income
+is never silently substituted for available cash. The endpoint covers tomorrow
+through today + 30 days, using the Africa/Johannesburg calendar.
 
-Income history is aggregated into Monday-to-Sunday weeks from the first valid
-earning through the current week. Missing weeks inside that window count as
-zero income; time before the first earning is unknown. Invalid dates, invalid
-amounts, and future earnings are excluded. The baseline uses the most recent
-eight completed weeks, including zero-income weeks. The unfinished current
-week is excluded unless no completed week exists, when its recorded income
-provides a low-confidence fallback. These estimates assume the recorded
-history is complete; missing entries can reduce the estimate.
+The response retains the income/expense totals, `series`, `shortfall`, and
+`set_aside` fields. It adds explicit assumptions and data availability:
 
-With twelve or more completed weeks, a bounded scikit-learn Ridge trend is
-compared with the baseline on the latest four weeks, training only on earlier
-weeks. It is selected only with at least 10% lower mean absolute error (MAE),
-then refitted on up to 52 completed weeks. Otherwise the baseline is retained.
-Confidence is capped at `medium` pending real-user validation.
+- `model.method`: `pandas_weekly_mean`; no fitted ML model is used.
+- `history_weeks`: up to eight completed weeks, including zero-income gaps.
+- `income_estimate_available`: at least two completed weeks; otherwise the
+  income total is zero as a placeholder, not a prediction of no earnings.
+- `scheduled_expenses_cents`: explicitly dated costs after today and within
+  the horizon, counted once each, even when categories match.
+- `everyday_expenses_cents`: historical non-recurring daily mean multiplied by
+  30, only when recent records span at least 14 calendar days. Recurring flags
+  do not establish bill identity, cadence or due dates, so past recurring costs
+  need an explicit future entry. Missing bills remain unknown.
+- `costs_overlap_possible`: true when upcoming non-recurring costs might already
+  be covered by the everyday estimate. The combined cost total is then a
+  conservative scenario, not a deduplicated prediction. No gap recommendation
+  is issued until that ambiguity is resolved; status is `insufficient_data`.
+- `available_balance_cents`: null when unknown; `recorded_net_cents` is a
+  separate, incomplete ledger total. Savings contributions are transfers and
+  do not automatically increase available cash or reduce the planning gap.
+- `shortfall.status`: `insufficient_data`, `planning_gap` or `no_gap_in_estimate`.
+  A planning gap requires six completed income weeks and an expense basis.
+  It equals max(0, estimated costs - estimated earnings - scenario cash).
+- `shortfall.likely` is always false and `shortfall.date` is always null: weekly
+  data cannot support a payout date or calibrated risk probability. UI code
+  must use status and show assumptions rather than the legacy likely flag.
+- `set_aside.total_cents` is the conditional planning gap, or zero for
+  insufficient inputs; weekly cents are ceil(total * 7 / 30). This is a
+  scenario allocation, not proof that money can be saved.
+- `confidence` remains low until evidence supports calibrated confidence.
 
-An additive `model` object identifies the selection and its diagnostics:
-
-    { "method": "ridge_trend", "reason": "lower_holdout_error", "training_weeks": 16,
-      "validation_weeks": 4, "model_mae_cents": 250.0, "baseline_mae_cents": 6000.0 }
-
-`method` is `ridge_trend` or `weighted_average`. Baseline reasons are
-`insufficient_history` or `baseline_retained`. MAE values are null when there
-is insufficient history for validation. `training_weeks` counts the available
-completed weeks used for the final estimate, capped at 52; the validation fit
-excludes its last four weeks.
-
-Series entries cover consecutive seven-day blocks from the forecast date.
-The final block is prorated to the remaining horizon days. The income total
-equals the sum of those blocks. Lower/upper values are illustrative planning
-ranges, not calibrated probabilities. Expense estimates scale the observed
-monthly budget to the horizon. The endpoint retains its fixed 30-day horizon.
+The mean assumes records are complete during the observation window; missing
+weeks are zero recorded income, not proof of no work. The current partial week
+and future earnings are excluded. Older income does not extend the bounded
+window. Each series row has a start date and number of days; cumulative integer
+rounding ensures blocks sum exactly to the 30-day income total. No statistical
+confidence band is returned. When income history is insufficient, the series
+is empty rather than plotting unknown earnings as zero.
 
 ## Dashboard summary
 
@@ -160,5 +149,7 @@ monthly budget to the horizon. The endpoint retains its fixed 30-day horizon.
       "this_week_income_cents": 130000,
       "set_aside_progress_cents": 30000,
       "set_aside_target_cents": 60000,
-      "next_shortfall": { "date": "2026-11-22", "amount_cents": 48000 }
+      "next_shortfall": null
     }
+
+The summary balance is recorded net income less paid expenses, not available cash. `next_shortfall` remains null because no precise day/risk is established. Savings progress is the recorded current-month contribution sum, separate from the conditional horizon target; the UI does not present these as progress against a dated goal. Database reads paginate rather than silently truncating to one server page.

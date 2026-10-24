@@ -1,3 +1,5 @@
+import { english } from './strings.js'
+
 export const supportedLanguages = [
   { code: 'en', label: 'English', locale: 'en-ZA' },
   { code: 'zu', label: 'isiZulu', locale: 'zu-ZA' },
@@ -73,8 +75,17 @@ const messages = {
   },
 }
 
-export function translate(language, key) {
-  return messages[language]?.[key] ?? messages.en[key] ?? key
+Object.assign(messages.en, english)
+
+export const translationKeys = Object.keys(messages.en)
+
+export function missingTranslations(language) {
+  return Object.keys(messages.en).filter(key => !Object.hasOwn(messages[language] || {}, key))
+}
+
+export function translate(language, key, variables = {}) {
+  const value = messages[language]?.[key] ?? messages.en[key] ?? key
+  return value.replace(/\{(\w+)\}/g, (match, name) => variables[name] == null ? match : String(variables[name]))
 }
 
 export function languageLocale(language) {

@@ -6,4 +6,4 @@ PyJWT==2.9.0
 python-multipart==0.0.12
 httpx==0.28.1
 pandas==2.2.3
-scikit-learn==1.5.2
+tzdata==2026.5

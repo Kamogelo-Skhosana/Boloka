@@ -3,7 +3,7 @@
 Agile delivery plan for the FNB App of the Year 2026 hackathon (Financial Inclusion and Money Confidence challenge).
 
 ## Team (ThaKa)
-- Kamogelo Skhosana (@Kamogelo-Skhosana): Backend, Data and ML (the forecasting engine), and submission artifacts.
+- Kamogelo Skhosana (@Kamogelo-Skhosana): Backend, Data and cash planning, and submission artifacts.
 - Thato Maluleka (@thato899): Frontend, UI/UX, Mobile (Capacitor), and QA.
 
 ## Methodology: Agile (Scrum-lite)
@@ -19,7 +19,7 @@ We run a compressed Scrum across the 72-hour window (Sat 24 to Mon 26 Oct):
 Repo and CI/CD, frontend scaffold, FastAPI skeleton, Supabase (Postgres and Auth), auth screens, income and expense entry, seed data. Hustle Pitch video (gate: Sat 13:30).
 
 ### Sprint 2, Sun 25 Oct: Differentiator and product
-Forecasting engine (pandas and Prophet/scikit-learn), shortfall and set-aside logic, forecast API, dashboard and shortfall alert card, low-data mode and i18n, deploy to Vercel and Render.
+Transparent cash-planning baseline (pandas), shortfall and set-aside logic, forecast API, dashboard and shortfall alert card, low-data mode and i18n, deploy to Vercel and Render.
 
 ### Sprint 3, Mon 26 Oct: Package and submit
 Capacitor signed APK and real-device test, end-to-end demo run, presentation deck, Lean Canvas, SSDL, README. Final Sonke submission (target 20:00, hard deadline 23:59).

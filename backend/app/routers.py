@@ -1,6 +1,6 @@
 import csv
 import io
-from datetime import UTC, date, datetime, timedelta
+from datetime import date, timedelta
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from typing import Any
 from uuid import UUID
@@ -19,7 +19,7 @@ from pydantic import BaseModel, Field, field_validator
 
 from .auth import get_current_user_claims, get_current_user_id
 from .database import request_table
-from .forecasting import build_forecast
+from .forecasting import build_forecast, local_today
 
 router = APIRouter()
 
@@ -243,12 +243,26 @@ def delete_savings_contribution(entry_id: UUID, user_id: str = Depends(get_curre
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.get("/forecast")
-def forecast(user_id: str = Depends(get_current_user_id)):
+class ForecastScenario(BaseModel):
+    available_balance_cents: int | None = Field(default=None, ge=0, le=2_000_000_000, strict=True)
+
+
+def _user_forecast(user_id: str, available_balance_cents: int | None = None) -> dict:
     owner = _user_uuid(user_id)
     incomes = request_table("GET", "income_events", user_id=owner, params={"select": "amount_cents,received_on", "order": "received_on.asc"}) or []
     expenses = request_table("GET", "expenses", user_id=owner, params={"select": "amount_cents,spent_on,recurring,category", "order": "spent_on.asc"}) or []
-    return build_forecast(incomes, expenses)
+    return build_forecast(incomes, expenses, available_balance_cents=available_balance_cents)
+
+
+@router.get("/forecast")
+def forecast(user_id: str = Depends(get_current_user_id)) -> dict:
+    return _user_forecast(user_id)
+
+
+@router.post("/forecast/scenario")
+def forecast_scenario(body: ForecastScenario, user_id: str = Depends(get_current_user_id)) -> dict:
+    # Scenario cash is neither persisted nor placed in URLs/access logs.
+    return _user_forecast(user_id, body.available_balance_cents)
 
 
 @router.get("/summary")
@@ -257,7 +271,7 @@ def summary(user_id: str = Depends(get_current_user_id)):
     incomes = request_table("GET", "income_events", user_id=owner, params={"select": "amount_cents,received_on"}) or []
     expenses = request_table("GET", "expenses", user_id=owner, params={"select": "amount_cents,spent_on,recurring,category"}) or []
     savings = request_table("GET", "savings_contributions", user_id=owner, params={"select": "amount_cents,saved_on"}) or []
-    today = datetime.now(UTC).date()
+    today = local_today()
     week_start = today - timedelta(days=today.weekday())
     month_start = today.replace(day=1)
     week_income = sum(
@@ -284,6 +298,6 @@ def summary(user_id: str = Depends(get_current_user_id)):
             for item in savings
             if month_start <= date.fromisoformat(item["saved_on"]) <= today
         ),
-        "set_aside_target_cents": model["set_aside"]["weekly_cents"] * 4,
+        "set_aside_target_cents": model["set_aside"]["total_cents"],
         "next_shortfall": {"date": gap["date"], "amount_cents": gap["amount_cents"]} if gap["likely"] else None,
     }
