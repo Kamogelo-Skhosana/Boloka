@@ -1,5 +1,13 @@
 ﻿# Project status: Boloka
 
+## Hustle Pitch preparation - 25 October 2026
+
+Ticket #38's script now describes conditional planning and sparse-data guidance,
+not a predicted warning. It distinguishes sample preview from a live demo,
+requires an explicit upcoming bill and synthetic-data label, and includes a
+recording/duration/upload checklist. No video was recorded or submitted; the
+ticket stays open for those team actions.
+
 ## Canvas scope review - 25 October 2026
 
 Ticket #40's draft now describes inspectable conditional planning instead of a
