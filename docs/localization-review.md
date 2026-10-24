@@ -191,4 +191,13 @@ Review financial meanings (recorded net versus available cash, conditional gap, 
 
 ## Existing translated keys
 
+Ticket #20 adds English fallback keys requiring fluent isiZulu/Sesotho review:
+`explainCalculation`, `explainHorizon`, `explainIncomeMath`, `explainUnknownIncome`,
+`explainCostsMath`, `explainUnknownCash`, `explainGapMath`, `explainWeeklyMath`,
+`explainOverlap`, `explainIncomeHistory`, `explainCostHistory`, `explainPlanningGap`,
+`explainNoGap`, `explainUnavailable`. Review the distinction between recorded
+income, estimated earnings, assumed cash, an aggregate gap and affordability.
+Preserve named placeholders and the meaning of rounding; do not imply timing or
+validated accuracy. No new translation has been guessed or approved.
+
 All existing translated keys require review too, particularly onboarding, privacy claims, recurring costs and scam warnings. Their presence is not evidence of language quality. Do not mark issue #28 complete until fluent reviewers approve the financial and destructive-action flows.

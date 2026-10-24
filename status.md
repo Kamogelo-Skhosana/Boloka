@@ -1,5 +1,21 @@
 ﻿# Project status: Boloka
 
+## Forecast explanation layer - 25 October 2026
+
+Ticket #20: expose the exact income numerator/denominator and cash assumption,
+give specific reasons for withheld recommendations, and show an expandable
+calculation in the account forecast using existing styles. Preview keeps its
+fictional label and reference calculation unchanged. Arithmetic is preserved;
+zero aggregate gap is explicitly not an on-time payment guarantee. New locale
+keys remain visible English fallbacks pending fluent review. Live deployment
+verification remains part of the separate release tickets.
+
+Validation: 138 backend tests, Ruff, seven frontend tests, ESLint and production
+build pass. Browser checks at 375px cover keyboard expansion, conditional gap,
+sparse history, covered costs, English fallback and placeholder interpolation.
+An existing randomized EC-key test fixture now preserves fixed-width P-256
+coordinates, removing intermittent invalid-fixture failures.
+
 ## Synthetic demo dataset - 25 October 2026
 
 Ticket #14: seed data now requires explicit account selection and confirmation,

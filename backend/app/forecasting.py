@@ -110,6 +110,19 @@ def build_forecast(
     gap = max(0, costs - projected_income - (available_balance_cents or 0))
     status = "insufficient_data" if not enough_history else "planning_gap" if gap else "no_gap_in_estimate"
     target = gap if enough_history else 0
+    recommendation_reason = (
+        "overlapping_costs" if costs_overlap_possible else
+        "insufficient_income_history" if weeks < 6 else
+        "insufficient_cost_history" if not (spending_known or scheduled) else
+        "planning_gap" if gap else "no_gap_in_estimate"
+    )
+    reasons = {
+        "overlapping_costs": "Upcoming costs may overlap the everyday estimate; distinguish them before using a set-aside recommendation.",
+        "insufficient_income_history": "At least six completed weeks of recorded income history are needed for a set-aside recommendation.",
+        "insufficient_cost_history": "Add dated upcoming costs or spending records spanning at least 14 recent calendar days before using a set-aside recommendation.",
+        "planning_gap": "Estimated costs exceed estimated income and the stated available cash; the difference is a conditional planning gap.",
+        "no_gap_in_estimate": "These inputs show no gap over the whole horizon. That does not establish that every bill can be paid on time.",
+    }
     assumptions = [
         "Weeks without recorded earnings count as zero inside the observed window; missing entries can lower the estimate.",
         "Only the last eight completed weeks are used. The current partial week and future income are excluded.",
@@ -126,7 +139,7 @@ def build_forecast(
     explanation = (
         f"This is a planning estimate from {weeks} completed weeks, not a prediction of earnings. "
         f"It covers tomorrow through {end.isoformat()}. "
-        + ("There is too little history for a set-aside recommendation. " if not enough_history else "Any gap depends on complete records and the cash assumption. ")
+        + reasons[recommendation_reason] + " "
         + "Past recurring bills need an explicit upcoming entry before they are included as due costs."
     )
     past_income = _valid_rows(incomes, "received_on")
@@ -147,6 +160,12 @@ def build_forecast(
         "income_estimate_available": income_known,
         "everyday_estimate_available": spending_known,
         "costs_overlap_possible": costs_overlap_possible,
+        "recommendation_reason": recommendation_reason,
+        "calculation": {
+            "income_history_cents": sum(row["amount_cents"] for row in completed),
+            "income_history_days": weeks * 7,
+            "cash_assumed_cents": available_balance_cents or 0,
+        },
         "shortfall": {"likely": False, "date": None, "amount_cents": gap if enough_history else 0, "status": status},
         "set_aside": {
             "weekly_cents": ceil(target * 7 / horizon_days),

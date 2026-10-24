@@ -110,6 +110,15 @@ Savings rows are owner-scoped and protected by the `savings_contributions` RLS p
 
 ## Forecast (the core)
 
+The additive `calculation` object exposes the completed-history income total,
+its calendar-day denominator and assumed cash in cents. `recommendation_reason`
+is one of `insufficient_income_history`, `insufficient_cost_history`,
+`overlapping_costs`, `planning_gap` or `no_gap_in_estimate`. It explains why a
+recommendation is withheld or available without changing the forecast arithmetic.
+Unknown cash remains `available_balance_cents: null` even though the scenario
+assumes zero. Clients must preserve that distinction. An aggregate zero gap is
+not evidence that individual bills can be paid on time.
+
     GET /api/v1/forecast\n    POST /api/v1/forecast/scenario\n    body: { "available_balance_cents": 10000 }
 
 The nonnegative available-cash scenario body is a scenario value, not stored

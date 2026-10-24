@@ -31,6 +31,11 @@ def signing_key(algorithm="ES256", kid="current"):
     if algorithm == "ES256":
         private = ec.generate_private_key(ec.SECP256R1())
         public = jwt.algorithms.ECAlgorithm.to_jwk(private.public_key(), as_dict=True)
+        # PyJWT 2.9's exporter drops leading zero bytes. RFC 7518 requires
+        # fixed-width P-256 coordinates; otherwise random fixtures can fail.
+        numbers = private.public_key().public_numbers()
+        public.update({axis: jwt.utils.base64url_encode(value.to_bytes(32, "big")).decode()
+                       for axis, value in (("x", numbers.x), ("y", numbers.y))})
     else:
         private = rsa.generate_private_key(public_exponent=65537, key_size=2048)
         public = jwt.algorithms.RSAAlgorithm.to_jwk(private.public_key(), as_dict=True)
