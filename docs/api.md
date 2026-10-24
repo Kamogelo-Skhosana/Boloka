@@ -110,6 +110,13 @@ Savings rows are owner-scoped and protected by the `savings_contributions` RLS p
 
 ## Forecast (the core)
 
+Both forecast routes publish the same typed `ForecastResponse` in `/openapi.json`
+and `/docs`. It constrains the baseline method, reason/action codes, nullable
+cash, nonnegative monetary estimates, and the unvalidated confidence/date
+policy. Database failures return errors; the account API never substitutes
+fictional preview data. This contract describes the pandas baseline, not a
+trained ML model or validated prediction.
+
 For sparse or ambiguous inputs, `next_steps` contains ordered action codes:
 `record_income`, `add_upcoming_costs`, `review_overlapping_costs`, and/or
 `check_available_cash`. Only actions relevant to the missing inputs are included;
