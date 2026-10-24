@@ -1,0 +1,8 @@
+[tool.ruff.lint]
+# B008 fires on FastAPI's Depends() in argument defaults, which is the framework's
+# intended pattern, so it is ignored here.
+ignore = ["B008"]
+
+[tool.pytest.ini_options]
+# Make the app package importable when running pytest from the backend root.
+pythonpath = ["."]

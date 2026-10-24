@@ -1,9 +1,8 @@
 name: Deploy
 
-# Production deployments run only after the main-branch CI workflow succeeds.
-# Vercel secrets are checked in a step because GitHub does not allow the
-# `secrets` context in an `if` expression. Render deploys from its Blueprint
-# with autoDeployTrigger: checksPass.
+# Production deployments run only after main CI succeeds. Vercel settings are
+# checked in a step because GitHub does not permit secrets in an `if` expression.
+# Render uses render.yaml with autoDeployTrigger: checksPass.
 on:
   workflow_run:
     workflows: [CI]
@@ -38,22 +37,18 @@ jobs:
           if [[ "$enabled" == false ]]; then
             echo "Vercel deployment skipped: configure VERCEL_TOKEN, VERCEL_ORG_ID and VERCEL_PROJECT_ID."
           fi
-
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         if: steps.config.outputs.enabled == 'true'
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
           persist-credentials: false
-
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         if: steps.config.outputs.enabled == 'true'
         with:
           node-version: 22
-
       - name: Install Vercel CLI
         if: steps.config.outputs.enabled == 'true'
         run: npm install --global vercel@65.2.0
-
       - name: Pull production settings
         if: steps.config.outputs.enabled == 'true'
         working-directory: frontend
@@ -62,7 +57,6 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
-
       - name: Build production bundle
         if: steps.config.outputs.enabled == 'true'
         working-directory: frontend
@@ -71,7 +65,6 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
-
       - name: Deploy tested build to production
         if: steps.config.outputs.enabled == 'true'
         working-directory: frontend
