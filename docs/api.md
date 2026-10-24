@@ -122,11 +122,34 @@ When there is too little history to model, the backend returns the same shape wi
 Income history is aggregated into Monday-to-Sunday weeks from the first valid
 earning through the current week. Missing weeks inside that window count as
 zero income; time before the first earning is unknown. Invalid dates, invalid
-amounts, and future earnings are excluded. The forecast uses the most recent
+amounts, and future earnings are excluded. The baseline uses the most recent
 eight completed weeks, including zero-income weeks. The unfinished current
 week is excluded unless no completed week exists, when its recorded income
 provides a low-confidence fallback. These estimates assume the recorded
 history is complete; missing entries can reduce the estimate.
+
+With twelve or more completed weeks, a bounded scikit-learn Ridge trend is
+compared with the baseline on the latest four weeks, training only on earlier
+weeks. It is selected only with at least 10% lower mean absolute error (MAE),
+then refitted on up to 52 completed weeks. Otherwise the baseline is retained.
+Confidence is capped at `medium` pending real-user validation.
+
+An additive `model` object identifies the selection and its diagnostics:
+
+    { "method": "ridge_trend", "reason": "lower_holdout_error", "training_weeks": 16,
+      "validation_weeks": 4, "model_mae_cents": 250.0, "baseline_mae_cents": 6000.0 }
+
+`method` is `ridge_trend` or `weighted_average`. Baseline reasons are
+`insufficient_history` or `baseline_retained`. MAE values are null when there
+is insufficient history for validation. `training_weeks` counts the available
+completed weeks used for the final estimate, capped at 52; the validation fit
+excludes its last four weeks.
+
+Series entries cover consecutive seven-day blocks from the forecast date.
+The final block is prorated to the remaining horizon days. The income total
+equals the sum of those blocks. Lower/upper values are illustrative planning
+ranges, not calibrated probabilities. Expense estimates scale the observed
+monthly budget to the horizon. The endpoint retains its fixed 30-day horizon.
 
 ## Dashboard summary
 

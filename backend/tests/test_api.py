@@ -138,3 +138,15 @@ def test_invalid_income_is_reported_as_validation_error():
 
     assert response.status_code == 422
     assert response.json()["error"]["code"] == "validation_error"
+
+
+def test_forecast_endpoint_exposes_model_and_consistent_totals(authenticated_client, monkeypatch):
+    monkeypatch.setattr(routers, "request_table", lambda *args, **kwargs: [])
+    response = authenticated_client.get("/api/v1/forecast")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["model"]["method"] == "weighted_average"
+    assert body["model"]["reason"] == "insufficient_history"
+    assert body["model"]["model_mae_cents"] is None
+    assert body["predicted_income_cents"] == sum(week["predicted_income_cents"] for week in body["series"])
+    assert body["confidence"] == "low"
