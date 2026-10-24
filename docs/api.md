@@ -110,6 +110,12 @@ Savings rows are owner-scoped and protected by the `savings_contributions` RLS p
 
 ## Forecast (the core)
 
+For sparse or ambiguous inputs, `next_steps` contains ordered action codes:
+`record_income`, `add_upcoming_costs`, `review_overlapping_costs`, and/or
+`check_available_cash`. Only actions relevant to the missing inputs are included;
+the list is empty when a recommendation has enough inputs. These are manual
+planning steps, not heuristic earning predictions or a fabricated savings target.
+
 The additive `calculation` object exposes the completed-history income total,
 its calendar-day denominator and assumed cash in cents. `recommendation_reason`
 is one of `insufficient_income_history`, `insufficient_cost_history`,

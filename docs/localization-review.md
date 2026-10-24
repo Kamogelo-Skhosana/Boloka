@@ -191,6 +191,11 @@ Review financial meanings (recorded net versus available cash, conditional gap, 
 
 ## Existing translated keys
 
+Ticket #22 also adds `startNextSteps`, `startRecordIncome`, `startAddCosts`,
+`startReviewCosts`, `startCheckCash`. Both isiZulu and Sesotho deliberately use
+English fallback pending fluent review, especially the distinction between
+missing entries, actual zero-income weeks and available cash.
+
 Ticket #20 adds English fallback keys requiring fluent isiZulu/Sesotho review:
 `explainCalculation`, `explainHorizon`, `explainIncomeMath`, `explainUnknownIncome`,
 `explainCostsMath`, `explainUnknownCash`, `explainGapMath`, `explainWeeklyMath`,

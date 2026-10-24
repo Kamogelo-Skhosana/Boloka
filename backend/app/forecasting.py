@@ -110,6 +110,16 @@ def build_forecast(
     gap = max(0, costs - projected_income - (available_balance_cents or 0))
     status = "insufficient_data" if not enough_history else "planning_gap" if gap else "no_gap_in_estimate"
     target = gap if enough_history else 0
+    next_steps = []
+    if not enough_history:
+        if weeks < 6:
+            next_steps.append("record_income")
+        if not (spending_known or scheduled):
+            next_steps.append("add_upcoming_costs")
+        if costs_overlap_possible:
+            next_steps.append("review_overlapping_costs")
+        if available_balance_cents is None:
+            next_steps.append("check_available_cash")
     recommendation_reason = (
         "overlapping_costs" if costs_overlap_possible else
         "insufficient_income_history" if weeks < 6 else
@@ -161,6 +171,7 @@ def build_forecast(
         "everyday_estimate_available": spending_known,
         "costs_overlap_possible": costs_overlap_possible,
         "recommendation_reason": recommendation_reason,
+        "next_steps": next_steps,
         "calculation": {
             "income_history_cents": sum(row["amount_cents"] for row in completed),
             "income_history_days": weeks * 7,

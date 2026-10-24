@@ -9,6 +9,13 @@ const reasonKeys = {
   no_gap_in_estimate: 'explainNoGap',
 }
 
+const stepKeys = {
+  record_income: 'startRecordIncome',
+  add_upcoming_costs: 'startAddCosts',
+  review_overlapping_costs: 'startReviewCosts',
+  check_available_cash: 'startCheckCash',
+}
+
 export default function ForecastExplanation({ forecast, language }) {
   const calculation = forecast?.calculation
   if (!calculation) return null
@@ -17,6 +24,10 @@ export default function ForecastExplanation({ forecast, language }) {
   return (
     <div>
       <p className="muted-note">{tr(reasonKeys[forecast.recommendation_reason] || 'explainUnavailable')}</p>
+      {forecast.shortfall?.status === 'insufficient_data' && forecast.next_steps?.length ? <section aria-labelledby="forecast-next-steps">
+        <h3 id="forecast-next-steps">{tr('startNextSteps')}</h3>
+        <ul className="forecast-assumptions">{forecast.next_steps.filter(step => stepKeys[step]).map(step => <li key={step}>{tr(stepKeys[step])}</li>)}</ul>
+      </section> : null}
       <details className="import-details">
         <summary>{tr('explainCalculation')}</summary>
         <ul className="forecast-assumptions">
