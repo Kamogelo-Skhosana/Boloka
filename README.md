@@ -23,18 +23,18 @@ cd backend
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-Copy-Item .env.example .env
+if (!(Test-Path .env)) { Copy-Item .env.example .env }
 uvicorn app.main:app --reload
 ```
 
-Set `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, and `SUPABASE_JWT_SECRET` in `backend/.env`. Use a public publishable/anon project key here; privileged project keys are rejected by user-data routes. The public health route works without database credentials; authenticated data endpoints return `503` until configured.
+Set `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` in `backend/.env`. ES256/RS256 projects use the project's public JWKS endpoint automatically; optional `SUPABASE_JWKS_URL` must match that project's endpoint. Only legacy HS256 projects need `SUPABASE_JWT_SECRET`, which is a signing secret rather than an `sb_secret_` API key. Use a public publishable/anon project key; privileged project keys are rejected by user-data routes. The public health route works without database credentials. See [backend configuration](backend/README.md) for verification requirements.
 
 ### Frontend
 
 ```powershell
 cd frontend
 npm ci
-Copy-Item .env.example .env
+if (!(Test-Path .env)) { Copy-Item .env.example .env }
 npm run lint
 npm run dev
 ```
@@ -51,7 +51,38 @@ Set the Supabase URL and publishable/anon key plus the API base URL in `frontend
 
 The repository does not contain a live Supabase project URL, credentials, hosted URL, or demo password. Add those through the team's private configuration and share demo login details through the hackathon submission, never in this public repository.
 
-## API
+## Judge access and release status
+
+| Item | Verified status |
+| --- | --- |
+| Hosted frontend URL | Not provided or verified in this repository |
+| Hosted API URL | Not provided or verified; release check requires `/api/v1/health` |
+| Judge login | Dedicated account setup/sign-in not yet verified; credentials belong in the private Sonke submission |
+| Synthetic preview | Available without sign-in; fictional reference forecast and temporary entries are labelled |
+| Account-backed demo | Requires configured Supabase, schema, Auth redirects, API URL and CORS, followed by the [judge runbook](docs/judge-demo.md) |
+
+Do not use a preview screenshot or a skipped deployment workflow as evidence of
+a live account-backed release. Ticket #42 remains open until the public URLs
+and private judge-access handoff are verified. Deployment is tracked in #37,
+account setup in #9 and the end-to-end release check in #35.
+
+## Architecture
+
+| Component | Responsibility and boundary |
+| --- | --- |
+| React/Vite frontend | Entry/correction, CSV import, preview, forecast display, local language preference; only a public Supabase key is bundled |
+| Supabase Auth | Issues user access tokens; the API verifies project issuer, audience, expiry and authenticated UUID identity |
+| FastAPI API | Validates input, derives ownership from the verified token and forwards that token with the public project key |
+| PostgreSQL / Supabase RLS | Enforces user ownership independently of API filters; no privileged key is used for user-data routes |
+| pandas planning baseline | Uses completed earning weeks and explicit cost/cash assumptions; no ML dependency or validated accuracy claim |
+| Hosting / CI | Vercel frontend and Render API configuration; deployment waits for successful CI on the tested main commit |
+
+Preview entries stay in the browser session and are never sent to the API.
+Optional available cash is an unsaved scenario, not a bank-verified balance.
+See [product decisions and limits](docs/product-review.md),
+[API contract](docs/api.md), and [deployment setup](docs/deployment.md).
+
+## API contract
 
 The contract is in [`docs/api.md`](docs/api.md). Routes are rooted at `/api/v1`; all routes except `/health` require a Supabase access token. Income and expense amounts are positive integer cents in ZAR. The API derives ownership from a verified token and scopes every database operation to that user.
 

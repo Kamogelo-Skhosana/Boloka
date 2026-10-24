@@ -1,5 +1,12 @@
 ﻿# Project status: Boloka
 
+## Judge README preparation - 25 October 2026
+
+Ticket #42 now documents the actual JWKS setup, preserves existing .env files
+in setup commands, explains the ownership/forecast architecture and explicitly
+marks public URLs and judge-access handoff as unverified. It stays open until
+the team supplies/validates deployment URLs and private demo access.
+
 ## CI/CD gating - 25 October 2026
 
 Ticket #45: CI covers frontend, backend and PostgreSQL ownership/seed checks.
