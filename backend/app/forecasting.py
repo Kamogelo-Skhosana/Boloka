@@ -7,7 +7,7 @@ level. A learned model can replace the estimator when validated history exists.
 """
 
 from collections.abc import Iterable
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 from statistics import median
 from typing import Any
 
@@ -42,7 +42,7 @@ def build_forecast(
     today: date | None = None,
     horizon_days: int = 30,
 ) -> dict[str, Any]:
-    today = today or datetime.now(timezone.utc).date()
+    today = today or datetime.now(UTC).date()
     weekly = weekly_income(incomes, today)
     recent = [row["amount_cents"] for row in weekly[-8:]]
     history_weeks = len(weekly)
@@ -100,7 +100,7 @@ def build_forecast(
         explanation += "No shortfall is visible in this estimate; keep recording income and expenses to track changes."
 
     return {
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
         "horizon_days": horizon_days,
         "predicted_income_cents": predicted_income,
         "predicted_expenses_cents": predicted_expenses,

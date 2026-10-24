@@ -1,6 +1,6 @@
 import csv
 import io
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from typing import Any
 from uuid import UUID
@@ -208,7 +208,7 @@ def summary(user_id: str = Depends(get_current_user_id)):
     owner = _user_uuid(user_id)
     incomes = request_table("GET", "income_events", user_id=owner, params={"select": "amount_cents,received_on"}) or []
     expenses = request_table("GET", "expenses", user_id=owner, params={"select": "amount_cents,spent_on,recurring,category"}) or []
-    today = datetime.now(timezone.utc).date()
+    today = datetime.now(UTC).date()
     week_start = today - timedelta(days=today.weekday())
     week_income = sum(
         int(item["amount_cents"])
