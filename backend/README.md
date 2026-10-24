@@ -20,13 +20,18 @@ See [`../docs/api.md`](../docs/api.md), [`../docs/judge-demo.md`](../docs/judge-
 
 ## Forecast method and limits
 
-Income is grouped into continuous weeks using pandas, including zero-income gaps. With at least twelve completed weeks, a scikit-learn Ridge trend model is fitted to the preceding weeks and compared with the recency-weighted baseline on the last four completed weeks. It is selected only when its mean absolute error is at least 10% lower; otherwise the baseline remains. A selected model is refitted on up to 52 completed weeks. Predictions are bounded between zero and twice the largest earning in the last eight training weeks.
+The pandas baseline averages the last eight completed weeks, preserving zero
+recorded-income weeks. It excludes the current partial week and future earnings.
+There is no ML dependency or claim of forecast accuracy. Two completed weeks
+are needed to show an income estimate; six plus an expense basis are needed
+for a conditional planning gap. Confidence remains low.
 
-The current partial week is excluded from training, except for a low-confidence baseline when there are no completed weeks. Known recent outflows and median observed recurring costs form the expense estimate. Confidence is low below six completed weeks and capped at medium thereafter. The four-week comparison is a model-selection check, not a population accuracy claim. Planning ranges are illustrative, not calibrated confidence intervals. Shortfall dating remains the existing heuristic pending issue #19.
-
-The 30-day income total equals the sum of the displayed seven-day forecast blocks, with the final two-day block prorated. Expense estimates scale from the observed monthly budget to the horizon. Synthetic regression tests verify trend selection, fallback, no holdout leakage, bounds, and total consistency; opt-in real-user evaluation is still required.
-
-References: [Ridge regression](https://scikit-learn.org/1.5/modules/generated/sklearn.linear_model.Ridge.html) and [chronological validation for time series](https://scikit-learn.org/1.5/modules/cross_validation.html#time-series-split).
+Explicit future costs count once within the next 30 days. Everyday spending
+uses the recent non-recurring daily mean only when records span 14 days. Past
+recurring flags are not treated as due dates or automatically repeated. The
+cash scenario can use an optional available balance; the ledger net is not a
+bank balance. No precise shortfall date or probability is returned. See the
+API contract for formulas, thresholds, limitations and exact rounding.
 
 ## Checks
 

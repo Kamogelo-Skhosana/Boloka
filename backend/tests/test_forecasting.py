@@ -19,15 +19,6 @@ def test_weekly_income_aggregates_rows_and_ignores_future_entries():
     assert result[0]["amount_cents"] == 15000
 
 
-def test_cold_start_returns_low_confidence_and_explains_data_limit():
-    result = build_forecast([], [], today=date(2026, 10, 24))
-
-    assert result["confidence"] == "low"
-    assert result["shortfall"]["likely"] is False
-    assert "fewer than six weeks" in result["explanation"]
-    assert len(result["series"]) == 5
-
-
 def test_weekly_income_keeps_internal_and_trailing_zero_income_weeks():
     rows = [
         {"received_on": "2026-10-05", "amount_cents": 10000},
@@ -62,104 +53,98 @@ def test_weekly_income_ignores_invalid_rows_without_losing_valid_earnings(invali
     assert weekly_income([invalid], date(2026, 10, 24)) == []
 
 
-def test_current_partial_week_does_not_change_completed_week_baseline():
+def income_history(today, count=8, cents=70000):
+    return [{"received_on": (today - timedelta(weeks=index)).isoformat(), "amount_cents": cents} for index in range(1, count + 1)]
+
+
+def test_empty_history_is_not_a_reassuring_warning():
+    result = build_forecast([], [], today=date(2026, 10, 24))
+    assert result["shortfall"] == {"likely": False, "date": None, "amount_cents": 0, "status": "insufficient_data"}
+    assert result["available_balance_cents"] is None
+    assert result["set_aside"]["weekly_cents"] == 0
+    assert not result["income_estimate_available"]
+    assert result["confidence"] == "low"
+
+
+def test_partial_week_and_future_income_are_not_extrapolated():
     today = date(2026, 10, 24)
-    history = [{"received_on": "2026-10-12", "amount_cents": 20000}]
-    baseline = build_forecast(history, [], today=today)
-    with_partial_week = build_forecast(history + [
-        {"received_on": "2026-10-19", "amount_cents": 1000},
-    ], [], today=today)
-    assert baseline["predicted_income_cents"] == 85714
-    assert with_partial_week["predicted_income_cents"] == baseline["predicted_income_cents"]
-
-
-def test_unpaid_completed_weeks_reduce_forecast():
-    result = build_forecast([
-        {"received_on": "2026-09-28", "amount_cents": 20000},
-    ], [], today=date(2026, 10, 24))
-    # Two completed zero-income weeks must not disappear from the average.
+    rows = [{"received_on": today.isoformat(), "amount_cents": 100000}, {"received_on": "2026-11-01", "amount_cents": 100000}]
+    result = build_forecast(rows, [], today=today)
     assert result["predicted_income_cents"] == 0
+    assert result["history_weeks"] == 0
+
+
+def test_missing_weeks_reduce_mean_and_old_earnings_do_not_expand_window():
+    today = date(2026, 10, 24)
+    rows = [{"received_on": "2026-10-05", "amount_cents": 21000}, {"received_on": "2000-01-01", "amount_cents": 2000000000}]
+    result = build_forecast(rows, [], today=today)
+    assert result["history_weeks"] == 8
+    assert len(weekly_income(rows, today)) == 9
+    assert result["predicted_income_cents"] == 11250
+
+
+@pytest.mark.parametrize("horizon", [1, 7, 28, 30, 90])
+def test_exact_horizon_totals_and_last_partial_block(horizon):
+    today = date(2026, 10, 24)
+    result = build_forecast(income_history(today), [], today=today, horizon_days=horizon)
+    assert sum(row["predicted_income_cents"] for row in result["series"]) == result["predicted_income_cents"] == horizon * 10000
+    assert sum(row["days"] for row in result["series"]) == horizon
+    assert result["series"][0]["week_start"] == "2026-10-25"
+    assert result["horizon_end"] == (today + timedelta(days=horizon)).isoformat()
     assert result["confidence"] == "low"
 
 
-def test_current_week_only_uses_low_confidence_fallback():
-    result = build_forecast([
-        {"received_on": "2026-10-24", "amount_cents": 10000},
-    ], [], today=date(2026, 10, 24))
-    assert result["confidence"] == "low"
-    assert result["predicted_income_cents"] == 42857
-
-
-def test_known_recurring_cost_is_not_multiplied_by_observation_count():
+def test_expense_timing_and_same_category_bills_are_counted_once():
     today = date(2026, 10, 24)
-    expenses = [
-        {"amount_cents": 120000, "spent_on": "2026-09-01", "recurring": True, "category": "rent"},
-        {"amount_cents": 120000, "spent_on": "2026-10-01", "recurring": True, "category": "rent"},
-        {"amount_cents": 9900, "spent_on": "2026-09-20", "recurring": True, "category": "data"},
-        {"amount_cents": 9900, "spent_on": "2026-10-20", "recurring": True, "category": "data"},
+    costs = [
+        {"spent_on": "2026-10-24", "amount_cents": 1000, "recurring": True},
+        {"spent_on": "2026-10-25", "amount_cents": 2000, "category": "rent", "recurring": True},
+        {"spent_on": "2026-10-26", "amount_cents": 3000, "category": "rent", "recurring": True},
+        {"spent_on": "2026-11-23", "amount_cents": 4000},
+        {"spent_on": "2026-11-24", "amount_cents": 9000},
     ]
+    result = build_forecast([], costs, today=today)
+    assert result["scheduled_expenses_cents"] == result["predicted_expenses_cents"] == 9000
+    assert result["shortfall"]["date"] is None
+    assert result["shortfall"]["likely"] is False
+    assert result["shortfall"]["status"] == "insufficient_data"
 
-    result = build_forecast([], expenses, today=today)
 
-    assert result["predicted_expenses_cents"] == 129900
-    assert result["shortfall"]["likely"] is True
-    assert result["set_aside"]["weekly_cents"] > 0
-
-
-def test_recent_weighted_income_has_medium_confidence_with_six_weeks():
+def test_known_available_cash_changes_gap_but_ledger_net_is_not_available_cash():
     today = date(2026, 10, 24)
-    incomes = [
-        {"received_on": (today - timedelta(days=7 * offset)).isoformat(), "amount_cents": 20000}
-        for offset in range(1, 7)
-    ]
-
-    result = build_forecast(incomes, [], today=today)
-
-    assert result["confidence"] == "medium"
-    assert result["predicted_income_cents"] > 0
-    assert "6 completed weeks" in result["explanation"]
-
-
-@pytest.mark.parametrize("horizon", [1, 7, 14, 28, 30, 90])
-def test_forecast_total_matches_series_and_prorates_partial_week(horizon):
-    result = build_forecast([
-        {"received_on": "2026-10-12", "amount_cents": 70000},
-    ], [], today=date(2026, 10, 24), horizon_days=horizon)
-    assert result["predicted_income_cents"] == sum(week["predicted_income_cents"] for week in result["series"])
-    assert result["predicted_income_cents"] == horizon * 10000
-    assert len(result["series"]) == (horizon + 6) // 7
-    assert all(0 <= week["lower_cents"] <= week["predicted_income_cents"] <= week["upper_cents"] for week in result["series"])
+    income = income_history(today)
+    expenses = [{"spent_on": "2026-10-25", "amount_cents": 400000}]
+    unknown = build_forecast(income, expenses, today=today)
+    covered = build_forecast(income, expenses, today=today, available_balance_cents=100000)
+    assert unknown["recorded_net_cents"] == 560000
+    assert unknown["shortfall"]["amount_cents"] == 100000
+    assert unknown["shortfall"]["status"] == "planning_gap"
+    assert covered["shortfall"]["amount_cents"] == 0
+    assert covered["shortfall"]["status"] == "no_gap_in_estimate"
+    assert unknown["shortfall"]["date"] is covered["shortfall"]["date"] is None
+    assert unknown["set_aside"]["total_cents"] == 100000
+    assert unknown["set_aside"]["weekly_cents"] == 23334
 
 
-def test_learned_model_drives_forecast_and_shortfall():
-    today = date(2026, 10, 19)
-    incomes = [
-        {"received_on": (today - timedelta(weeks=16 - index)).isoformat(), "amount_cents": 10000 + index * 1000}
-        for index in range(16)
-    ]
-    expenses = [{"spent_on": "2026-10-18", "amount_cents": 200000}]
-    result = build_forecast(incomes, expenses, today=today)
-    assert result["model"]["method"] == "ridge_trend"
-    assert result["shortfall"]["likely"] is True
-    assert result["shortfall"]["amount_cents"] == 200000 - result["predicted_income_cents"]
-    assert "lower error" in result["explanation"]
-    assert result["confidence"] == "medium"
-
-    future = {"received_on": "2026-10-30", "amount_cents": 100000000}
-    future_result = build_forecast(incomes + [future], expenses, today=today)
-    for field in ["model", "series", "predicted_income_cents", "shortfall"]:
-        assert future_result[field] == result[field]
+def test_everyday_spending_requires_observation_span_and_excludes_recurring():
+    today = date(2026, 10, 24)
+    rows = [{"spent_on": "2026-10-11", "amount_cents": 14000}, {"spent_on": "2026-10-24", "amount_cents": 14000, "recurring": True}]
+    result = build_forecast([], rows, today=today)
+    assert result["everyday_estimate_available"]
+    assert result["everyday_expenses_cents"] == 30000
+    sparse = build_forecast([], rows[1:], today=today)
+    assert not sparse["everyday_estimate_available"]
+    assert sparse["everyday_expenses_cents"] == 0
 
 
-@pytest.mark.parametrize("horizon", [0, -1, 91])
-def test_forecast_rejects_unsupported_horizon(horizon):
-    with pytest.raises(ValueError, match="horizon_days"):
+@pytest.mark.parametrize("horizon", [0, -1, 91, True])
+def test_invalid_horizon(horizon):
+    with pytest.raises(ValueError):
         build_forecast([], [], horizon_days=horizon)
 
 
-def test_expense_budget_scales_to_forecast_horizon():
-    result = build_forecast([], [
-        {"spent_on": "2026-10-20", "amount_cents": 30000},
-    ], today=date(2026, 10, 24), horizon_days=7)
-    assert result["predicted_expenses_cents"] == 7000
-    assert result["shortfall"]["amount_cents"] == 7000
+def test_fractional_daily_income_preserves_total_cents():
+    today = date(2026, 10, 24)
+    result = build_forecast(income_history(today, cents=1), [], today=today)
+    assert result["predicted_income_cents"] == 4
+    assert sum(row["predicted_income_cents"] for row in result["series"]) == 4

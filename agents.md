@@ -9,7 +9,7 @@ A money app for people with irregular incomes. It learns a user's earning patter
 - Frontend: React (Vite), Tailwind CSS, Themeloom, PWA. Charts with Recharts.
 - Mobile: Capacitor (signed Android APK).
 - Backend: Python, FastAPI.
-- Intelligence: pandas, scikit-learn, Prophet (time-series forecasting).
+- Intelligence: pandas-based cash-planning baseline. No AI/ML dependency without a validated product reason.
 - Data and auth: Supabase (PostgreSQL and Auth, with Row-Level Security).
 - Hosting: Vercel (frontend), Render (backend).
 

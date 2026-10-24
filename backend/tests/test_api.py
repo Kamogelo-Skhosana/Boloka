@@ -145,8 +145,8 @@ def test_forecast_endpoint_exposes_model_and_consistent_totals(authenticated_cli
     response = authenticated_client.get("/api/v1/forecast")
     assert response.status_code == 200
     body = response.json()
-    assert body["model"]["method"] == "weighted_average"
-    assert body["model"]["reason"] == "insufficient_history"
-    assert body["model"]["model_mae_cents"] is None
+    assert body["model"]["method"] == "pandas_weekly_mean"
+    assert body["model"]["reason"] == "unvalidated_baseline"
+    assert body["shortfall"]["date"] is None
     assert body["predicted_income_cents"] == sum(week["predicted_income_cents"] for week in body["series"])
     assert body["confidence"] == "low"
