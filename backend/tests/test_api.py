@@ -229,3 +229,77 @@ def test_entry_mutation_is_owner_scoped_and_handles_not_found(authenticated_clie
     assert response.status_code == 404
     assert calls[0]["user_id"] == USER_ID
     assert calls[0]["params"]["id"] == f"eq.{ENTRY_ID}"
+
+
+@pytest.mark.parametrize("populated", [False, True])
+def test_dashboard_reuses_three_owner_reads_and_matches_existing_routes(authenticated_client, monkeypatch, populated):
+    from datetime import date
+
+    from app import forecasting
+
+    monkeypatch.setattr(routers, "local_today", lambda: date(2026, 10, 25))
+    monkeypatch.setattr(forecasting, "local_today", lambda: date(2026, 10, 25))
+    records = {
+        "income_events": [
+            {"id": ENTRY_ID, "amount_cents": 10000, "received_on": "2026-10-20"},
+            {"id": "old", "amount_cents": 20000, "received_on": "2026-09-01"},
+            {"id": "future", "amount_cents": 99999, "received_on": "2026-10-26"},
+        ] if populated else [],
+        "expenses": [
+            {"id": "paid", "amount_cents": 5000, "spent_on": "2026-10-20", "recurring": False},
+            {"id": "due", "amount_cents": 3000, "spent_on": "2026-11-01", "recurring": True},
+        ] if populated else [],
+        "savings_contributions": [
+            {"id": "saved", "amount_cents": 1000, "saved_on": "2026-10-24"},
+            {"id": "future", "amount_cents": 9999, "saved_on": "2026-10-26"},
+        ] if populated else [],
+    }
+    calls = []
+
+    def fake_request(method, table, **kwargs):
+        calls.append((method, table, kwargs))
+        return records[table]
+
+    monkeypatch.setattr(routers, "request_table", fake_request)
+    response = authenticated_client.get("/api/v1/dashboard")
+    assert response.status_code == 200
+    result = response.json()
+    assert len(calls) == 3
+    assert [c[1] for c in calls] == ["income_events", "expenses", "savings_contributions"]
+    for method, _, options in calls:
+        assert method == "GET"
+        assert options["user_id"] == USER_ID
+        assert options["access_token"] == "test-user-access-token"
+        assert options["params"]["order"].endswith(".desc,created_at.desc")
+    assert result["summary"] == authenticated_client.get("/api/v1/summary").json()
+    legacy_forecast = authenticated_client.get("/api/v1/forecast").json()
+    # Separate requests have independent generation timestamps, not different estimates.
+    assert result["forecast"].pop("generated_at")
+    assert legacy_forecast.pop("generated_at")
+    assert result["forecast"] == legacy_forecast
+    for key, path in [("income", "income"), ("expenses", "expenses"), ("savings", "savings")]:
+        assert result[key] == authenticated_client.get("/api/v1/" + path).json()["items"]
+    if populated:
+        assert result["summary"]["balance_cents"] == 25000
+        assert result["summary"]["this_week_income_cents"] == 10000
+        assert result["summary"]["set_aside_progress_cents"] == 1000
+    assert result["forecast"]["available_balance_cents"] is None
+
+
+def test_dashboard_requires_authentication():
+    assert TestClient(app).get("/api/v1/dashboard").status_code == 401
+
+
+def test_dashboard_does_not_return_partial_or_fictional_data(authenticated_client, monkeypatch):
+    from fastapi import HTTPException
+
+    def fail_second_read(method, table, **kwargs):
+        if table == "expenses":
+            raise HTTPException(status_code=502, detail="Database unavailable")
+        return []
+
+    monkeypatch.setattr(routers, "request_table", fail_second_read)
+    response = authenticated_client.get("/api/v1/dashboard")
+    assert response.status_code == 502
+    assert "summary" not in response.json()
+    assert "income" not in response.json()

@@ -186,6 +186,22 @@ is empty rather than plotting unknown earnings as zero.
 
 ## Dashboard summary
 
+    GET /api/v1/dashboard
+
+Authenticated account loading returns `summary`, the typed `forecast`, and
+`income`, `expenses`, `savings` arrays. Each caller-owned table is read once
+(with the existing pagination), in the same descending order as its list
+route. Summary and forecast reuse those rows and one local date; this is not
+a database transaction snapshot across tables. A database failure fails the
+whole response rather than returning partial or fictional records. No private
+cache is introduced. Available-cash scenarios remain a separate POST route.
+
+The frontend normally uses this one request instead of five requests/eight
+table reads. Only HTTP 404 permits the old loading path during staggered
+deployments; authentication and server failures do not trigger extra requests.
+This reduces duplicate work, not Render cold-start time. Device latency has
+not been measured. Existing summary, forecast and list routes remain supported.
+
     GET /api/v1/summary
     -> 200
     {

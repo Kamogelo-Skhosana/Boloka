@@ -38,7 +38,9 @@ export async function api(path, { method = 'GET', body, accessToken } = {}) {
 
   if (!res.ok) {
     const detail = await res.json().catch(() => ({}))
-    throw new Error(detail?.error?.message || `Request failed (${res.status})`)
+    const error = new Error(detail?.error?.message || `Request failed (${res.status})`)
+    error.status = res.status
+    throw error
   }
 
   return res.status === 204 ? null : res.json()

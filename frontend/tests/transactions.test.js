@@ -3,6 +3,8 @@ import assert from 'node:assert/strict'
 import { createPreview } from '../src/lib/sample.js'
 import { changeTransaction, exportRecords, updatePreview } from '../src/lib/transactions.js'
 
+import { loadAccountData } from '../src/lib/account-data.js'
+
 const day = '2026-10-24'
 
 test('preview create/edit/delete update ledger totals without sending data or changing the reference forecast', async () => {
@@ -62,4 +64,34 @@ test('loaded-record export identifies its scope and fiction, and excludes auth d
   assert.match(exported.scope, /not a full account export/)
   assert.equal(JSON.stringify(exported).includes('must-not-export'), false)
   assert.equal(Object.hasOwn(exported, 'forecast'), false)
+})
+
+
+test('account refresh uses one request and only falls back for a missing route', async () => {
+  const data = { summary: {}, forecast: {}, income: [], expenses: [], savings: [] }
+  const calls = []
+  assert.equal(await loadAccountData(async (path, options) => {
+    calls.push(path)
+    assert.equal(options.accessToken, 'caller-token')
+    return data
+  }, 'caller-token'), data)
+  assert.deepEqual(calls, ['/dashboard'])
+
+  for (const status of [401, 403, 500, 502, 503, undefined]) {
+    const failed = []
+    const error = Object.assign(new Error('Unavailable'), { status })
+    await assert.rejects(loadAccountData(async path => { failed.push(path); throw error }, 'caller-token'), error)
+    assert.deepEqual(failed, ['/dashboard'])
+  }
+  const legacy = []
+  const fallback = await loadAccountData(async path => {
+    legacy.push(path)
+    if (path === '/dashboard') throw Object.assign(new Error('Not found'), { status: 404 })
+    if (path === '/summary' || path === '/forecast') return data[path.slice(1)]
+    return { items: [{ id: path }] }
+  }, 'caller-token')
+  assert.deepEqual(legacy, ['/dashboard', '/summary', '/forecast', '/income', '/expenses', '/savings'])
+  assert.deepEqual(fallback.income, [{ id: '/income' }])
+  assert.deepEqual(fallback.expenses, [{ id: '/expenses' }])
+  assert.deepEqual(fallback.savings, [{ id: '/savings' }])
 })

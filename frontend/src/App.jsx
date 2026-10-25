@@ -6,7 +6,7 @@ import { updatePreview, changeTransaction, exportRecords } from './lib/transacti
 import TransactionList from './components/TransactionList'
 import ForecastExplanation from './components/ForecastExplanation'
 import TransactionEditor from './screens/TransactionEditor'
-import { emptyAccountData } from './lib/account-data'
+import { emptyAccountData, loadAccountData } from './lib/account-data'
 import { formatMoney, formatDate, today } from './lib/format'
 
 const ForecastChart = lazy(() => import('./components/ForecastChart.jsx'))
@@ -167,21 +167,9 @@ function App() {
     setLoadError(false)
     setMessage('')
     try {
-      const [summary, forecast, income, expenses, savings] = await Promise.all([
-        api('/summary', { accessToken: session.access_token }),
-        api('/forecast', { accessToken: session.access_token }),
-        api('/income', { accessToken: session.access_token }),
-        api('/expenses', { accessToken: session.access_token }),
-        api('/savings', { accessToken: session.access_token }),
-      ])
+      const account = await loadAccountData(api, session.access_token)
       if (version !== requestVersion.current) return false
-      setData({
-        summary,
-        forecast,
-        income: income.items || [],
-        expenses: expenses.items || [],
-        savings: savings.items || [],
-      })
+      setData(account)
       setCashInput('')
       return true
     } catch {
