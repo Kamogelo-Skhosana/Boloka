@@ -1,5 +1,15 @@
 ﻿# Project status: Boloka
 
+## Two-account release-check command - 25 October 2026
+
+Ticket #35 adds an interactive, financial-record read-only check using two
+seeded demo accounts. Passwords are hidden terminal input, not arguments/files;
+caller JWTs verify API owners and direct foreign-row read denial. New QA
+sessions are signed out with local scope. Mock-service tests cover leaks,
+missing seeds, same-account input, service failure and unsafe targets. Actual
+hosted execution still requires the operator's private credentials and URL;
+no live two-account result is claimed and the release ticket remains open.
+
 ## Reproducible preview QA - 25 October 2026
 
 Ticket #35 now has repository-owned Chromium checks for the fictional preview
