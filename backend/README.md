@@ -63,6 +63,12 @@ cash scenario can use an optional available balance; the ledger net is not a
 bank balance. No precise shortfall date or probability is returned. See the
 API contract for formulas, thresholds, limitations and exact rounding.
 
+For future dated-warning research, the offline `app.timing_validation` evaluator
+scores pre-recorded candidate dates against complete daily cash observations.
+It does not generate predictions or enable production warnings. See the
+[timing validation gate](../docs/forecast-timing-validation.md) for private input
+format, metrics, limitations and the study decisions still required for #19.
+
 ## Checks
 
 From `backend/`, run `pip install pytest ruff`, `ruff check .`, and `pytest -q`.
