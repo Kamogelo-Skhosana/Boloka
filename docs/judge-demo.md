@@ -54,7 +54,9 @@ Record only the release commit, date, target environment, pass/fail and account
 aliases A/B. A successful run verifies these read checks, not write/delete
 isolation, re-login persistence, browser redirect/CORS behavior, physical-device
 acceptance or forecast accuracy. Empty accounts cannot establish a meaningful
-cross-account test. Keep #35 open until the full release checklist is complete.
+cross-account test. The owner later confirmed the end-to-end judge demo passed
+and closed #35. These command limitations are supplemental evidence boundaries;
+the outstanding Sonke upload and receipt are tracked separately in #44.
 The command's automated tests use mock services; they are not live evidence.
 
 ### Opt-in two-account write/delete check
@@ -93,8 +95,10 @@ Record only commit, date, environment, A/B aliases, pass/fail and cleanup result
 Share the final summary, never raw credential/session output. Automated tests
 use mock services and do not establish live isolation. This command does not
 verify browser redirects, re-login persistence, accessibility, network recovery,
-physical-device acceptance or forecast accuracy. Keep #35 open until its remaining
-release checks have evidence.
+physical-device acceptance or forecast accuracy. The owner confirmed the full
+judge demo flow passed and closed #35; these are documented limits of this
+optional checker, not a request to reopen it. Final submission and receipt remain
+under #44.
 
 ### Reproducible preview browser checks
 
@@ -108,8 +112,10 @@ language fallback and responsive widths. Reports are ignored by Git.
 If Chromium is already installed elsewhere, optional
 `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` selects its executable for a local run.
 These checks do not establish hosted Auth, database ownership between real
-accounts, Android behavior, or a successful live judge demo. Complete the
-account-backed checklist below before closing #35.
+accounts or Android behavior. The owner confirmed the full judge demo flow and
+closed #35. The checklist below is a technical reference and its unchecked items
+are not represented as agent-verified. Final submission and receipt remain under
+#44.
 
 - [ ] Only `/api/v1/health` is publicly readable.
 - [ ] A user cannot read, edit, or delete another user's rows.
