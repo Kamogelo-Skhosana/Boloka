@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import { platform } from 'node:os'
 import { resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 const windows = platform() === 'win32'
 const release = process.argv.includes('--release')
@@ -24,8 +25,12 @@ if (release) {
   process.env.ANDROID_KEYSTORE_PATH = keystorePath
 }
 
-const result = spawnSync(windows ? 'gradlew.bat' : './gradlew', [release ? 'assembleRelease' : 'assembleDebug'], {
-  cwd: new URL('../android/', import.meta.url),
+const androidDir = fileURLToPath(new URL('../android/', import.meta.url))
+const wrapper = resolve(androidDir, windows ? 'gradlew.bat' : 'gradlew')
+// Do not depend on Windows searching the current directory for batch files.
+// Quote the exact trusted wrapper path so workspaces containing spaces work too.
+const result = spawnSync(windows ? `"${wrapper}"` : wrapper, [release ? 'assembleRelease' : 'assembleDebug'], {
+  cwd: androidDir,
   stdio: 'inherit',
   shell: windows,
 })

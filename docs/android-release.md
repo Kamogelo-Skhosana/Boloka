@@ -13,7 +13,12 @@ The release build requires the team's existing Android keystore. The build reads
 
 Provide the variables through a private local environment or protected CI secrets. Keep the keystore outside the repository; `.gitignore` excludes key files. Do not generate or substitute a new key for the team's established signing identity.
 
-With the approved values available to the build process, run:
+Use Java 21 and the installed Android SDK (`ANDROID_HOME` or a private
+`android/local.properties`). On Windows, Android Studio's bundled `jbr` can
+provide Java 21 if its reported version matches. The helper resolves the exact
+Gradle wrapper path and does not rely on current-directory command lookup.
+
+With the approved signing values available to the build process, run:
 
 ```sh
 npm run mobile:apk:release
