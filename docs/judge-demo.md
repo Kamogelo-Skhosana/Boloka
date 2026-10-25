@@ -30,6 +30,33 @@ Until Supabase is configured, use the clearly labelled sample preview only to de
 
 ## Technical acceptance checklist
 
+### Private two-account read check
+
+Use two distinct dedicated demo accounts, each with seeded income and expenses.
+From an interactive terminal in `backend/`, with the usual public-key `.env`
+configuration, run:
+
+```powershell
+python -m app.release_check --api-url http://localhost:8000/api/v1
+```
+
+For the hosted check, replace the API URL with the actual HTTPS base ending in
+`/api/v1`. The command shows its API/Auth targets, then prompts for emails and
+hidden passwords in the terminal. Do not put passwords/tokens in command-line
+arguments, chat, screenshots or files. Credentials/tokens stay in memory. It
+signs in through the configured project, checks account-backed list/summary/
+forecast responses, requires seeded rows, verifies owners and probes direct
+PostgREST foreign-user reads with each user's JWT. It signs out only its new
+QA sessions using local scope; existing browser sessions are not signed out.
+It never writes or deletes financial records and rejects privileged API keys.
+
+Record only the release commit, date, target environment, pass/fail and account
+aliases A/B. A successful run verifies these read checks, not write/delete
+isolation, re-login persistence, browser redirect/CORS behavior, physical-device
+acceptance or forecast accuracy. Empty accounts cannot establish a meaningful
+cross-account test. Keep #35 open until the full release checklist is complete.
+The command's automated tests use mock services; they are not live evidence.
+
 ### Reproducible preview browser checks
 
 From `frontend`, run `npm ci`, `npx playwright install chromium`, then
