@@ -55,17 +55,23 @@ The repository does not contain Supabase credentials or a demo password. Add cre
 
 | Item | Verified status |
 | --- | --- |
-| Hosted frontend URL | `https://boloka.vercel.app`; returned HTTP 200 on 25 October 2026. This confirms the page is reachable, not the complete signed-in flow. |
-| Hosted API URL | `https://boloka.onrender.com/api/v1`; owner-reported two-account read check passed on 25 October 2026. A separate health request from this review timed out, so current API availability needs a fresh check. |
-| Judge login | Owner reports production sign-in and persistence work. Dedicated judge credentials still belong in the private Sonke submission. |
+| Hosted frontend URL | [Open Boloka](https://boloka.vercel.app). Owner confirms production sign-in, seeded records, persistence and the judge walkthrough on 25 October 2026. |
+| Hosted API URL | `https://boloka.onrender.com/api/v1`. Public health and Android-origin CORS were independently checked; the owner reports the two-account read check passed. Availability is not guaranteed by those point-in-time checks. |
+| Judge login | The owner uploaded a judge guide containing dedicated demo credentials to Sonke and supplied the submission listing. Credentials are deliberately absent from GitHub; obtain the guide through the competition submission. Sonke file permissions were not independently inspected. |
 | Synthetic preview | Available without sign-in; fictional reference forecast and temporary entries are labelled |
-| Account-backed demo | Requires configured Supabase, schema, Auth redirects, API URL and CORS, followed by the [judge runbook](docs/judge-demo.md) |
+| Account-backed demo | Owner-reported hosted walkthrough passed. Follow the [judge runbook](docs/judge-demo.md); use fictional records only. |
+| Android release | Signed Boloka 1.0, package `za.co.boloka.app`, Android 7.0+. Owner reports successful testing on Samsung Galaxy A15 SM-A155F/DSN, Android 16. The release APK is delivered separately, not committed here. |
 
-The frontend URL and owner-reported production sign-in are recorded above; the
-private judge-access handoff remains outstanding. Do not use a preview
-screenshot or a skipped deployment workflow as evidence of a live
-account-backed release. Tickets #9, #35 and #42 track the remaining account,
-release and private-access acceptance.
+Open account settings using the top-right icon to sign in. Record a fictional
+cash/eWallet payout, add an explicitly dated upcoming cost, and inspect the
+forecast explanation. Payments are entered manually; Boloka does not connect
+to a bank or eWallet. Recorded net is not a verified available balance.
+
+The free API can take about a minute to wake after inactivity. Wait and retry
+if needed; the owner's reported loading delay has not yet been diagnosed.
+The judge guide and pitch video are submitted. Remaining security/accessibility
+checks are tracked in #35 and final submission acceptance in #44. Successful
+owner testing is not evidence of calibrated forecast accuracy or a user pilot.
 
 ## Architecture
 
@@ -110,11 +116,11 @@ npm run build
 See [`docs/judge-demo.md`](docs/judge-demo.md) for the manual judge flow and [`docs/award-benchmark.md`](docs/award-benchmark.md) for product standards drawn from the FNB App of the Year materials.
 For the Android debug build and team-key-signed release build, see [`docs/android-release.md`](docs/android-release.md).
 
-See [`docs/deployment.md`](docs/deployment.md) for one-time Vercel, Render, and Supabase setup. A public live URL and judge account are not committed because the project has not been provisioned with team credentials.
+See [`docs/deployment.md`](docs/deployment.md) for Vercel, Render and Supabase setup. Never commit account passwords, signing material or credential-filled submission documents.
 
 ## Current release status
 
-The frontend can be explored without an account using clearly labelled fictional sample data. Preview edits recalculate recorded totals, but the fictional reference recommendation stays unchanged and explicitly labelled. Nothing from preview is uploaded. Live account data requires team Supabase configuration. Live hosting, a real demo account, and final Sonke submission depend on team-owned credentials and account access. No live deployment or user pilot is claimed in this README.
+The frontend can be explored without an account using clearly labelled fictional sample data. Preview edits recalculate recorded totals, but the fictional reference recommendation stays unchanged and explicitly labelled. Nothing from preview is uploaded. Live web and Android access and owner-reported acceptance are recorded above. The Lean Canvas, SSDL form and pitch video are owner-confirmed submitted/saved; completing an SSDL form is not security certification. Final overall submission, detailed hosted mutation-isolation/accessibility checks and research/pilot work remain separate. No user-impact or forecast-accuracy claim is made.
 
 See [the product review](docs/product-review.md) for acceptance criteria, engineering findings and remaining privacy/release decisions, and [the localization inventory](docs/localization-review.md) for the fluent-speaker review backlog. Run `npm test` as well as frontend lint/build. Fresh clones must run `git submodule update --init --recursive` before building Themeloom.
 
