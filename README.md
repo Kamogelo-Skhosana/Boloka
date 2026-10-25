@@ -49,22 +49,23 @@ Set the Supabase URL and publishable/anon key plus the API base URL in `frontend
 4. Follow [synthetic dataset setup](supabase/README.md) to select that dedicated user's email, explicitly confirm seeding, and run `supabase/seed.sql`. Only marked synthetic rows are replaced; other entries remain.
 5. Configure redirect URLs in Supabase Auth for the local frontend and deployed site.
 
-The repository does not contain a live Supabase project URL, credentials, hosted URL, or demo password. Add those through the team's private configuration and share demo login details through the hackathon submission, never in this public repository.
+The repository does not contain Supabase credentials or a demo password. Add credentials through the team's private configuration and share demo login details through the hackathon submission, never in this public repository.
 
 ## Judge access and release status
 
 | Item | Verified status |
 | --- | --- |
-| Hosted frontend URL | Not provided or verified in this repository |
-| Hosted API URL | Not provided or verified; release check requires `/api/v1/health` |
-| Judge login | Dedicated account setup/sign-in not yet verified; credentials belong in the private Sonke submission |
+| Hosted frontend URL | `https://boloka.vercel.app`; returned HTTP 200 on 25 October 2026. This confirms the page is reachable, not the complete signed-in flow. |
+| Hosted API URL | `https://boloka.onrender.com/api/v1`; owner-reported two-account read check passed on 25 October 2026. A separate health request from this review timed out, so current API availability needs a fresh check. |
+| Judge login | Owner reports production sign-in and persistence work. Dedicated judge credentials still belong in the private Sonke submission. |
 | Synthetic preview | Available without sign-in; fictional reference forecast and temporary entries are labelled |
 | Account-backed demo | Requires configured Supabase, schema, Auth redirects, API URL and CORS, followed by the [judge runbook](docs/judge-demo.md) |
 
-Do not use a preview screenshot or a skipped deployment workflow as evidence of
-a live account-backed release. Ticket #42 remains open until the public URLs
-and private judge-access handoff are verified. Deployment is tracked in #37,
-account setup in #9 and the end-to-end release check in #35.
+The frontend URL and owner-reported production sign-in are recorded above; the
+private judge-access handoff remains outstanding. Do not use a preview
+screenshot or a skipped deployment workflow as evidence of a live
+account-backed release. Tickets #9, #35 and #42 track the remaining account,
+release and private-access acceptance.
 
 ## Architecture
 
@@ -81,6 +82,10 @@ Preview entries stay in the browser session and are never sent to the API.
 Optional available cash is an unsaved scenario, not a bank-verified balance.
 See [product decisions and limits](docs/product-review.md),
 [API contract](docs/api.md), and [deployment setup](docs/deployment.md).
+The follow-on research sequence is documented in
+[`docs/user-research/`](docs/user-research/): discover the first user segment,
+observe the core workflow, agree privacy controls before a real-data pilot,
+and evaluate optional AI only if users identify a need.
 
 ## API contract
 
