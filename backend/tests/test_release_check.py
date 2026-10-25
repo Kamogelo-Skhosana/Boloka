@@ -109,3 +109,21 @@ def test_credential_representation_does_not_disclose_values():
     value = repr(accounts()[0])
     assert "unit-test-password" not in value
     assert "example.invalid" not in value
+
+
+def test_write_mode_runs_after_reads_and_before_session_logout(monkeypatch):
+    from app import release_check
+
+    client, calls = checker()
+    def writes(client_arg, api, project, key, sessions, marker, protected_ids):
+        assert client_arg is client
+        assert (api, project, key) == (API, PROJECT, KEY)
+        assert len(sessions) == 2
+        assert marker.startswith("Boloka isolation QA ")
+        assert protected_ids == {"row"}
+        assert not any(r.url.path.endswith("/logout") for r in calls)
+        raise release_check.WriteCheckFailed("Safe mutation failure")
+    monkeypatch.setattr(release_check, "verify_mutations", writes)
+    with client, pytest.raises(CheckFailed, match="Safe mutation failure"):
+        verify_accounts(client, API, PROJECT, KEY, accounts(), check_writes=True)
+    assert len([r for r in calls if r.url.path.endswith("/logout")]) == 2

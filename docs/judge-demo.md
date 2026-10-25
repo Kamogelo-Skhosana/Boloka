@@ -48,7 +48,7 @@ signs in through the configured project, checks account-backed list/summary/
 forecast responses, requires seeded rows, verifies owners and probes direct
 PostgREST foreign-user reads with each user's JWT. It signs out only its new
 QA sessions using local scope; existing browser sessions are not signed out.
-It never writes or deletes financial records and rejects privileged API keys.
+By default it never writes or deletes financial records. Both modes reject privileged API keys.
 
 Record only the release commit, date, target environment, pass/fail and account
 aliases A/B. A successful run verifies these read checks, not write/delete
@@ -56,6 +56,45 @@ isolation, re-login persistence, browser redirect/CORS behavior, physical-device
 acceptance or forecast accuracy. Empty accounts cannot establish a meaningful
 cross-account test. Keep #35 open until the full release checklist is complete.
 The command's automated tests use mock services; they are not live evidence.
+
+### Opt-in two-account write/delete check
+
+Use **dedicated synthetic accounts only**, after the read check succeeds. From
+`backend/`, use the same virtual environment and public-key configuration:
+
+```bash
+# Windows Git Bash (interactive password prompts)
+winpty ./.venv/Scripts/python.exe -m app.release_check --api-url https://boloka.onrender.com/api/v1 --check-writes
+```
+
+In PowerShell, use `.\.venv\Scripts\python.exe` instead of `winpty ...`.
+The default command remains read-only; `--check-writes` explicitly enables
+mutations. Warm the API with its health endpoint first. Enter credentials only
+at the interactive prompts; never paste credentials or tokens into chat.
+
+The checker reads existing IDs, prints a unique `Boloka isolation QA <UUID>`
+marker, and creates temporary one-cent income, expense and savings rows. It
+checks both A-against-B and B-against-A through API ownership checks and direct
+PostgREST RLS. Positive own-account updates prevent a general write outage from
+looking like successful isolation. Foreign updates/deletes must be denied and
+leave the owner's row unchanged; spoofed inserts and ownership transfers must
+also be denied. Savings has no API update route, so its update checks use
+PostgREST. Successful own API deletes must persist.
+
+Cleanup runs after failures, including a timed-out create, and verifies removal
+of exact marked rows under both accounts. It refuses to delete IDs observed
+before the run. Keep the printed marker until completion: closing/killing the
+process or losing connectivity can leave temporary rows. If cleanup fails,
+inspect only rows matching that exact marker in the dedicated accounts; do not
+reset accounts or rerun the seed to remove unrelated entries. QA sessions are
+signed out after cleanup is attempted.
+
+Record only commit, date, environment, A/B aliases, pass/fail and cleanup result.
+Share the final summary, never raw credential/session output. Automated tests
+use mock services and do not establish live isolation. This command does not
+verify browser redirects, re-login persistence, accessibility, network recovery,
+physical-device acceptance or forecast accuracy. Keep #35 open until its remaining
+release checks have evidence.
 
 ### Reproducible preview browser checks
 

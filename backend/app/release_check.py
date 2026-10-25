@@ -1,11 +1,11 @@
-"""Interactive, financial-record read-only checks against two seeded accounts."""
+"""Interactive two-account checks; read-only unless --check-writes is selected."""
 
 import argparse
 import getpass
 import sys
 from dataclasses import dataclass, field
 from urllib.parse import urlsplit
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import httpx
 import jwt
@@ -13,6 +13,7 @@ from pydantic import ValidationError
 
 from .config import settings
 from .forecast_schema import ForecastResponse
+from .release_mutations import WriteCheckFailed, verify_mutations
 
 
 class CheckFailed(Exception):
@@ -53,13 +54,14 @@ def _json(response: httpx.Response, label: str) -> object:
 
 
 def verify_accounts(client: httpx.Client, api_url: str, project_url: str,
-                    public_key: str, accounts: list[Credentials]) -> dict[str, dict[str, int]]:
+                    public_key: str, accounts: list[Credentials], *, check_writes: bool = False) -> dict[str, dict[str, int]]:
     validate_targets(api_url, project_url, public_key)
     if len(accounts) != 2:
         raise CheckFailed("Two distinct seeded demo accounts are required")
     api_url, project_url = api_url.rstrip("/"), project_url.rstrip("/")
     sessions: list[tuple[str, str]] = []
     results: dict[str, dict[str, int]] = {}
+    protected_ids: set[str] = set()
     try:
         for index, account in enumerate(accounts):
             label = "AB"[index]
@@ -89,6 +91,10 @@ def verify_accounts(client: httpx.Client, api_url: str, project_url: str,
                     raise CheckFailed(f"Account {label} {resource} exposed an unexpected owner")
                 if resource != "savings" and not rows:
                     raise CheckFailed(f"Account {label} needs seeded income and expenses to make ownership checks meaningful")
+                if check_writes:
+                    if any(not isinstance(row.get("id"), str) or not row["id"] for row in rows):
+                        raise CheckFailed("Write checks require IDs for all pre-existing records")
+                    protected_ids.update(row["id"] for row in rows)
                 results[label][resource] = len(rows)
                 foreign = _json(client.get(project_url + "/rest/v1/" + table,
                                           headers=headers | {"apikey": public_key},
@@ -107,6 +113,13 @@ def verify_accounts(client: httpx.Client, api_url: str, project_url: str,
                         raise CheckFailed(f"Account {label} forecast did not match the API contract") from exc
                 elif type(body.get("balance_cents")) is not int:
                     raise CheckFailed(f"Account {label} summary did not contain a recorded balance")
+        if check_writes:
+            marker = "Boloka isolation QA " + str(uuid4())
+            print("Temporary QA marker:", marker)
+            try:
+                verify_mutations(client, api_url, project_url, public_key, sessions, marker, protected_ids)
+            except WriteCheckFailed as exc:
+                raise CheckFailed(str(exc)) from None
     finally:
         cleanup_failed = False
         for _, token in sessions:
@@ -124,6 +137,7 @@ def verify_accounts(client: httpx.Client, api_url: str, project_url: str,
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--api-url", default="http://localhost:8000/api/v1")
+    parser.add_argument("--check-writes", action="store_true", help="Create tiny marked QA rows in two dedicated demo accounts, probe ownership, and clean up")
     args = parser.parse_args()
     try:
         validate_targets(args.api_url, settings.supabase_url, settings.supabase_publishable_key)
@@ -131,13 +145,22 @@ def main() -> int:
             raise CheckFailed("Run in an interactive terminal; credentials are not accepted through command arguments or piped input")
         print("API target:", args.api_url)
         print("Auth target:", settings.supabase_url)
-        print("Use two dedicated, seeded demo accounts. No financial records will be changed.")
+        print("Use two dedicated, seeded demo accounts.")
+        if args.check_writes:
+            print("WRITE CHECKS: creates tiny marked fictional rows, tests only those rows, then removes them.")
+            print("Keep the displayed QA marker if interrupted; cleanup cannot be guaranteed after a hard stop.")
+        else:
+            print("Read-only mode: no financial records will be changed.")
         accounts = [Credentials(input(f"Account {label} email: ").strip(), getpass.getpass(f"Account {label} password: "))
                     for label in "AB"]
         with httpx.Client(timeout=15, follow_redirects=False) as client:
-            counts = verify_accounts(client, args.api_url, settings.supabase_url, settings.supabase_publishable_key, accounts)
+            counts = verify_accounts(client, args.api_url, settings.supabase_url, settings.supabase_publishable_key, accounts, check_writes=args.check_writes)
         print("Read checks passed; loaded record counts by account alias:", counts)
-        print("NOT VERIFIED: write/delete isolation, persistence after re-login, browser redirects/CORS, device acceptance.")
+        if args.check_writes:
+            print("Temporary-row write/delete isolation checks passed in both directions; cleanup verified.")
+            print("NOT VERIFIED: persistence after re-login, browser redirects/CORS, accessibility, device acceptance.")
+        else:
+            print("NOT VERIFIED: write/delete isolation, persistence after re-login, browser redirects/CORS, device acceptance.")
         return 0
     except CheckFailed as exc:
         print("CHECK FAILED:", str(exc), file=sys.stderr)
