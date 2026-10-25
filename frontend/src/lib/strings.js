@@ -54,7 +54,7 @@ export const english = {
   "recordedThisMonth": "Recorded set-asides this month",
   "savingsNotCash": "These records track money you put aside. They are not a verified savings balance or progress against a dated goal.",
   "chartAssumption": "Seven-day planning blocks; the final block may be shorter. No calibrated confidence range is shown for account estimates.",
-  "estimatedIncomeChart": "Income planning estimate across {weeks} weeks",
+  "estimatedIncomeChart": "Income planning estimate across {blocks} seven-day planning blocks",
   "highContrast": "High contrast",
   "highContrastHelp": "Increase contrast between text, controls and backgrounds.",
   "largerText": "Larger text",

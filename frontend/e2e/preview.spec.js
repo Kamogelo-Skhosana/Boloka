@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { readFile } from 'node:fs/promises'
+import { translate } from '../src/lib/copy.js'
 
 test('judge preview keeps edits honest, reversible and outside the API', async ({ page }) => {
   const apiRequests = []
@@ -43,6 +44,7 @@ test('judge preview keeps edits honest, reversible and outside the API', async (
   await expect(page.locator('.alert-card')).toContainText('does not recalculate')
   await page.getByRole('button', { name: 'Forecast', exact: true }).click()
   await expect(page.locator('.forecast-summary')).toContainText('does not recalculate')
+  await expect(page.getByRole('group', { name: translate('en', 'estimatedIncomeChart', { blocks: 4 }) })).toBeVisible()
 
   await page.getByRole('button', { name: 'Open account settings', exact: true }).click()
   const downloadPromise = page.waitForEvent('download')
@@ -52,10 +54,20 @@ test('judge preview keeps edits honest, reversible and outside the API', async (
   expect(exported.fictional_preview).toBe(true)
   for (const language of ['zu', 'st']) {
     await page.getByRole('combobox').selectOption(language)
-    await expect(page.getByText('Language draft:', { exact: false })).toBeVisible()
+    await expect(page.getByText(translate(language, 'translationReview'), { exact: true })).toBeVisible()
     await expect(page.locator('html')).toHaveAttribute('lang', language)
   }
   await page.getByRole('combobox').selectOption('en')
+  await page.locator('#high-contrast').check()
+  await page.locator('#larger-text').check()
+  await expect(page.locator('html')).toHaveAttribute('data-contrast', 'high')
+  await expect(page.locator('html')).toHaveAttribute('data-text-size', 'large')
+  await page.reload()
+  await expect(page.locator('html')).toHaveAttribute('data-contrast', 'high')
+  await expect(page.locator('html')).toHaveAttribute('data-text-size', 'large')
+  await page.getByRole('button', { name: 'Open account settings', exact: true }).click()
+  await expect(page.locator('#high-contrast')).toBeChecked()
+  await expect(page.locator('#larger-text')).toBeChecked()
   for (const width of [360, 414, 1120]) {
     await page.setViewportSize({ width, height: 812 })
     await page.getByRole('button', { name: 'Home', exact: true }).click()
