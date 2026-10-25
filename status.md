@@ -153,7 +153,7 @@ No forecast accuracy, language approval, user impact or live deployment is claim
 
 Remaining team decisions:
 
-- Fluent-speaker review; complete recurring-bill/history/cash concepts.
+- Current-catalog fluent review is complete; new recurring-bill/history/cash concepts need product and translation review when added.
 - Full export scope, deletion identity verification, retention/backups, support ownership and contact route.
 - Apply and verify database-layer ownership: the API now forwards caller JWTs;
   configure the public project key and run the hosted two-account release test.
@@ -175,19 +175,20 @@ generated locally and ignored by Git.
 
 Issue #41: `submission/ssdl-security.md` now records the reviewed `main`
 baseline, architecture and trust boundaries, data/session handling, controls,
-threat mitigations, evidence limits and owner-specific release gates. CI has
-disposable two-user PostgreSQL RLS checks, but this does not verify the hosted
-team project. The required Sonke template/security-owner approval, hosted
-two-account check, retention/deletion and operational ownership decisions
-remain open; this is not a security certification.
+threat mitigations, evidence limits and owner-specific release gates. PR #69 is
+merged. CI has disposable two-user PostgreSQL RLS checks, and PR #70 adds a
+tested, non-destructive read check for two populated accounts. No live hosted
+run is recorded. The required Sonke template/security-owner approval, hosted
+read check, separate write/delete verification, retention/deletion and
+operational ownership decisions remain open; this is not a security
+certification.
 
 Issue #36: the connected Vercel account still has no Boloka project and exposes
 only the personal workspace. A team-owned project or team access is needed
 before deployment; no production URL is claimed.
 
-Issue #28: PR #68 supplies draft isiZulu and Sesotho for all catalog entries.
-Fluent-speaker review is still required before those translations can be
-approved or merged.
+Issue #28: PR #68 has merged. The project owner recorded fluent-speaker approval
+for both isiZulu and Sesotho, and the issue is closed.
 
 Issue #43: this repository records today's progress. The private Sonke update
 has not been submitted or verified, so the submission requirement remains
