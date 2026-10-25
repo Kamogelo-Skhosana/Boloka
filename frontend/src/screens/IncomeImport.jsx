@@ -1,15 +1,29 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { confirmedImportRows, draftImportRows } from '../lib/import-review'
 
 const PAGE_SIZE = 20
 
 export default function IncomeImport({ send, onImported, tr, disabled }) {
   const rowGroup = useRef(null)
+  const reviewHeading = useRef(null)
+  const fileInput = useRef(null)
+  const errorMessage = useRef(null)
+  const focusTarget = useRef(null)
   const [review, setReview] = useState(null)
   const [rows, setRows] = useState([])
   const [page, setPage] = useState(0)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    if (busy) return
+    if (error) errorMessage.current?.focus()
+    else if (focusTarget.current) {
+      const target = focusTarget.current === 'review' ? reviewHeading : fileInput
+      target.current?.focus()
+      focusTarget.current = null
+    }
+  }, [review, error, busy])
 
   async function preview(event) {
     event.preventDefault()
@@ -21,6 +35,7 @@ export default function IncomeImport({ send, onImported, tr, disabled }) {
       const form = new FormData()
       form.append('file', file)
       const result = await send('/income/import/preview', { method: 'POST', body: form })
+      focusTarget.current = 'review'
       setRows(draftImportRows(result.rows))
       setReview({ filename: file.name, skipped: result.skipped, errors: result.errors || [] })
       setPage(0)
@@ -49,6 +64,7 @@ export default function IncomeImport({ send, onImported, tr, disabled }) {
       const result = await send('/income/import/confirm', { method: 'POST', body: { rows: prepared } })
       // Clear after a confirmed write, before refresh, so a refresh failure cannot resubmit.
       const skipped = review.skipped + rows.length - prepared.length
+      focusTarget.current = 'upload'
       setReview(null)
       setRows([])
       await onImported({ ...result, skipped })
@@ -59,12 +75,12 @@ export default function IncomeImport({ send, onImported, tr, disabled }) {
   const locked = busy || disabled
   const selected = rows.filter(row => row.included).length
   return <section className="income-import" aria-label={tr('reviewIncomeImport')} aria-busy={busy}>
-    {error ? <p className="status-message status-message--error" role="alert">{error}</p> : null}
+    {error ? <p className="status-message status-message--error" role="alert" tabIndex={-1} ref={errorMessage}>{error}</p> : null}
     {!review ? <form onSubmit={preview} className="import-form">
-      <label className="field"><span>{tr('chooseACsvFile')}</span><input required name="csv" type="file" accept=".csv,text/csv" disabled={locked} /></label>
+      <label className="field"><span>{tr('chooseACsvFile')}</span><input ref={fileInput} required name="csv" type="file" accept=".csv,text/csv" disabled={locked} /></label>
       <button className="button button--outline" type="submit" disabled={locked}>{tr('previewIncomeImport')}</button>
     </form> : <form onSubmit={confirm}>
-      <h3>{tr('reviewIncomeImport')}</h3>
+      <h3 ref={reviewHeading} tabIndex={-1}>{tr('reviewIncomeImport')}</h3>
       <p>{review.filename}</p>
       <p>{tr('importReviewHelp')}</p>
       <p role="status">{tr('importSelection', { count: selected, skipped: review.skipped })}</p>
@@ -87,7 +103,7 @@ export default function IncomeImport({ send, onImported, tr, disabled }) {
       </div>
       <div className="import-review-actions">
         <button type="submit" className="button button--primary" disabled={locked || !selected}>{tr('confirmIncomeImport', { count: selected })}</button>
-        <button type="button" className="button button--outline" disabled={locked} onClick={() => { setReview(null); setRows([]); setError('') }}>{tr('cancel')}</button>
+        <button type="button" className="button button--outline" disabled={locked} onClick={() => { focusTarget.current = 'upload'; setReview(null); setRows([]); setError('') }}>{tr('cancel')}</button>
       </div>
     </form>}
   </section>

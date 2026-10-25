@@ -43,6 +43,13 @@ accessibility, repeat with keyboard-only navigation and the participant's
 chosen screen reader on a small Android screen. Check focus order, announced
 row status/errors, selection state, page changes, confirmation and cancellation.
 
+The automated import browser check covers focus on the review heading after
+preview, Tab into the first row, focus returning to the file picker after
+cancel, focus on the first row after pagination, and focus on a failed-save
+alert. Focus waits until pending work releases disabled controls. These checks
+use mock data and do not establish what a real screen reader announces; record
+the device and assistive-technology session separately.
+
 ## #77: understand the home screen and next action
 
 Use a synthetic account with explicitly dated upcoming costs. Avoid constructing
