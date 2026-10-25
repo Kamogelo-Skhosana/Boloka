@@ -53,6 +53,10 @@ html {
   scroll-behavior: smooth;
 }
 
+html[data-text-size="large"] {
+  font-size: 125%;
+}
+
 body {
   margin: 0;
   min-width: 320px;
@@ -1687,7 +1691,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visibl
     min-height: 235px;
   }
   .metrics-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  html[data-text-size="large"] .metrics-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
   .metric-card:last-child {
     grid-column: 1 / -1;
@@ -1868,4 +1875,61 @@ select:focus-visible,
 textarea:focus-visible {
   outline: 3px solid var(--accent);
   outline-offset: 3px;
+}
+
+html[data-contrast="high"] {
+  --ground: #000;
+  --surface: #080808;
+  --surface-raised: #000;
+  --surface-soft: #171717;
+  --accent: #75ffd4;
+  --accent-ink: #000;
+  --amber: #ffe36e;
+  --text: #fff;
+  --muted: #f2f2f2;
+  --line: #fff;
+  color-scheme: dark;
+}
+
+html[data-contrast="high"] body,
+html[data-contrast="high"] :is(.panel, .metric-card, .alert-card, .chart-panel, .form-panel, .settings-panel, .savings-panel, .forecast-summary, .contribution-form, .buffer-progress, .privacy-note, .bottom-nav) {
+  background: #000;
+  color: #fff;
+  border-color: #fff;
+}
+
+html[data-contrast="high"] :is(.eyebrow, .page-heading__sub, .date-chip, .metric-card__hint, .transaction-row__date, .forecast-explanation, .chart-note, .disclaimer, .muted-note, .field, .field small, .settings-email, .privacy-note p, .savings-panel__lead, .buffer-progress__remaining, .contribution-list small, .forecast-list li span) {
+  color: #f2f2f2;
+}
+
+html[data-contrast="high"] :is(input, select, textarea, .amount-input, .segmented, .forecast-totals > div, .income-chart__track) {
+  background: #000;
+  color: #fff;
+  border-color: #fff;
+}
+
+html[data-contrast="high"] input::placeholder,
+html[data-contrast="high"] :is(button, a, input, select, textarea, summary):focus-visible {
+  color: #fff;
+}
+
+html[data-contrast="high"] :is(button, a, input, select, textarea, summary):focus-visible {
+  outline: 3px solid #ffe36e;
+  outline-offset: 3px;
+}
+
+html[data-contrast="high"] .balance-card {
+  background: #75ffd4;
+  color: #000;
+}
+
+html[data-contrast="high"] .button--primary,
+html[data-contrast="high"] .button--light {
+  background: #75ffd4;
+  color: #000;
+  border-color: #75ffd4;
+}
+
+html[data-contrast="high"] .alert-card {
+  border: 2px solid #ffe36e;
 }

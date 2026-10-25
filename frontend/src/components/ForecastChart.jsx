@@ -10,7 +10,7 @@ export default function ForecastChart({ series, formatAmount, formatDate, reduce
   })
 
   return (
-    <div className="recharts-wrap" role="group" aria-label={tr('estimatedIncomeChart')}>
+    <div className="recharts-wrap" role="group" aria-label={tr('estimatedIncomeChart', { blocks: series.length })}>
       <ResponsiveContainer width="100%" height={260}>
         <ComposedChart data={chartData} accessibilityLayer margin={{ top: 16, right: 16, left: 6, bottom: 8 }}>
           <CartesianGrid stroke="#33463d" strokeDasharray="4 5" vertical={false} />

@@ -1,6 +1,6 @@
 import React, { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { api, supabase } from './lib/client'
-import { supportedLanguages, translate as t, missingTranslations } from './lib/copy'
+import { supportedLanguages, translate as t } from './lib/copy'
 import { createPreview } from './lib/sample'
 import { updatePreview, changeTransaction, exportRecords } from './lib/transactions'
 import TransactionList from './components/TransactionList'
@@ -77,6 +77,12 @@ function App() {
   const [dataSaver, setDataSaver] = useState(() => {
     try { return localStorage.getItem('boloka-data-saver') === 'true' || Boolean(navigator.connection?.saveData) } catch { return false }
   })
+  const [highContrast, setHighContrast] = useState(() => {
+    try { return localStorage.getItem('boloka-high-contrast') === 'true' } catch { return false }
+  })
+  const [largerText, setLargerText] = useState(() => {
+    try { return localStorage.getItem('boloka-larger-text') === 'true' } catch { return false }
+  })
   const [authMode, setAuthMode] = useState('signin')
   const [authEmail, setAuthEmail] = useState('')
   const [authPassword, setAuthPassword] = useState('')
@@ -113,6 +119,16 @@ function App() {
     document.documentElement.lang = language === 'zu' ? 'zu' : language === 'st' ? 'st' : 'en'
     try { localStorage.setItem('boloka-language', language) } catch { /* Language still works for this session. */ }
   }, [language])
+
+  useEffect(() => {
+    document.documentElement.dataset.contrast = highContrast ? 'high' : 'normal'
+    try { localStorage.setItem('boloka-high-contrast', String(highContrast)) } catch { /* Preference still works for this session. */ }
+  }, [highContrast])
+
+  useEffect(() => {
+    document.documentElement.dataset.textSize = largerText ? 'large' : 'normal'
+    try { localStorage.setItem('boloka-larger-text', String(largerText)) } catch { /* Preference still works for this session. */ }
+  }, [largerText])
 
   function completeOnboarding() {
     try { localStorage.setItem('boloka-onboarding-complete', 'true') } catch { /* Continue without local persistence. */ }
@@ -444,7 +460,7 @@ function App() {
       ) : null}
 
       <main id="main-content" className="main-layout">
-        {missingTranslations(language).length ? <p className="connection-banner" lang="en">{tr('translationReview')}</p> : null}
+        {language !== 'en' ? <p className="connection-banner" lang="en">{tr('translationReview')}</p> : null}
         {!online ? <div className="connection-banner" role="status"><strong>{t(language, 'offlineTitle')}</strong> {t(language, 'offlineBody')}</div> : null}
         {online && !preview && page === 'home' && !hasLoaded ? <section className="panel dashboard-skeleton" aria-label={tr('loadingDashboard')} aria-busy="true"><span className="skeleton skeleton--wide" /><span className="skeleton" /><span className="skeleton" /><p className="sr-only" role="status">{tr('loadingYourMoneyPicture')}</p></section> : null}
         {online && loadError && session ? <div className="error-banner" role="alert"><span>{tr('weCouldnTRefreshYourAccountData')}</span><button type="button" className="button button--outline" onClick={refresh} disabled={loading}>{t(language, 'retry')}</button></div> : null}
@@ -620,6 +636,8 @@ function App() {
             <div className="settings-preferences">
               <label className="field"><span>{t(language, 'language')}</span><select value={language} onChange={(event) => setLanguage(event.target.value)}>{supportedLanguages.map((item) => <option key={item.code} value={item.code}>{item.label}</option>)}</select></label>
               <div className="checkbox-field preference-toggle"><input id="data-saver" type="checkbox" checked={dataSaver} onChange={(event) => changeDataSaver(event.target.checked)} /><label htmlFor="data-saver"><strong>{t(language, 'dataSaver')}</strong><small>{tr('useSmallerTextOnlyForecastVisualsAndAsk')}</small></label></div>
+              <div className="checkbox-field preference-toggle"><input id="high-contrast" type="checkbox" checked={highContrast} onChange={(event) => setHighContrast(event.target.checked)} /><label htmlFor="high-contrast"><strong>{tr('highContrast')}</strong><small>{tr('highContrastHelp')}</small></label></div>
+              <div className="checkbox-field preference-toggle"><input id="larger-text" type="checkbox" checked={largerText} onChange={(event) => setLargerText(event.target.checked)} /><label htmlFor="larger-text"><strong>{tr('largerText')}</strong><small>{tr('largerTextHelp')}</small></label></div>
             </div>
             {supabase ? session ? <><p className="settings-email">{session.user.email}</p><button type="button" className="button button--outline" onClick={signOut}>{tr('signOut')}</button></> : (
               <form className="auth-form" onSubmit={signIn}>

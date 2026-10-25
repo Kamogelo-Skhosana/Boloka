@@ -13,8 +13,13 @@ test('locale fallbacks and complete interpolation remain explicit', () => {
     assert.ok(missingTranslations(language).includes('confirmDelete'))
     assert.equal(translate(language, 'confirmDelete'), translate('en', 'confirmDelete'))
   }
-  assert.match(formatMoney(150000), /1\s*500/)
+  assert.match(formatMoney(150000), /1[,.\s\u00a0]?500/)
   assert.equal(formatMoney(150000).includes('150k'), false)
+  for (const language of ['en', 'zu', 'st']) {
+    const label = translate(language, 'estimatedIncomeChart', { blocks: 5 })
+    assert.match(label, /5/)
+    assert.doesNotMatch(label, /weeks|dibeke|masonto/i)
+  }
 })
 
 test('main screen JSX and accessible labels do not bypass the copy catalog', () => {

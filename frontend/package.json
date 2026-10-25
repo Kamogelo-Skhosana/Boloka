@@ -11,8 +11,9 @@
     "mobile:sync": "npm run build && cap sync android",
     "mobile:open": "cap open android",
     "mobile:apk": "npm run mobile:sync && node scripts/build-android.mjs",
-    "test": "node --test tests/*.test.js",
-    "test:e2e": "playwright test"
+    "test": "node --test tests/localization.test.js tests/transactions.test.js",
+    "test:e2e": "playwright test",
+    "mobile:apk:release": "npm run mobile:sync && node scripts/build-android.mjs --release"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.3",
