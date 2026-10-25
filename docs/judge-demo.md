@@ -5,7 +5,7 @@
 - Deploy the frontend and API; verify the public HTTPS URLs and `GET /api/v1/health`.
 - Configure Supabase redirect URLs and confirm sign-in works from the deployed site.
 - Create a dedicated judge account and follow [synthetic dataset setup](../supabase/README.md) before running `supabase/seed.sql`.
-- Keep the demo password out of GitHub and this public repository. Put it in Sonke's private submission field.
+- Keep the demo password out of GitHub and this public repository. The owner uploaded a credential-filled judge guide through Sonke's file submission. No dedicated private credentials field was identified; verify recipient access with the organisers before sharing further credential copies.
 - Test from a second browser/device with no developer session. Check mobile width, keyboard entry, slow network, and sign-out.
 - Check keyboard-only navigation and visible focus, confirm the chart has readable range labels, and check reduced-motion behavior.
 - Record a short backup walkthrough and confirm judges can access its link.
@@ -80,4 +80,4 @@ account-backed checklist below before closing #35.
 - [ ] CORS allows only the configured origins in production.
 - [ ] No service key, real email/password, or private user transaction appears in source or screenshots.
 
-The repository currently has no live service credentials. Complete the deployment, account, and device checks above before presenting the flow as live.
+The owner confirms production sign-in, seeded records, persistence, the judge walkthrough and a signed-APK test on Galaxy A15 SM-A155F/DSN (Android 16). The two-account read check also passed by operator report. These confirmations do not establish cross-account mutation denial, all accessibility/network-recovery cases, measured performance or forecast accuracy. Keep those evidence boundaries when reporting release readiness.

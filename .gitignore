@@ -43,6 +43,8 @@ frontend/android/capacitor-cordova-android-plugins/
 *.jks
 
 # OS / editor
+# Local submission copies can contain judge credentials; never publish them.
+output/
 .DS_Store
 Thumbs.db
 .idea/

@@ -1,5 +1,30 @@
 ﻿# Project status: Boloka
 
+## Current release evidence - 25 October 2026
+
+This section supersedes older handoff/setup notes below. The owner confirms
+production sign-in, seeded data, persistence and the end-to-end judge flow.
+The owner reported successful two-account reads and functional testing of
+the signed Boloka 1.0 APK on Galaxy A15 SM-A155F/DSN, Android 16 (#31 closed).
+The agent verified the APK signature and production API URL, and Render
+accepted the Android `https://localhost` CORS origin. Slow loading was reported;
+its cause and duration are not yet measured.
+
+The owner confirms the revised Lean Canvas and progress updates were saved
+in Sonke (#40/#43 closed), the SSDL form was filled (#41 closed), and the pitch
+video was submitted (#38 closed). Screenshots show the video and judge-guide
+submission listing; the owner confirms the guide contains demo credentials
+(#9 closed). No passwords or filled submission artifacts belong in Git.
+Sonke file access permissions were not independently checked. SSDL claims
+about tools not evidenced by CI still require correction or substantiation.
+
+The README now records live URLs, manual-entry behavior, credential handoff
+and the distinction between operator confirmation and independent checks
+(#42). The deck is prepared; final team review remains #39. Final overall
+submission is #44. Detailed hosted mutation-isolation, accessibility and
+network-recovery evidence remain #35; research is not completed by a green CI
+run. #19 stays open for future timing-data validation as requested.
+
 ## Two-account release-check command - 25 October 2026
 
 Ticket #35 adds an interactive, financial-record read-only check using two
