@@ -9,6 +9,23 @@ The repository contains the GitHub Actions deployment workflow. It runs only aft
 - Vercel project root directory: `frontend`.
 - Production branch: `main`.
 
+In the Vercel project's **Production** environment, set these build-time
+variables before redeploying:
+
+| Name | Value |
+| --- | --- |
+| `VITE_SUPABASE_URL` | The team's Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | The project's public anon/publishable key; never a secret or service-role key |
+| `VITE_API_BASE_URL` | `https://boloka.onrender.com/api/v1` |
+
+Vite embeds `VITE_*` values during the production build. After saving the
+variables, trigger a new Production deployment; changing settings does not
+repair an already-built deployment. The account screen only renders the
+email/password sign-in and account-creation forms when both Supabase variables
+are present. Verify that the forms appear, then sign in with the team's
+authorized demo account and confirm its seeded records load from the API.
+Never put the demo credentials in this repository or a public issue.
+
 The workflow skips safely until all three values are configured. It passes the token through the step environment and pins the Vercel CLI version. Add the public frontend URL to the backend's `CORS_ORIGINS` after the first Vercel deployment.
 
 Production deploys only after successful CI from a push to this repository's

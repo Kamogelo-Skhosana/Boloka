@@ -32,6 +32,10 @@
   --motion-duration: var(--pt-motion-duration, 140ms);
 }
 
+html {
+  scroll-padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));
+}
+
 * {
   box-sizing: border-box;
 }
@@ -1634,6 +1638,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visibl
   color: var(--accent);
 }
 
+/* Keep keyboard-focused form controls clear of the persistent mobile navigation. */
+.app-shell--entry :is(input, button, select, textarea) {
+  scroll-margin-block-end: calc(6.5rem + env(safe-area-inset-bottom));
+}
+
 @media (min-width: 900px) {
   .app-shell {
     padding-bottom: 2rem;
@@ -1704,6 +1713,26 @@ button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visibl
   }
   .nudge-panel {
     min-height: 230px;
+  }
+  .app-shell--entry .main-layout {
+    padding-top: 0.8rem;
+  }
+  .app-shell--entry .page-heading {
+    margin-bottom: 0.65rem;
+  }
+  .app-shell--entry .page-heading__sub,
+  .app-shell--entry .page-heading .date-chip {
+    display: none;
+  }
+  .app-shell--entry .form-panel {
+    padding: 0.9rem 1rem;
+  }
+  .app-shell--entry .form-panel > .panel__heading {
+    margin-bottom: 0.65rem;
+  }
+  .app-shell--entry .entry-form {
+    gap: 0.65rem;
+    margin-top: 0.8rem;
   }
 }
 

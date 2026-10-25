@@ -440,7 +440,7 @@ function App() {
   }
 
   return (
-    <div className={'app-shell' + (page === 'onboarding' ? ' app-shell--onboarding' : '')}>
+    <div className={'app-shell' + (page === 'onboarding' ? ' app-shell--onboarding' : '') + (page === 'add' ? ' app-shell--entry' : '')}>
       <a className="skip-link" href="#main-content">{tr('skipToMainContent')}</a>
       <header className="topbar" id="home">
         <Brand language={language} />
