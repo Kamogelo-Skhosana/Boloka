@@ -153,3 +153,32 @@ External setup:
 - Team Supabase/hosting, schema, secrets, redirects and CORS.
 - Two-account security and live account-backed flow tests, physical-device/release-signing checks and SSDL approval.
 - Actual Sonke submission, pitch recording and consented user evaluation.
+
+## Assigned submission and mobile work - 25 October 2026
+
+Issue #31: the current frontend builds successfully as an Android debug APK and
+installs/launches on the available Android SDK emulator (`Android SDK built for
+x86_64`). This verifies the wrapper's basic startup only. No physical phone is
+connected, and the team's release keystore is not available in this workspace;
+the signed release artifact and real-device acceptance remain open. The APK is
+generated locally and ignored by Git.
+
+Issue #41: `submission/ssdl-security.md` now records the reviewed `main`
+baseline, architecture and trust boundaries, data/session handling, controls,
+threat mitigations, evidence limits and owner-specific release gates. CI has
+disposable two-user PostgreSQL RLS checks, but this does not verify the hosted
+team project. The required Sonke template/security-owner approval, hosted
+two-account check, retention/deletion and operational ownership decisions
+remain open; this is not a security certification.
+
+Issue #36: the connected Vercel account still has no Boloka project and exposes
+only the personal workspace. A team-owned project or team access is needed
+before deployment; no production URL is claimed.
+
+Issue #28: PR #68 supplies draft isiZulu and Sesotho for all catalog entries.
+Fluent-speaker review is still required before those translations can be
+approved or merged.
+
+Issue #43: this repository records today's progress. The private Sonke update
+has not been submitted or verified, so the submission requirement remains
+open.
