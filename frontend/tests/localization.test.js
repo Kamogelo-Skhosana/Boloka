@@ -10,8 +10,12 @@ test('locale fallbacks and complete interpolation remain explicit', () => {
   assert.equal(translate('zu', 'navHome'), 'Ikhaya')
   assert.equal(translate('st', 'navHome'), 'Lehae')
   for (const language of ['zu', 'st']) {
-    assert.ok(missingTranslations(language).includes('confirmDelete'))
-    assert.equal(translate(language, 'confirmDelete'), translate('en', 'confirmDelete'))
+    assert.deepEqual(missingTranslations(language), [])
+    for (const key of translationKeys) {
+      const englishPlaceholders = [...translate('en', key).matchAll(/\{(\w+)\}/g)].map((match) => match[1]).sort()
+      const translatedPlaceholders = [...translate(language, key).matchAll(/\{(\w+)\}/g)].map((match) => match[1]).sort()
+      assert.deepEqual(translatedPlaceholders, englishPlaceholders, `${language}.${key} placeholders`)
+    }
   }
   assert.match(formatMoney(150000), /1[,.\s\u00a0]?500/)
   assert.equal(formatMoney(150000).includes('150k'), false)

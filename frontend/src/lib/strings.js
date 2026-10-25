@@ -68,7 +68,7 @@ export const english = {
   "exportLoaded": "Export loaded entries (JSON)",
   "exportScope": "This download contains only entries currently loaded in the app, not a complete account export. Keep it private on shared devices. Sample exports are marked fictional.",
   "deleteAccountDecision": "Self-service account deletion is not available yet. Before launch, the team must define identity verification, deletion of stored records, backup retention and a published contact route. Removing entries or signing out does not delete your account.",
-  "translationReview": "Translation draft: some newer copy may still appear in English. isiZulu and Sesotho wording, including financial terms and confirmations, needs fluent-speaker review before release.",
+  "translationReview": "isiZulu and Sesotho translations are drafts pending fluent-speaker review. Confirm financial terms, actions and warnings before release.",
   "bolokaHome": "Boloka home",
   "boloka": "boloka",
   "weCouldNotLoadYourMoneyPictureTry": "We could not load your money picture. Try again.",
