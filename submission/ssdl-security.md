@@ -4,7 +4,7 @@
 
 **System:** Boloka, a cash-flow planning app for people with irregular incomes.
 **Repository:** `Kamogelo-Skhosana/Boloka`
-**Reviewed baseline:** `main` at `1d752c8` plus the unmerged feature branch described by its pull request.
+**Reviewed baseline:** `main` at `955fb69` (25 October 2026). Recheck this document against the exact release commit before submission.
 **Data classification:** financial transaction records and account identifiers are sensitive personal information.
 
 ## Architecture and trust boundaries
@@ -24,21 +24,21 @@
 | Expense amount, category, date, recurring flag, note | Cash-flow estimate | User-scoped `expenses` rows |
 | Savings contribution amount, date, note | Actual set-aside progress | User-scoped `savings_contributions` rows |
 | CSV upload | Optional bulk income entry | Parsed in memory by API; only valid rows are inserted |
-| Language and low-data preference | Local interface preferences | Browser local storage; no financial records |
+| Language, low-data, contrast and text-size preferences | Local interface preferences | Browser local storage; no financial records |
 
-The sample dashboard uses fictional data. Preview changes remain in memory and are not uploaded. No live Boloka Supabase deployment is configured in this repository at the time of this draft.
+The sample dashboard uses fictional data. Preview changes remain in memory and are not uploaded. The public repository contains no live project credentials or judge URL, and source configuration alone does not prove a hosted deployment is secure. Verify the selected team project, schema, redirects, CORS and signed-in flows before release.
 
 ## Security controls present in code
 
-- JWT signature, project issuer, audience, required expiry, UUID subject and authenticated role checks are implemented in the API auth dependency; invalid identities and privileged tokens are rejected. The current verifier supports HS256 only.
+- JWT issuer, audience, required expiry, UUID subject and authenticated role checks are implemented in the API auth dependency; invalid identities and privileged tokens are rejected. ES256/RS256 use the configured project's HTTPS JWKS endpoint and key ID. Legacy HS256 is accepted only when its signing secret is explicitly configured server-side. The JWKS URL is constrained to the project endpoint; token-provided key URLs are ignored.
 - API ownership comes from verified JWT claims, not a client-supplied user ID.
 - Schema enables row-level security and owner policies. Review and exercise those policies in the provisioned team project before launch.
-- Service-role credentials are server-only. Frontend examples use only the publishable/anon key. `.env` files and build output are ignored by Git.
+- User-data routes use the publishable/anon project key plus the verified caller JWT; they do not need a service-role key. Frontend examples use only the publishable/anon key. `.env` files and build output are ignored by Git.
 - Pydantic request models enforce positive bounded amounts, dates and field lengths. Database requests use parameterized HTTP query parameters rather than SQL string concatenation.
 - CSV file extension, UTF-8, required columns, row values and total size are checked. Invalid rows are skipped and counted.
 - API errors avoid returning database response bodies or internal credentials.
 - Frontend does not cache `/api/` responses in its service worker. Signed-in financial data is not stored in low-data/offline caches.
-- CI runs lint, build and backend checks. Dependencies are lockfile-managed for the frontend.
+- CI runs frontend lint/build, backend checks and database ownership-policy checks. Production deployment is gated on the tested main-branch workflow. Dependencies are lockfile-managed for the frontend.
 
 ## Main threats and mitigations
 
@@ -57,7 +57,7 @@ The sample dashboard uses fictional data. Preview changes remain in memory and a
 
 - [ ] Security owner approves this draft and the final required SSDL submission form.
 - [ ] Apply `supabase/schema.sql` to a team-owned project; test that two users cannot read, modify, or delete each other's rows through the API or direct client requests.
-- [ ] Store Supabase service key, JWT secret and deployment tokens only in hosting/GitHub secret stores; rotate any credentials that were exposed.
+- [ ] Never put a service-role/secret key in the browser; this app's user-data routes do not require one. If the team deliberately uses legacy HS256, store its signing secret only in backend hosting secrets. Keep deployment tokens in protected secret stores and rotate any exposed credentials.
 - [ ] Confirm HTTPS, Supabase Auth redirect allowlist, CORS origin allowlist and production API base URL.
 - [ ] Test sign-up, email confirmation, sign-in, token expiry/refresh and sign-out with a non-production account.
 - [ ] Inspect browser bundle, network requests and logs for secret or personal-data exposure.
