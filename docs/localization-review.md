@@ -1,165 +1,266 @@
 # Localization review inventory
 
-The main React screens, accessible labels, chart copy, confirmations and action errors use translation keys. Existing and supplemental isiZulu/Sesotho strings are drafts, not approved translations. Some newer and detailed copy still falls back to English; the visible notice explains this. Dynamic values use named placeholders rather than stitched sentence fragments. Brand names, CSV column names and user-entered labels are not translated. Review every translated value with fluent speakers before release.
+The React screens, accessible labels, charts, confirmations, and action errors have isiZulu and Sesotho draft copy. The catalog has no known English fallback keys. All translations remain unapproved until fluent speakers review them; coverage does not establish language quality.
 
 ## Fluent-speaker acceptance
 
-Review financial meanings (recorded net versus available cash, conditional gap, confidence, due costs and savings), action errors, delete confirmation, screen-reader labels, date/currency formatting, and interpolation order. Verify cancellation and destructive actions on a phone. Do not treat an English fallback as completed localization. Auth-provider/database errors are replaced with catalogued action messages; backend diagnostic prose remains English for API clients.
+Review financial meanings (recorded net versus available cash, conditional gap, confidence, due costs and savings), action errors, delete confirmation, screen-reader labels, date/currency formatting, and interpolation order. Verify cancellation and destructive actions on a phone. Preserve placeholders and keep CSV column names such as `amount`, `source`, and `received_on` unchanged. Auth-provider/database errors are replaced with catalogued action messages; backend diagnostic prose remains English for API clients.
 
-## Missing isiZulu and Sesotho copy
+## Draft translation inventory
 
-The table below lists keys that currently fall back to English. Filled-in translations also need fluent review; presence in the catalog does not mean approval.
+| Key | English source | isiZulu draft | Sesotho draft | Review |
+| --- | --- | --- | --- | --- |
+| navHome | navHome | Ikhaya | Lehae | Fluent review required |
+| navAdd | navAdd | Faka | Kenya | Fluent review required |
+| navForecast | navForecast | Isibikezelo | Khakanyo | Fluent review required |
+| navSavings | navSavings | Ukonga | Poloko | Fluent review required |
+| navSettings | navSettings | Izilungiselelo | Litlhophiso | Fluent review required |
+| homeTitle | homeTitle | Thola indawo yokuphefumula ngemali yakho. | Etsa hore chelete ea hao e u fe phomolo. | Fluent review required |
+| homeSubtitle | homeSubtitle | Izinyathelo ezincane namuhla zingasiza ukwenza isonto elinzima libe lula. | Mehato e menyenyane kajeno e ka nolofatsa beke e thata. | Fluent review required |
+| addTitle | addTitle | Bhala imali engenayo nephumayo. | Ngola chelete e kenang le e tsoang. | Fluent review required |
+| addSubtitle | addSubtitle | Bhala imali engenayo nephumayo ukuze ubone isimo sakho sangempela. | Ngola chelete ha e kena le ha e tsoa hore setšoantšo se nepahale. | Fluent review required |
+| forecastTitle | forecastTitle | Bona okuzayo. | Sheba se tlang. | Fluent review required |
+| forecastSubtitle | forecastSubtitle | Lesi isiqondiso esisekelwe kulokho okubhalile, asisona isiqinisekiso. | Ena ke tataiso e tsoang ho seo u se ngotseng, eseng tiisetso. | Fluent review required |
+| savingsTitle | savingsTitle | Yakha isikhwama sakho. | Haha polokelo ea hao. | Fluent review required |
+| savingsSubtitle | savingsSubtitle | Ukubeka imali eceleni njalo kungasiza ezinyangeni ezingalingani. | Ho behella chelete ka thoko khafetsa ho ka thusa khoeling e sa tsitsang. | Fluent review required |
+| settingsTitle | settingsTitle | I-akhawunti yakho. | Akhaonto ea hao. | Fluent review required |
+| settingsSubtitle | settingsSubtitle | Idatha yakho ingeyakho. | Lintlha tsa hao ke tsa hao. | Fluent review required |
+| onboardingEyebrow | onboardingEyebrow | IMALI YAKHO, NGESU | CHELETE EA HAO, KA MORALO | Fluent review required |
+| onboardingTitle | onboardingTitle | Hlela kangcono imali engenayo engalingani. | Rera chelete e kenang e sa tsitsang habonolo. | Fluent review required |
+| onboardingDescription | onboardingDescription | Bhala imali engenayo nephumayo. IBoloka ikusiza ukubona isonto elingase libe nzima nokuhlela imali ozoyibeka eceleni. | Ngola chelete e kenang le e tsoang. Boloka e u thusa ho bona beke e ka bang thata le ho rera chelete ea polokelo ka likhakanyo tse hlakileng. | Fluent review required |
+| onboardingStepOne | onboardingStepOne | Bhala imali engenayo uma ifika | Ngola chelete ha e fihla | Fluent review required |
+| onboardingStepTwo | onboardingStepTwo | Faka izikweletu nezindleko zansuku zonke | Kenya likoloto le litšenyehelo tsa letsatsi le letsatsi | Fluent review required |
+| onboardingStepThree | onboardingStepThree | Bona isilinganiso sezinsuku ezingu-30 esichazekayo | Sheba khakanyo ea matsatsi a 30 e hlalosehang | Fluent review required |
+| onboardingStart | onboardingStart | Bhala imali yakho yokuqala engenayo | Ngola chelete ea hao ea pele | Fluent review required |
+| onboardingPreview | onboardingPreview | Buka isibonelo sedeshibhodi | Sheba mohlala oa dashboard | Fluent review required |
+| onboardingSignIn | onboardingSignIn | Ngena ngemvume noma dala i-akhawunti | Kena kapa u thehe akhaonto | Fluent review required |
+| previewLabel | previewLabel | Isibonelo | Mohlala | Fluent review required |
+| previewNotice | previewNotice | Lesi isibonelo. Izinombolo zingamanga futhi izinguquko zigcinwa kulesi siphequluli kuphela. | Ona ke mohlala. Lipalo ke tsa boiqapelo; liphetoho li lula sebatling sena feela. | Fluent review required |
+| offlineTitle | offlineTitle | Awuxhunyiwe ku-inthanethi. | Ha ua hokeloa inthaneteng. | Fluent review required |
+| offlineBody | offlineBody | Imodi yesibonelo isasebenza. Idatha ye-akhawunti nezinguquko ezigciniwe zidinga uxhumano. | Mokhoa oa mohlala o ntse o sebetsa. Lintlha tsa akhaonto le liphetoho tse bolokiloeng li hloka khokahano. | Fluent review required |
+| onlineTitle | onlineTitle | Uxhumano lubuyile. | Khokahano e khutlile. | Fluent review required |
+| retry | retry | Zama futhi | Leka hape | Fluent review required |
+| dataSaver | dataSaver | Imodi yokonga idatha | Mokhoa oa ho boloka data | Fluent review required |
+| language | language | Ulimi | Puo | Fluent review required |
+| amount | Amount | Inani | Chelete | Fluent review required |
+| incomeSource | incomeSource | Livelaphi leli nani? | E tsoa hokae? | Fluent review required |
+| expenseCategory | expenseCategory | Lisetshenziselweni? | E sebeliselitsoe eng? | Fluent review required |
+| receivedDate | receivedDate | Usuku olitholwe ngalo | Letsatsi leo e amohetsoeng ka lona | Fluent review required |
+| paidDate | paidDate | Usuku olukhokhwe ngalo | Letsatsi leo e lefiloeng ka lona | Fluent review required |
+| recurring | recurring | Liyaphindaphindeka njalo | E etsahala khafetsa | Fluent review required |
+| saveIncome | saveIncome | Londoloza imali engenayo | Boloka chelete e kenang | Fluent review required |
+| saveExpense | saveExpense | Londoloza izindleko | Boloka litšenyehelo | Fluent review required |
+| accountTitle | accountTitle | Imali yakho ihlala ingeyakho. | Chelete ea hao ke ea hao. | Fluent review required |
+| email | email | Ikheli le-imeyili | Aterese ea lengolo-tsoibila | Fluent review required |
+| password | password | Iphasiwedi | Lekunutu | Fluent review required |
+| signIn | signIn | Ngena ngemvume | Kena | Fluent review required |
+| createAccount | createAccount | Dala i-akhawunti | Theha akhaonto | Fluent review required |
+| privateTitle | privateTitle | Kuvikelwe kusukela ekuqaleni | Tšireletso ke karolo ea moralo | Fluent review required |
+| scamTitle | scamTitle | Hlola ukuphepha | Tlhahlobo e potlakileng ea tšireletso | Fluent review required |
+| scamBody | scamBody | IBoloka ayisoze yacela i-PIN yasebhange, iphasiwedi noma i-PIN yesikhathi esisodwa (OTP). Yima uqinisekise ngohlelo lokusebenza noma inombolo esemthethweni yebhange lakho uma othile ekucindezela ukuthi wabelane ngekhodi noma uthumele imali. | Boloka e ke ke ea u botsa PIN ea banka, password kapa PIN ea nako e le ’ngoe (OTP). Ema ’me u netefatse ka app kapa nomoro ea banka ea hao haeba motho a u potlakisetsa ho fana ka khoutu kapa ho romela chelete. | Fluent review required |
+| showForecast | showForecast | Bona isibikezelo | Sheba khakanyo | Fluent review required |
+| addEntry | addEntry | Faka okufakiwe | Kenya tlaleho | Fluent review required |
+| firstEntry | firstEntry | Faka imali yakho yokuqala | Kenya chelete ea pele | Fluent review required |
+| startNextSteps | Build your planning picture | Yakha isithombe sakho sokuhlela imali | Haha setšoantšo sa hao sa moralo oa chelete | Fluent review required |
+| startRecordIncome | Record payouts you actually received, including earlier dates you can verify. A set-aside estimate needs six completed calendar weeks; check that weeks with no entries really are complete. Do not add invented earnings to fill gaps. | Rekhoda imali oyitholile ngempela, kuhlanganise nezinsuku ezedlule ongaziqinisekisa. Isilinganiso semali ongayibeka eceleni sidinga amasonto ayisithupha ekhalenda aphelele; hlola ukuthi amasonto angenalutho aphelile ngempela yini. Ungafaki imali eqanjiwe ukuze ugcwalise izikhala. | Ngola chelete eo u e amohetseng ka sebele, ho akarelletsa le matsatsi a fetileng ao u ka a netefatsang. Khakanyo ea chelete eo u ka e behellang ka thoko e hloka libeke tse tšeletseng tse felletseng tsa almanaka; hlahloba hore libeke tse se nang letho li felile e le kannete. U se ke ua kenya chelete e iqapetsoeng ho tlatsa likheo. | Fluent review required |
+| startAddCosts | Add the bills you know are coming with their actual due dates. You can plan around these without guessing future income. Past recurring flags do not add future bills automatically. | Faka izikweletu ozaziyo ukuthi ziyeza nezinsuku zazo zangempela zokukhokha. Ungahlela lezi zindleko ngaphandle kokuqagela imali engenayo ezayo. Uphawu lokuphindaphinda lwesikweletu esedlule alwengezi izikweletu zesikhathi esizayo ngokuzenzakalelayo. | Kenya likoloto tseo u tsebang hore lia tla le matsatsi a tsona a sebele a ho lefa. U ka rera ka tsona u sa hakanye chelete e tlang. Letšoao la ho pheta-pheta ha sekoloto sa nakong e fetileng ha le kenye likoloto tsa nako e tlang ka bohona. | Fluent review required |
+| startReviewCosts | Check whether upcoming one-off costs are already covered by the everyday spending estimate. Until they can be distinguished, use the entries as a checklist rather than a set-aside recommendation. | Hlola ukuthi izindleko zesikhathi esisodwa ezizayo sezivele zibalwe yini esilinganisweni sezindleko zansuku zonke. Uma zingakahlukaniseki, sebenzisa okufakiwe njengohlu lokuhlola, hhayi njengesincomo semali yokubeka eceleni. | Hlahloba hore na litšenyehelo tse tlang tsa nako e le ’ngoe li se li kenyelelitsoe khakanyong ea tšebeliso ea letsatsi le letsatsi. Ho fihlela li ka khetholloa, sebelisa litlaleho e le lenane la ho hlahloba, eseng keletso ea ho behella chelete ka thoko. | Fluent review required |
+| startCheckCash | If you know the cash available for these costs, enter it in the optional cash scenario below. Include only money available to spend; recorded net income and savings contributions are not a bank balance. You can leave this unknown. | Uma uyazi imali ongayisebenzisa kulezi zindleko, yifake esigabeni sesimo semali ozikhethela sona ngezansi. Faka imali ongayisebenzisa kuphela; imali engenayo esele erekhodiwe nemali oyibeke eceleni akusiyo ibhalansi yasebhange. Ungakushiya kungaziwa. | Haeba u tseba chelete e teng bakeng sa litšenyehelo tsena, e kenye karolong ea boikhethelo ea boemo ba chelete ka tlase. Kenya chelete feela eo u ka e sebelisang; chelete e setseng e rekotiloeng le menehelo ea polokelo ha se chelete ea akhaonto ea banka. U ka siea sena se sa tsejoe. | Fluent review required |
+| explainCalculation | How this estimate is calculated | Indlela lesi silinganiso esibalwa ngayo | Kamoo khakanyo ena e baloang kateng | Fluent review required |
+| explainHorizon | Included dates: {start} through {end}. | Izinsuku ezifakiwe: {start} kuya ku-{end}. | Matsatsi a kenyellelitsoeng: {start} ho fihlela {end}. | Fluent review required |
+| explainIncomeMath | Income: {total} recorded across {historyDays} completed calendar days, divided by {historyDays}, then multiplied by {days} days = {estimate}, rounded to cents. Weeks without recorded income count as zero. | Imali engenayo: {total} erekhodwe ezinsukwini zekhalenda eziphelele ezingu-{historyDays}, ihlukaniswe ngo-{historyDays}, bese iphindaphindwa ngezinsuku ezingu-{days} = {estimate}, isondezwe kumasenti. Amasonto angenayo imali erekhodiwe abalwa njengoziro. | Chelete e kenang: {total} e rekotiloeng matsatsing a almanaka a felletseng a {historyDays}, e arotsoe ka {historyDays}, ebe e atisoa ka matsatsi a {days} = {estimate}, e pota-potiloe ho lisente. Libeke tse se nang chelete e rekotiloeng li baloa e le noto. | Fluent review required |
+| explainUnknownIncome | Income is unknown: fewer than two completed weeks are available. No income estimate is calculated. | Imali engenayo ayaziwa: kunamasonto aphelele angaphansi kwamabili kuphela. Akukho silinganiso semali engenayo esibalwayo. | Chelete e kenang ha e tsejoe: ho na le libeke tse felletseng tse ka tlaase ho tse peli. Ha ho khakanyo ea chelete e kenang e baloang. | Fluent review required |
+| explainCostsMath | Costs: {scheduled} in dated upcoming entries + {everyday} in estimated everyday spending = {total}. Unrecorded costs remain unknown. | Izindleko: {scheduled} zokufakiwe okuzayo okunezinsuku + {everyday} zezindleko zansuku zonke ezilinganisiwe = {total}. Izindleko ezingarekhodiwe azaziwa. | Litšenyehelo: {scheduled} tsa litlaleho tse tlang tse nang le matsatsi + {everyday} tsa tšebeliso ea letsatsi le letsatsi e hakantsoeng = {total}. Litšenyehelo tse sa rekotoang ha li tsejoe. | Fluent review required |
+| explainUnknownCash | Available cash is unknown. The gap calculation assumes R0; recorded net income and savings contributions are not an available balance. | Imali etholakalayo ayaziwa. Ukubala igebe kuthatha ukuthi kuno-R0; imali engenayo esele erekhodiwe nemali oyibeke eceleni akuyona imali etholakalayo. | Chelete e teng ha e tsejoe. Palo ea sekheo e nka hore ho na le R0; chelete e setseng e rekotiloeng le menehelo ea polokelo ha se chelete e ka sebelisoang. | Fluent review required |
+| explainGapMath | Horizon gap: {costs} costs minus {income} estimated income minus {cash} assumed cash = {gap}, with negative results shown as zero. This does not establish when money will arrive or bills can be paid. | Igebe lesikhathi: izindleko ezingu-{costs} kukhishwe imali engenayo elinganisiwe engu-{income} kanye nemali ecatshangwayo engu-{cash} = {gap}; imiphumela engaphansi kuka-zero iboniswa njengoziro. Lokhu akuqinisekisi ukuthi imali izofika nini noma izikweletu zingakhokhwa nini. | Sekheo sa nako ena: litšenyehelo tsa {costs} ho tlosoa chelete e kenang e hakantsoeng ea {income} le chelete e nkoang e le teng ea {cash} = {gap}; liphetho tse ka tlaase ho noto li bontšoa e le noto. Sena ha se bolele hore na chelete e tla fihla neng kapa likoloto li ka lefuoa neng. | Fluent review required |
+| explainWeeklyMath | Weekly amount: {total} gap divided by {days} days, multiplied by 7 and rounded up to cents = {weekly}. This is a planning pace, not money already saved or proof it is affordable. | Imali yamasonto onke: igebe elingu-{total} lihlukaniswe ngezinsuku ezingu-{days}, liphindaphindwe ngo-7 bese lizungezwa liye phezulu kumasenti = {weekly}. Leli yisu lokuhlela, akuyona imali osuyilondolozile noma ubufakazi bokuthi ungakwazi ukuyikhokha. | Chelete ea beke le beke: sekheo sa {total} se aroloa ka matsatsi a {days}, se atisoa ka 7 ebe se pota-poteloa holimo ho lisente = {weekly}. Ena ke lebelo la moralo, ha se chelete e seng e bolokiloe kapa bopaki ba hore u ka khona ho e lefella. | Fluent review required |
+| explainOverlap | A recommendation is unavailable because upcoming costs may overlap the everyday spending estimate. Check which costs are already covered before relying on the combined total. | Isincomo asitholakali ngoba izindleko ezizayo zingase zihlanganiswe esilinganisweni sezindleko zansuku zonke. Hlola ukuthi yiziphi izindleko esezibalwe ngaphambi kokuthembela enanini elihlanganisiwe. | Keletso ha e fumanehe hobane litšenyehelo tse tlang li ka ’na tsa se li le teng khakanyong ea tšebeliso ea letsatsi le letsatsi. Hlahloba hore na ke litšenyehelo life tse seng li kenyelelitsoe pele u itšetleha ka kakaretso. | Fluent review required |
+| explainIncomeHistory | A set-aside recommendation needs at least six completed weeks of recorded income history. Keep recording payouts and check that missing weeks are complete. | Isincomo sokubeka imali eceleni sidinga okungenani amasonto ayisithupha aphelele omlando wemali engenayo erekhodiwe. Qhubeka urekhoda imali oyitholayo futhi uhlole ukuthi amasonto angekho aphelile yini. | Keletso ea ho behella chelete ka thoko e hloka bonyane libeke tse tšeletseng tse felletseng tsa nalane ea chelete e kenang e rekotiloeng. Tsoela pele ho rekota litefo ’me u hlahlobe hore libeke tse sieo li felile. | Fluent review required |
+| explainCostHistory | A recommendation needs dated upcoming costs or spending records spanning at least 14 recent calendar days. Add the bills you know about; a past recurring flag does not create a due date. | Isincomo sidinga izindleko ezizayo ezinezinsuku noma amarekhodi ezindleko ezihlanganisa okungenani izinsuku zekhalenda ezingu-14 zakamuva. Faka izikweletu ozaziyo; uphawu lokuphindaphinda lwesikweletu esedlule alwakhi usuku lokukhokha. | Keletso e hloka litšenyehelo tse tlang tse nang le matsatsi kapa lirekoto tsa tšebeliso tse nkileng bonyane matsatsi a almanaka a 14 a morao tjena. Kenya likoloto tseo u li tsebang; letšoao la ho pheta-pheta la sekoloto sa khale ha le hlahise letsatsi la tefo. | Fluent review required |
+| explainPlanningGap | Estimated costs exceed estimated income and assumed cash over this horizon. The difference is a conditional planning gap, not a predicted shortfall date. | Izindleko ezilinganisiwe zidlula imali engenayo elinganisiwe nemali ecatshangwayo kulesi sikhathi. Umehluko uyigebe lokuhlela elinemibandela, akusona isibikezelo sosuku lokushoda kwemali. | Litšenyehelo tse hakantsoeng li feta chelete e kenang e hakantsoeng le chelete e nkoang e le teng nakong ena. Phapang ke sekheo sa moralo se nang le lipehelo, ha se khakanyo ea letsatsi leo chelete e tla haella ka lona. | Fluent review required |
+| explainNoGap | These inputs show no gap over the whole horizon. This does not establish that every bill can be paid on time; check upcoming dates and available cash. | Lokhu okufakile akubonisi igebe kuso sonke lesi sikhathi. Lokhu akuqinisekisi ukuthi zonke izikweletu zingakhokhwa ngesikhathi; hlola izinsuku ezizayo nemali etholakalayo. | Lintlha tsena ha li bontše sekheo nakong ena kaofela. Sena ha se bolele hore sekoloto se seng le se seng se ka lefuoa ka nako; hlahloba matsatsi a tlang le chelete e teng. | Fluent review required |
+| explainUnavailable | A recommendation is unavailable from these inputs. Check your recorded income, upcoming costs and available cash. | Isincomo asitholakali kulokhu okufakile. Hlola imali engenayo erekhodiwe, izindleko ezizayo nemali etholakalayo. | Keletso ha e fumanehe ho latela lintlha tsena. Hlahloba chelete e kenang e rekotiloeng, litšenyehelo tse tlang le chelete e teng. | Fluent review required |
+| editEntry | Edit entry | Hlela okufakiwe | Fetola tlaleho | Fluent review required |
+| edit | Edit | Hlela | Fetola | Fluent review required |
+| delete | Delete | Susa | Hlakola | Fluent review required |
+| cancel | Cancel | Khansela | Khansela | Fluent review required |
+| saveChanges | Save changes | Londoloza izinguquko | Boloka liphetoho | Fluent review required |
+| optionalNote | Optional note | Inothi ongazikhethela | Tlhokomeliso eo u ka e sieang | Fluent review required |
+| expenseDate | Date paid or due | Usuku lokukhokha noma lokugcina | Letsatsi leo tefo e entsoeng kapa e lokelang ho etsoa ka lona | Fluent review required |
+| moneyIn | Money in | Imali engenayo | Chelete e kenang | Fluent review required |
+| moneyOut | Money out | Imali ephumayo | Chelete e tsoang | Fluent review required |
+| editNamedEntry | Edit {label}, {amount}, {date} | Hlela {label}, {amount}, {date} | Fetola {label}, {amount}, {date} | Fluent review required |
+| deleteNamedEntry | Delete {label}, {amount}, {date} | Susa {label}, {amount}, {date} | Tlosa {label}, {amount}, {date} | Fluent review required |
+| confirmDelete | Delete {label}, {amount}, dated {date}? This cannot be undone. | Susa {label}, {amount}, yangomhla ka-{date}? Lokhu ngeke kuhlehliswe. | Tlosa {label}, {amount}, ea letsatsi la {date}? Sena se ke ke sa khutlisoa. | Fluent review required |
+| entryCorrected | Entry corrected. | Okufakiwe kulungisiwe. | Tlaleho e lokisitsoe. | Fluent review required |
+| entryDeleted | Entry deleted. | Okufakiwe kususiwe. | Tlaleho e tlositsoe. | Fluent review required |
+| entryChangeFailed | Could not change the entry. Your existing record is unchanged. Check your connection and try again. | Asikwazanga ukushintsha okufakiwe. Irekhodi lakho alishintshanga. Hlola uxhumano uzame futhi. | Ha rea khona ho fetola tlaleho. Rekoto ea hao ha e fetohe. Hlahloba khokahano ebe u leka hape. | Fluent review required |
+| recordedDates | Dates from recorded entries | Izinsuku ezirekhodiwe | Matsatsi a litlaleho | Fluent review required |
+| showRecent | Show recent entries | Bonisa okufakiwe kwakamuva | Bontša litlaleho tsa morao tjena | Fluent review required |
+| showLoadedEntries | Show all loaded entries | Bonisa konke okufakiwe okulayishiwe | Bontša litlaleho tsohle tse laetsoeng | Fluent review required |
+| sampleRecommendation | Fictional reference estimate | Isilinganiso sesibonelo esiqanjiwe | Khakanyo ea mohlala e iqapetsoeng | Fluent review required |
+| sampleReference | Sample recommendation, unchanged by preview edits | Isincomo sesibonelo, asishintshwanga ukuhlela isibonelo | Keletso ea mohlala, ha e fetoloe ke liphetoho tsa ponelopele | Fluent review required |
+| sampleForecastStatic | This fictional recommendation does not recalculate when you add, edit or delete preview entries. Only recorded totals change. It is not a recommendation for your finances. | Lesi sincomo sesibonelo asibalwa kabusha uma ufaka, uhlela noma ususa okufakiwe esibonelweni. Izamba ezirekhodiwe kuphela ezishintshayo. Akusona isincomo sezimali zakho. | Keletso ena ea mohlala e iqapetsoeng ha e baloe bocha ha u kenya, u fetola kapa u tlosa litlaleho tsa ponelopele. Ke lipalo tse rekotiloeng feela tse fetohang. Sena ha se keletso ea lichelete tsa hao. | Fluent review required |
+| planningEstimate | A conditional planning estimate | Isilinganiso sokuhlela esinemibandela | Khakanyo ea moralo e nang le lipehelo | Fluent review required |
+| conditionalGap | Check this planning gap. | Hlola leli gebe lokuhlela. | Hlahloba sekheo sena sa moralo. | Fluent review required |
+| checkInputs | Check your upcoming costs and cash. | Hlola izindleko zakho ezizayo nemali etholakalayo. | Hlahloba litšenyehelo tse tlang le chelete e teng. | Fluent review required |
+| cashAssumption | Available cash is unknown. This planning estimate assumes no cash is available. Recorded net income is not your bank balance. | Imali etholakalayo ayaziwa. Lesi silinganiso sokuhlela sithatha ukuthi ayikho imali etholakalayo. Imali engenayo esele erekhodiwe akuyona ibhalansi yakho yasebhange. | Chelete e teng ha e tsejoe. Khakanyo ena ea moralo e nka hore ha ho chelete e teng. Chelete e setseng e rekotiloeng ha se akhaonto ea hao ea banka. | Fluent review required |
+| forecastMethod | The income estimate uses {weeks} completed weeks (up to eight), including weeks with no recorded earnings. Spending records span {days} days. At least two completed weeks are needed for an income estimate, and six plus an expense basis for a planning gap. | Isilinganiso semali engenayo sisebenzisa amasonto aphelele angu-{weeks} (afika kwayisishiyagalombili), kuhlanganise namasonto angenayo imali erekhodiwe. Amarekhodi ezindleko ahlanganisa izinsuku ezingu-{days}. Kudingeka okungenani amasonto amabili aphelele ukuze kulinganiswe imali engenayo, namasonto ayisithupha kanye nesisekelo sezindleko ukuze kubalwe igebe lokuhlela. | Khakanyo ea chelete e kenang e sebelisa libeke tse felletseng tse {weeks} (ho fihlela ho tse robeli), ho akarelletsa le libeke tse se nang chelete e rekotiloeng. Lirekoto tsa litšenyehelo li nka matsatsi a {days}. Ho hlokahala bonyane libeke tse peli tse felletseng bakeng sa khakanyo ea chelete e kenang, le tse tšeletseng hammoho le motheo oa litšenyehelo bakeng sa sekheo sa moralo. | Fluent review required |
+| recurringAssumption | Enter upcoming bills with their due dates. A recurring checkbox alone does not establish a repeat date; past recurring bills are not automatically repeated. | Faka izikweletu ezizayo nezinsuku okufanele zikhokhwe ngazo. Ukukhetha ukuthi isikweletu siyaphindaphinda akubeki usuku lokuphinda; izikweletu eziphindaphindayo zangaphambilini aziphindwa ngokuzenzakalelayo. | Kenya likoloto tse tlang le matsatsi ao li lokelang ho lefuoa ka ’ona. Ho tšoaea sekoloto hore sea ipheta ha ho behe letsatsi la ho ipheta; likoloto tsa khale tse iphetang ha li phetoe ka bohona. | Fluent review required |
+| forecastTiming | Weekly earnings do not tell us when your next payout will arrive. No exact shortfall date or probability is predicted. | Imali engenayo yamasonto onke ayisho ukuthi inkokhelo yakho elandelayo izofika nini. Akubikezelwa usuku oluqondile lokushoda kwemali noma amathuba alo. | Chelete e kenang ea beke le beke ha e bolele hore tefo ea hao e latelang e tla fihla neng. Ha ho boleloe letsatsi kapa monyetla o nepahetseng oa ho haella ha chelete. | Fluent review required |
+| incompleteHistory | Missing entries can change this estimate. Confidence has not been validated. | Okufakiwe okungekho kungashintsha lesi silinganiso. Ukuthembeka kwaso akukakaqinisekiswa. | Litlaleho tse sieo li ka fetola khakanyo ena. Ho tšepahala ha eona ha ho so netefatsoe. | Fluent review required |
+| notEstablished | Not established | Akukaqinisekiswa | Ha e so tiisetsoe | Fluent review required |
+| unvalidated | Unvalidated | Akukahlolwa | Ha e so lekoe | Fluent review required |
+| conditionalSuggestion | A conditional allocation, not proof that money is available to save. | Ukwabiwa okunemibandela; akubona ubufakazi bokuthi imali ikhona yokuyibeka eceleni. | Kabelo e nang le lipehelo; ha se bopaki ba hore chelete e teng ho bolokoa. | Fluent review required |
+| recordedThisMonth | Recorded set-asides this month | Imali ebekwe eceleni erekhodiwe kule nyanga | Chelete e behelletsoeng ka thoko e rekotiloeng khoeling ena | Fluent review required |
+| savingsNotCash | These records track money you put aside. They are not a verified savings balance or progress against a dated goal. | La marekhodi alandelela imali oyibeke eceleni. Awabonisi ibhalansi yokonga eqinisekisiwe noma inqubekelaphambili efinyelela umgomo onosuku. | Lirekoto tsena li latela chelete eo u e behelletseng ka thoko. Ha se chelete ea polokelo e netefalitsoeng kapa tsoelo-pele ho fihlela sepheo sa letsatsi le itseng. | Fluent review required |
+| chartAssumption | Seven-day planning blocks; the final block may be shorter. No calibrated confidence range is shown for account estimates. | Amabhulokhi okuhlela ezinsuku eziyisikhombisa; elokugcina lingaba lifushane. Akukho banga lokuzethemba elilinganisiwe eliboniswa ezilinganisweni ze-akhawunti. | Likarolo tsa moralo tsa matsatsi a supileng; karolo ea ho qetela e ka ba khutšoanyane. Ha ho tekanyo ea kholiseho e lekantsoeng e bontšoang bakeng sa likhakanyo tsa akhaonto. | Fluent review required |
+| estimatedIncomeChart | Income planning estimate across {blocks} seven-day planning blocks | Isilinganiso sokuhlelwa kwemali engenayo kumabhulokhi okuhlela ezinsuku eziyisikhombisa angu-{blocks} | Tekanyetso ya moralo wa lekeno dibolokong tsa matsatsi a supileng tsa moralo tse {blocks} | Fluent review required |
+| highContrast | High contrast | Umehluko ophezulu | Phapang e phahameng | Fluent review required |
+| highContrastHelp | Increase contrast between text, controls and backgrounds. | Khulisa umehluko phakathi kombhalo, izilawuli nengemuva. | Eketsa phapang pakeng tsa mongolo, ditaolo le bokamorao. | Fluent review required |
+| largerText | Larger text | Umbhalo omkhulu | Mongolo o moholo | Fluent review required |
+| largerTextHelp | Enlarge interface text and spacing for easier reading. | Khulisa umbhalo nezikhala ukuze kube lula ukufunda. | Holisa mongolo le likheo hore ho be bonolo ho bala. | Fluent review required |
+| estimatedIncome | Estimated income | Imali engenayo elinganisiwe | Chelete e kenang e hakantsoeng | Fluent review required |
+| possibleRange | Fictional sample range | Ububanzi besibonelo esiqanjiwe | Mefuta ea linomoro tsa mohlala oa boiqapelo | Fluent review required |
+| weekNumber | Block {number} | Isigaba {number} | Karolo ea {number} | Fluent review required |
+| greeting | Good to see you, {name}. | Kuhle ukukubona, {name}. | Ke thabela ho u bona, {name}. | Fluent review required |
+| notAvailable | Not available | Akutholakali | Ha e fumanehe | Fluent review required |
+| dataControls | Your data controls | Ukulawula idatha yakho | Taolo ea lintlha tsa hao | Fluent review required |
+| exportLoaded | Export loaded entries (JSON) | Khipha okufakiwe okulayishiwe (JSON) | Ntša litlaleho tse laetsoeng (JSON) | Fluent review required |
+| exportScope | This download contains only entries currently loaded in the app, not a complete account export. Keep it private on shared devices. Sample exports are marked fictional. | Lokhu kulanda kuqukethe okufakiwe okulayishwe kuhlelo lokusebenza kuphela, akukhona konke okuku-akhawunti. Kugcine kuyimfihlo kumadivayisi abiwayo. Okuthunyelwa kwesibonelo kumakwa njengokuqanjiwe. | Faele ena e na le litlaleho tse laetsoeng hona joale feela, eseng lintlha tsohle tsa akhaonto. E boloke e le lekunutu lisebelisoa tse arolelanoang. Lifaele tsa mohlala li tšoauoa e le tse iqapetsoeng. | Fluent review required |
+| deleteAccountDecision | Self-service account deletion is not available yet. Before launch, the team must define identity verification, deletion of stored records, backup retention and a published contact route. Removing entries or signing out does not delete your account. | Ukususa i-akhawunti ngokwakho akukatholakali. Ngaphambi kokwethula, ithimba kufanele lichaze ukuqinisekisa ubuwena, ukususa amarekhodi agciniwe, ukugcinwa kwezipele nendlela yokuxhumana eshicilelwe. Ukususa okufakiwe noma ukuphuma akususi i-akhawunti yakho. | Ho hlakola akhaonto u le mong ha ho so fumanehe. Pele e qala, sehlopha se lokela ho hlalosa netefatso ea boitsebiso, ho hlakola lirekoto tse bolokiloeng, nako ea ho boloka likopi le tsela ea ho ikopanya e phatlalalitsoeng. Ho tlosa litlaleho kapa ho tsoa ha ho hlakole akhaonto ea hao. | Fluent review required |
+| translationReview | isiZulu and Sesotho translations are drafts pending fluent-speaker review. Confirm financial terms, actions and warnings before release. | Lezi zinguqulo zesiZulu zisewuhlaka oludinga ukubuyekezwa. Cela umuntu osikhuluma kahle aqinisekise amagama ezimali, izenzo nezixwayiso ngaphambi kokukhishwa. | Liphetolelo tsena tsa Sesotho ke lingoloa tse reriloeng tse hlokang tlhahlobo. Kopa sebui sa Sesotho se buang hantle ho netefatsa mantsoe a lichelete, liketso le litemoso pele li phatlalatsoa. | Fluent review required |
+| bolokaHome | Boloka home | Ikhaya le-Boloka | Lehae la Boloka | Fluent review required |
+| boloka | boloka | boloka | boloka | Fluent review required |
+| weCouldNotLoadYourMoneyPictureTry | We could not load your money picture. Try again. | Asikwazanga ukulayisha isithombe sezimali zakho. Zama futhi. | Ha rea khona ho laela setšoantšo sa lichelete tsa hao. Leka hape. | Fluent review required |
+| weCouldNotCheckYourAccountCheckYour | We could not check your account. Check your connection and reload. | Asikwazanga ukuhlola i-akhawunti yakho. Hlola uxhumano uphinde ulayishe ikhasi. | Ha rea khona ho hlahloba akhaonto ea hao. Hlahloba khokahano ebe u nchafatsa leqephe. | Fluent review required |
+| addEntriesToSeeASetAsideSuggestion | Add entries to see a set-aside suggestion. | Faka amarekhodi ukuze ubone isincomo semali yokubeka eceleni. | Kenya litlaleho ho bona keletso ea chelete e ka beheloang ka thoko. | Fluent review required |
+| addIncomeAndExpenseEntriesToBuildYour | Add income and expense entries to build your estimate. | Faka imali engenayo nezindleko ukuze wakhe isilinganiso sakho. | Kenya litlaleho tsa chelete e kenang le litšenyehelo ho etsa khakanyo ea hao. | Fluent review required |
+| income | Income | Imali engenayo | Chelete e kenang | Fluent review required |
+| expense | Expense | Izindleko | Litšenyehelo | Fluent review required |
+| checkYourInboxToConfirmYourEmailThen | Check your inbox to confirm your email, then sign in. | Hlola ibhokisi lakho lemiyalezo ukuze uqinisekise i-imeyili, bese ungena ngemvume. | Hlahloba inbox ho netefatsa lengolo-tsoibila la hao, ebe u kena. | Fluent review required |
+| youReSignedInYourPrivateMoneyPicture | You’re signed in. Your private money picture is ready. | Ungene ngemvume. Isithombe sakho sezimali esiyimfihlo sesilungile. | U kene. Setšoantšo sa hao sa lekunutu sa lichelete se lokile. | Fluent review required |
+| weCouldNotReachSignInCheckYour | We could not reach sign-in. Check your connection and try again. | Asikwazanga ukuvula ukungena ngemvume. Hlola uxhumano uzame futhi. | Ha rea khona ho fihla leqepheng la ho kena. Hlahloba khokahano ebe u leka hape. | Fluent review required |
+| youHaveBeenSignedOut | You have been signed out. | Uphumile ku-akhawunti. | U tsoile akhaontong. | Fluent review required |
+| enterAnAmountGreaterThanR000 | Enter an amount greater than R0.00. | Faka inani elingaphezu kuka-R0.00. | Kenya chelete e fetang R0.00. | Fluent review required |
+| youAreOfflineReconnectBeforeSavingToYour | You are offline. Reconnect before saving to your account. | Awuxhunyiwe ku-inthanethi. Xhuma futhi ngaphambi kokulondoloza ku-akhawunti yakho. | Ha ua hokeloa inthaneteng. Hokela hape pele u boloka ho akhaonto ea hao. | Fluent review required |
+| entrySavedToYourAccount | Entry saved to your account. | Okufakiwe kulondolozwe ku-akhawunti yakho. | Tlaleho e bolokiloe akhaontong ea hao. | Fluent review required |
+| addedToThisSamplePreviewOnlySignIn | Added to this sample preview only. Sign in to save entries to your account. | Kufakwe kulesi sibonelo kuphela. Ngena ngemvume ukuze ulondoloze amarekhodi ku-akhawunti yakho. | E kentsoe ponelong ena ea mohlala feela. Kena ho boloka litlaleho akhaontong ea hao. | Fluent review required |
+| couldNotSaveThisEntryTryAgain | Could not save this entry. Try again. | Asikwazanga ukulondoloza lokhu okufakiwe. Zama futhi. | Ha rea khona ho boloka tlaleho ena. Leka hape. | Fluent review required |
+| youAreOfflineReconnectBeforeSavingThisContribution | You are offline. Reconnect before saving this contribution. | Awuxhunyiwe ku-inthanethi. Xhuma futhi ngaphambi kokulondoloza lo mnikelo. | Ha ua hokeloa inthaneteng. Hokela hape pele u boloka monehelo ona. | Fluent review required |
+| yourSetAsideWasAddedToThisMonth | Your set-aside was added to this month’s buffer progress. | Imali yakho oyibeke eceleni yengezwe enqubekelaphambili yalesi sikhwama sale nyanga. | Chelete eo u e behetseng ka thoko e kentsoe tsoelo-peleng ea polokelo ea khoeli ena. | Fluent review required |
+| addedToThisSamplePreviewOnlySignIn2 | Added to this sample preview only. Sign in to keep the contribution in your account. | Kufakwe kulesi sibonelo kuphela. Ngena ngemvume ukuze ugcine umnikelo ku-akhawunti yakho. | E kentsoe ponelong ena ea mohlala feela. Kena ho boloka monehelo akhaontong ea hao. | Fluent review required |
+| couldNotSaveThatSetAsideTryAgain | Could not save that set-aside. Try again. | Asikwazanga ukulondoloza leyo mali ebekwe eceleni. Zama futhi. | Ha rea khona ho boloka chelete eo e behetsoeng ka thoko. Leka hape. | Fluent review required |
+| youAreOfflineReconnectBeforeRemovingThisContribution | You are offline. Reconnect before removing this contribution. | Awuxhunyiwe ku-inthanethi. Xhuma futhi ngaphambi kokususa lo mnikelo. | Ha ua hokeloa inthaneteng. Hokela hape pele u tlosa monehelo ona. | Fluent review required |
+| setAsideRemoved | Set-aside removed. | Imali ebekwe eceleni isusiwe. | Chelete e behetsoeng ka thoko e tlositsoe. | Fluent review required |
+| couldNotRemoveThatSetAsideTryAgain | Could not remove that set-aside. Try again. | Asikwazanga ukususa leyo mali ebekwe eceleni. Zama futhi. | Ha rea khona ho tlosa chelete eo e behetsoeng ka thoko. Leka hape. | Fluent review required |
+| signInAndChooseACsvFileTo | Sign in and choose a CSV file to import income. | Ngena ngemvume bese ukhetha ifayela le-CSV ozongenisa ngalo imali engenayo. | Kena ebe u khetha faele ea CSV ho kenya chelete e kenang. | Fluent review required |
+| chooseACsvFileSmallerThan2Mb | Choose a CSV file smaller than 2 MB. | Khetha ifayela le-CSV elingaphansi kuka-2 MB. | Khetha faele ea CSV e nyenyane ho 2 MB. | Fluent review required |
+| youAreOfflineReconnectBeforeImportingToYour | You are offline. Reconnect before importing to your account. | Awuxhunyiwe ku-inthanethi. Xhuma futhi ngaphambi kokungenisa ku-akhawunti yakho. | Ha ua hokeloa inthaneteng. Hokela hape pele u kenya faele akhaontong ea hao. | Fluent review required |
+| imported | Imported  | Kungenisiwe  | E kentsoe  | Fluent review required |
+| couldNotImportThatFile | Could not import that file. | Asikwazanga ukungenisa lelo fayela. | Ha rea khona ho kenya faele eo. | Fluent review required |
+| skipToMainContent | Skip to main content | Yeqela kokuqukethwe okuyinhloko | Tlolela ho litaba tse kholo | Fluent review required |
+| gettingYourMoneyPictureReady | Getting your money picture ready. | Silungiselela isithombe sezimali zakho. | Ho lokisoa setšoantšo sa hao sa lichelete. | Fluent review required |
+| checkingYourAccountSecurely | Checking your account securely… | Sihlola i-akhawunti yakho ngokuphephile… | Ho hlahlojoa akhaonto ea hao ka tšireletso… | Fluent review required |
+| openAccountSettings | Open account settings | Vula izilungiselelo ze-akhawunti | Bula litlhophiso tsa akhaonto | Fluent review required |
+| signInToYourAccount | Sign in to your account | Ngena ku-akhawunti yakho | Kena akhaontong ea hao | Fluent review required |
+| loadingDashboard | Loading dashboard | Kulayishwa ideshibhodi | Ho laeloa dashboard | Fluent review required |
+| loadingYourMoneyPicture | Loading your money picture… | Kulayishwa isithombe sezimali zakho… | Ho laeloa setšoantšo sa hao sa lichelete… | Fluent review required |
+| weCouldnTRefreshYourAccountData | We couldn’t refresh your account data. | Asikwazanga ukuvuselela idatha ye-akhawunti yakho. | Ha rea khona ho nchafatsa lintlha tsa akhaonto ea hao. | Fluent review required |
+| dismissMessage | Dismiss message | Vala umlayezo | Koala molaetsa | Fluent review required |
+| updatingYourMoneyPicture | Updating your money picture… | Kubuyekezwa isithombe sezimali zakho… | Ho nchafatsoa setšoantšo sa hao sa lichelete… | Fluent review required |
+| yourMoneyOverview | Your money overview | Uhlolojikelele lwemali yakho | Kakaretso ea chelete ea hao | Fluent review required |
+| recordedBalance | RECORDED NET | ISAMBA ESIREKHODIWE | KAKARETSO E NGOLISITSOENG | Fluent review required |
+| fromIncomeAndExpensesYouVeLogged | From income and expenses you’ve logged | Kusukela emalini engenayo nasezindlekweni ozirekhodile | Ho tsoa cheleteng e kenang le litšenyehelong tseo u li ngotseng | Fluent review required |
+| estimatedGap | ESTIMATED GAP | IGEBE ELILINGANISIWE | KHAFA E HAKANTSOENG | Fluent review required |
+| recentMoney | Recent money | Imali yakamuva | Chelete ea morao tjena | Fluent review required |
+| thisWeek | This week | Kuleli sonto | Bekeng ena | Fluent review required |
+| incomeYouVeRecorded | Income you’ve recorded | Imali engenayo oyirekhodile | Chelete e kenang eo u e ngotseng | Fluent review required |
+| setAsideEachWeek | Set aside each week | Beka eceleni isonto ngalinye | Behella ka thoko beke le beke | Fluent review required |
+| forecastConfidence | Forecast confidence | Izinga lokuthembeka kwesibikezelo | Tšepo ea khakanyo | Fluent review required |
+| theLatest | THE LATEST | OKWAKAMUVA | TSE NCHA KA HO FETISISA | Fluent review required |
+| moneyMoves | Money moves | Ukunyakaza kwemali | Tsamaiso ea chelete | Fluent review required |
+| addOne | Add one | Faka okukodwa | Kenya e le ’ngoe | Fluent review required |
+| yourStoryStartsHere | Your story starts here. | Indaba yakho iqala lapha. | Pale ea hao e qala mona. | Fluent review required |
+| addIncomeOrABillToGetA | Add income or a bill to get a picture that’s yours. | Faka imali engenayo noma isikweletu ukuze uthole isithombe esingesakho. | Kenya chelete e kenang kapa sekoloto hore u bone setšoantšo sa hao. | Fluent review required |
+| oneSmallMove | ONE SMALL MOVE | ISINYATHELO ESINCANE | MOHATO O MONG O MONYENYANE | Fluent review required |
+| giveYourNextWeekAHeadStart | Give your next week a head start. | Lungiselela isonto elizayo kusenesikhathi. | Lokisetsa beke e tlang esale pele. | Fluent review required |
+| setAsideALittleWhenAPayoutLands | Set aside a little when a payout lands. It can make a slower week feel less sudden. | Beka okuncane eceleni uma uthola inkokhelo. Kungasiza ukuthi isonto elinemali encane lingakumangazi. | Behella hanyenyane ka thoko ha tefo e fihla. Sena se ka etsa hore beke e nang le chelete e nyenyane e se ke ea u makatsa. | Fluent review required |
+| seeYourBuffer | See your buffer | Bona isikhwama sakho | Bona polokelo ea hao | Fluent review required |
+| quickEntry | QUICK ENTRY | UKUFAKA OKUSHESHAYO | HO KENYA KA POTLAKO | Fluent review required |
+| whatMoved | What moved? | Yini eshintshile? | Ho fetohile eng? | Fluent review required |
+| entryType | Entry type | Uhlobo lokufakiwe | Mofuta oa tlaleho | Fluent review required |
+| useRandsAndCentsForExample15000 | Use rands and cents, for example 150.00 | Sebenzisa amarandi namasenti, isibonelo 150.00 | Sebelisa liranta le lisente, mohlala 150.00 | Fluent review required |
+| deliveryShiftMarketOrder | Delivery shift, market order… | Umsebenzi wokuletha impahla, i-oda lasemakethe… | Mosebetsi oa ho tsamaisa thepa, odara ea mmaraka… | Fluent review required |
+| transportRent | Transport, rent… | Ezokuthutha, irenti… | Lipalangoang, rente… | Fluent review required |
+| forExampleRentOrAMonthlyPhoneBill | For example, rent or a monthly phone bill | Isibonelo, irenti noma isikweletu sefoni sanyanga zonke | Mohlala, rente kapa tefiso ea fono ea khoeli le khoeli | Fluent review required |
+| yourEntriesStayPrivateToYourAccountPreview | Your entries stay private to your account. Preview entries are not uploaded. | Amarekhodi akho ahlala eyimfihlo ku-akhawunti yakho. Awafakwa ku-inthanethi uma ubuka isibonelo. | Litlaleho tsa hao li lula e le lekunutu akhaontong ea hao. Litlaleho tsa ponelopele ha li romeloe inthaneteng. | Fluent review required |
+| importIncomeFromACsv | Import income from a CSV | Ngenisa imali engenayo nge-CSV | Kenya chelete e kenang ka CSV | Fluent review required |
+| useColumns | Use columns | Sebenzisa amakholomu | Sebelisa likholomo | Fluent review required |
+| source | source | source | source | Fluent review required |
+| and | , and | , kanye | , le | Fluent review required |
+| receivedOn | received_on | received_on | received_on | Fluent review required |
+| datesMustUseYyyyMmDd | . Dates must use YYYY-MM-DD. | . Izinsuku kufanele zisebenzise u-YYYY-MM-DD. | . Matsatsi a sebelise YYYY-MM-DD. | Fluent review required |
+| chooseACsvFile | Choose a CSV file | Khetha ifayela le-CSV | Khetha faele ea CSV | Fluent review required |
+| importIncome | Import income | Faka imali engenayo ngefayela | Kenya chelete e kenang ka faele | Fluent review required |
+| signInToImportEntriesToYourAccount | Sign in to import entries to your account. | Ngena ngemvume ukuze ungenise amarekhodi ku-akhawunti yakho. | Kena ho kenya litlaleho akhaontong ea hao. | Fluent review required |
+| next | NEXT | OKULANDELAYO | E LATELANG | Fluent review required |
+| days | DAYS | IZINSUKU | MATSATSI | Fluent review required |
+| expectedIncome | INCOME ESTIMATE | ISILINGANISO SEMALI ENGENAYO | KHAKANYO EA CHELETE E KENANG | Fluent review required |
+| knownCosts | COSTS IN THIS ESTIMATE | IZINDLEKO EZIFAKIWE KULESI SILINGANISO | LITŠENYEHELO TSE KENYELLELITSOENG KHAKANYONG ENA | Fluent review required |
+| possibleGap | POSSIBLE GAP | IGEBE ELINGASE LIBE KHONA | KHAFA E KA BANG TENG | Fluent review required |
+| aWeekCouldHelpBuildABuffer | a week could help build a buffer. | isonto lingasiza ukwakha isikhwama. | beke e ka thusa ho haha polokelo. | Fluent review required |
+| thisIsAnEstimateFromTheEntriesYou | This is an estimate from the entries you’ve recorded. It is not financial advice and cannot guarantee what you’ll earn or spend. | Lesi isilinganiso esivela kokufakile. Asisona iseluleko sezezimali futhi asikwazi ukuqinisekisa ukuthi uzohola noma usebenzise malini. | Ena ke khakanyo e thehiloeng litlalehong tseo u li kentseng. Ha se keletso ea lichelete ebile ha e tiise chelete eo u tla e fumana kapa ho e sebelisa. | Fluent review required |
+| weekByWeek | WEEK BY WEEK | ISONTO NGESONTO | BEKE LE BEKE | Fluent review required |
+| incomeOutlook | Income outlook | Isimo semali engenayo | Pono ea chelete e kenang | Fluent review required |
+| estimatedWeeklyIncome | Estimated weekly income | Imali engenayo elinganisiwe ngesonto | Chelete e kenang e hakantsoeng ka beke | Fluent review required |
+| loadingForecastChart | Loading forecast chart… | Kulayishwa ishadi lesibikezelo… | Ho laeloa chate ea khakanyo… | Fluent review required |
+| noEstimateYet | No estimate yet. | Akukho silinganiso okwamanje. | Ha ho khakanyo hona joale. | Fluent review required |
+| addIncomeEntriesToCreateAWeeklyOutlook | Add income entries to create a weekly outlook. | Faka imali engenayo ukuze wakhe umbono wamasonto onke. | Kenya litlaleho tsa chelete e kenang ho etsa pono ea beke le beke. | Fluent review required |
+| weeklyForecastValues | Weekly forecast values | Amanani esibikezelo samasonto onke | Litekanyetso tsa khakanyo ea beke le beke | Fluent review required |
+| yourWeeklyBuffer | YOUR WEEKLY BUFFER | ISIKHWAMA SAKHO SAMASONTO | POLOKELO EA HAO EA BEKE LE BEKE | Fluent review required |
+| aSmallCushionBuiltAtYourPace | A small cushion, built at your pace. | Isikhwama esincane, esakhiwa ngejubane lakho. | Polokelo e nyenyane, e hahiloeng ka lebelo la hao. | Fluent review required |
+| recordMoneyYouVePutAside | Record money you’ve put aside | Rekhoda imali oyibeke eceleni | Ngola chelete eo u e behetseng ka thoko | Fluent review required |
+| dateSetAside | Date set aside | Usuku lokubeka eceleni | Letsatsi leo e behetsoeng ka thoko ka lona | Fluent review required |
+| bufferEmergencyFund | Buffer, emergency fund… | Isikhwama, imali yezimo eziphuthumayo… | Polokelo, chelete ea maemo a tšohanyetso… | Fluent review required |
+| addToMyBuffer | Add to my buffer | Faka esikhwameni sami | Kenya polokelong ea ka | Fluent review required |
+| recentSetAsides | Recent set-asides | Imali esanda kubekwa eceleni | Chelete e sa tsoa behelloa ka thoko | Fluent review required |
+| removeSetAside | Remove set-aside  | Susa imali ebekwe eceleni  | Tlosa chelete e behetsoeng ka thoko  | Fluent review required |
+| remove | Remove | Susa | Tlosa | Fluent review required |
+| noSetAsidesRecordedYetYouCanStart | No set-asides recorded yet. You can start with any amount that feels manageable. | Ayikho imali ebekwe eceleni erekhodiwe okwamanje. Ungaqala nganoma iyiphi imali ekulungele. | Ha ho chelete e behetsoeng ka thoko e rekotiloeng. U ka qala ka chelete efe kapa efe eo u ka khonang. | Fluent review required |
+| accountPrivacy | ACCOUNT & PRIVACY | I-AKHAWUNTI NOKUPHEPHA KWEDATHA | AKHAONTO LE TŠIRELETSO EA LINTLHA | Fluent review required |
+| useSmallerTextOnlyForecastVisualsAndAsk | Use smaller text-only forecast visuals and ask the API to reduce transfer when supported. | Sebenzisa izithombe zesibikezelo ezinombhalo omncane kuphela, bese ucela i-API yehlise ukudlulisa uma isekelwa. | Sebelisa litšoantšo tsa khakanyo tse nang le mongolo feela o monyenyane, ’me u kope API ho fokotsa phetisetso ha e tšehetsoa. | Fluent review required |
+| signOut | Sign out | Phuma | Tsoa | Fluent review required |
+| createAnAccountToSaveYourEntriesPrivately | Create an account to save your entries privately. | Dala i-akhawunti ukuze ugcine amarekhodi akho eyimfihlo. | Theha akhaonto ho boloka litlaleho tsa hao e le lekunutu. | Fluent review required |
+| signInToSeeYourPrivateDashboard | Sign in to see your private dashboard. | Ngena ngemvume ukuze ubone ideshibhodi yakho eyimfihlo. | Kena ho bona dashboard ea hao ea lekunutu. | Fluent review required |
+| alreadyHaveAnAccountSignIn | Already have an account? Sign in | Usunayo i-akhawunti? Ngena ngemvume | U se u na le akhaonto? Kena | Fluent review required |
+| newToBolokaCreateAnAccount | New to Boloka? Create an account | Umusha ku-Boloka? Dala i-akhawunti | U mocha ho Boloka? Theha akhaonto | Fluent review required |
+| accountSignInWillBeAvailableWhenThe | Account sign-in will be available when the team connects the Supabase project. | Ukungena ku-akhawunti kuzotholakala uma ithimba selixhume iphrojekthi ye-Supabase. | Ho kena akhaontong ho tla fumaneha ha sehlopha se hokela projeke ea Supabase. | Fluent review required |
+| bolokaNeverAsksForYourBankPasswordYour | Boloka never asks for your bank password. Your entries are protected by account sign-in and row-level security. | IBoloka ayisoze yacela iphasiwedi yakho yasebhange. Okufakile kuvikelwe ukungena ku-akhawunti nokuvikelwa kwamarekhodi emugqeni wedatha. | Boloka e ke ke ea kopa phasewete ea banka ea hao. Litlaleho tsa hao li sirelelitsoe ka ho kena akhaontong le melao ea tšireletso ea lirekoto. | Fluent review required |
+| safety | SAFETY | UKUPHEPHA | TŠIRELETSO | Fluent review required |
+| mainNavigation | Main navigation | Ukuzulazula okuyinhloko | Tsamaiso e kholo | Fluent review required |
+| week | Week  | Isonto  | Beke  | Fluent review required |
+| importResult | Imported {imported} entries. {skipped} rows were skipped. | Kungeniswe okufakiwe okungu-{imported}. Imigqa engu-{skipped} yeqiwe. | Ho kentsoe litlaleho tse {imported}. Mela e {skipped} e tlotsoe. | Fluent review required |
+| removeContributionLabel | Remove set-aside {amount}, dated {date} | Susa imali ebekwe eceleni engu-{amount}, yangomhla ka-{date} | Tlosa chelete e behetsoeng ka thoko ea {amount}, ea letsatsi la {date} | Fluent review required |
+| cashScenario | Available cash now (optional, scenario only) | Imali etholakalayo manje (uyazikhethela, yalesi simo kuphela) | Chelete e teng hona joale (ka boikhethelo, bakeng sa boemo bona feela) | Fluent review required |
+| applyCashScenario | Apply cash scenario | Sebenzisa lesi simo semali | Sebelisa boemo bona ba chelete | Fluent review required |
+| cashScenarioHelp | Enter money you can use for these costs. This value is not bank verified, saved or included in exports. | Faka imali ongayisebenzisa kulezi zindleko. Le mali ayiqinisekiswanga yibhange, ayilondolozwa futhi ayifakwa kokuthunyelwa kwamafayela. | Kenya chelete eo u ka e sebelisang bakeng sa litšenyehelo tsena. Chelete ena ha e netefatsoe ke banka, ha e bolokoe ebile ha e kenngoe faeleng e romelloang kantle. | Fluent review required |
+| cashScenarioUsed | This planning estimate uses the available cash you entered: {amount}. | Lesi silinganiso sokuhlela sisebenzisa imali etholakalayo oyifakile: {amount}. | Khakanyo ena ea moralo e sebelisa chelete e teng eo u e kentseng: {amount}. | Fluent review required |
+| cashScenarioFailed | Could not update the scenario. The previous estimate is still shown. | Asikwazanga ukushintsha lesi simo. Isilinganiso sangaphambilini sisaboniswa. | Ha rea khona ho fetola boemo bona. Khakanyo e fetileng e ntse e bontšoa. | Fluent review required |
+| csvInstructions | Use CSV columns amount, source, received_on and optional note. Dates use YYYY-MM-DD. | Sebenzisa amakholomu e-CSV athi amount, source, received_on kanye nenothi ongazikhethela lona. Izinsuku zisebenzisa u-YYYY-MM-DD. | Sebelisa likholomo tsa CSV amount, source, received_on le note ea boikhethelo. Matsatsi a sebelisa YYYY-MM-DD. | Fluent review required |
+| forecastPeriod | Next {days} days | Izinsuku ezingu-{days} ezizayo | Matsatsi a {days} a tlang | Fluent review required |
+| samplePreviewOnly | Preview changes affect recorded totals only. | Izinguquko zesibonelo zithinta izamba ezirekhodiwe kuphela. | Liphetoho tsa mohlala li ama lipalo tse tlalehiloeng feela. | Fluent review required |
+| signInFailed | Sign-in could not be completed. Check the email, password and confirmation status, then try again. | Ukungena ngemvume akuphumelelanga. Hlola i-imeyili, iphasiwedi nesimo sokuqinisekisa, bese uzama futhi. | Ho kena ha hoa phethoa. Hlahloba lengolo-tsoibila, phasewete le boemo ba netefatso, ebe u leka hape. | Fluent review required |
+| loadFailed | Could not refresh account records. Check your connection and try again. | Asikwazanga ukuvuselela amarekhodi e-akhawunti. Hlola uxhumano uzame futhi. | Ha rea khona ho nchafatsa lirekoto tsa akhaonto. Hlahloba khokahano ebe u leka hape. | Fluent review required |
+| saveFailed | Could not save the record. Check the fields and your connection, then try again. | Asikwazanga ukulondoloza irekhodi. Hlola izinkambu noxhumano, bese uzama futhi. | Ha rea khona ho boloka rekoto. Hlahloba likarolo le khokahano, ebe u leka hape. | Fluent review required |
+| savedReloadFailed | Saved, but the updated records could not be reloaded. Use Try again to refresh; do not submit the same record twice. | Kulondoloziwe, kodwa amarekhodi abuyekeziwe awakwazanga ukulayishwa. Sebenzisa okuthi Zama futhi ukuze uvuselele; ungathumeli irekhodi elifanayo futhi. | E bolokiloe, empa lirekoto tse nchafalitsoeng ha lia khona ho laeloa. Sebelisa Leka hape ho nchafatsa; u se ke ua romela rekoto eona eo hape. | Fluent review required |
+| signOutFailed | Could not sign out. Check your connection and try again. | Asikwazanga ukukukhipha ku-akhawunti. Hlola uxhumano uzame futhi. | Ha rea khona ho u ntša. Hlahloba khokahano ebe u leka hape. | Fluent review required |
+| dateHelp | For an upcoming cost, enter its due date. Past recurring costs are not automatically repeated. | Ngezindleko ezizayo, faka usuku okufanele zikhokhwe ngalo. Izindleko eziphindaphindayo zangaphambilini aziphindi ngokuzenzakalelayo. | Bakeng sa litšenyehelo tse tlang, kenya letsatsi leo li lokelang ho lefshoa ka lona. Litšenyehelo tsa nako e fetileng tse pheta-phetoang ha li phetoe ka bohona. | Fluent review required |
+| planningIntro | Record your earnings and upcoming costs. Inspect a planning estimate, the history it uses and the assumptions behind it. | Rekhoda imali oyiholayo nezindleko ezizayo. Hlola isilinganiso sokuhlela, umlando esiwusebenzisayo nemibandela yaso. | Rekota chelete eo u e fumanang le litšenyehelo tse tlang. Hlahloba khakanyo ea moralo, nalane eo e e sebelisang le likhakanyo tsa motheo. | Fluent review required |
+| spendingAssumption | Everyday spending is estimated only when recent records span at least 14 days. Otherwise this total includes only explicit upcoming entries; other costs remain unknown. | Izindleko zansuku zonke zilinganiswa kuphela uma amarekhodi akamuva ehlanganisa okungenani izinsuku ezingu-14. Uma kungenjalo, leli nani lihlanganisa okufakiwe okuzayo okucacile kuphela; ezinye izindleko azaziwa. | Tšebeliso ea letsatsi le letsatsi e hakanyetsoa feela ha lirekoto tsa morao tjena li nka bonyane matsatsi a 14. Ho seng joalo kakaretso ena e kenyelletsa feela litšenyehelo tse tlang tse kentsoeng ka ho hlaka; tse ling ha li tsejoe. | Fluent review required |
+| spendingOverlap | Some upcoming costs may already be included in the everyday spending estimate. The combined total is a conservative scenario. No gap or set-aside recommendation is available until these costs can be distinguished. | Ezinye izindleko ezizayo kungenzeka sezifakiwe esilinganisweni sezindleko zansuku zonke. Inani elihlanganisiwe liyisimo esiqaphelayo. Alikho igebe noma isincomo semali yokubeka eceleni kuze kube lezi zindleko zingahlukaniswa. | Litšenyehelo tse ling tse tlang li ka ’na tsa se li kenyellelitsoe khakanyong ea tšebeliso ea letsatsi le letsatsi. Kakaretso ke boemo bo hlokolosi. Ha ho sekheo kapa keletso ea ho behella chelete ka thoko e fumanehang ho fihlela litšenyehelo tsena li ka khetholloa. | Fluent review required |
+| csvImportLimits | Use UTF-8, at most 2 MB and 10,000 rows. Amounts use a dot and at most two decimal places. Reimporting a file adds duplicates; review existing entries first. | Sebenzisa i-UTF-8, amafayela angeqi ku-2 MB nemigqa engu-10,000. Amanani asebenzisa ichashazi namasenti angadluli kwamabili. Ukungenisa ifayela futhi kwengeza okufanayo; hlola amarekhodi akhona kuqala. | Sebelisa UTF-8, boholo ba 2 MB le mela e 10,000. Lichelete li sebelisa letheba le lisente tse sa feteng tse peli. Ho kenya faele hape ho eketsa likopi; hlahloba lirekoto tse teng pele. | Fluent review required |
+| csvErrors | First skipped-row errors (English diagnostics) | Amaphutha okuqala emigqa eyeqiwe (imiyalezo yesiNgisi) | Liphoso tsa pele tsa mela e tlolotsoeng (melaetsa ea Senyesemane) | Fluent review required |
+| csvRowError | Line {line}: {message} | Umugqa {line}: {message} | Mola {line}: {message} | Fluent review required |
 
-| Key | English source | isiZulu | Sesotho |
-| --- | --- | --- | --- |
-| startNextSteps | Build your planning picture | English fallback; review needed | English fallback; review needed |
-| startRecordIncome | Record payouts you actually received, including earlier dates you can verify. A set-aside estimate needs six completed calendar weeks; check that weeks with no entries really are complete. Do not add invented earnings to fill gaps. | English fallback; review needed | English fallback; review needed |
-| startAddCosts | Add the bills you know are coming with their actual due dates. You can plan around these without guessing future income. Past recurring flags do not add future bills automatically. | English fallback; review needed | English fallback; review needed |
-| startReviewCosts | Check whether upcoming one-off costs are already covered by the everyday spending estimate. Until they can be distinguished, use the entries as a checklist rather than a set-aside recommendation. | English fallback; review needed | English fallback; review needed |
-| startCheckCash | If you know the cash available for these costs, enter it in the optional cash scenario below. Include only money available to spend; recorded net income and savings contributions are not a bank balance. You can leave this unknown. | English fallback; review needed | English fallback; review needed |
-| explainCalculation | How this estimate is calculated | English fallback; review needed | English fallback; review needed |
-| explainHorizon | Included dates: {start} through {end}. | English fallback; review needed | English fallback; review needed |
-| explainIncomeMath | Income: {total} recorded across {historyDays} completed calendar days, divided by {historyDays}, then multiplied by {days} days = {estimate}, rounded to cents. Weeks without recorded income count as zero. | English fallback; review needed | English fallback; review needed |
-| explainUnknownIncome | Income is unknown: fewer than two completed weeks are available. No income estimate is calculated. | English fallback; review needed | English fallback; review needed |
-| explainCostsMath | Costs: {scheduled} in dated upcoming entries + {everyday} in estimated everyday spending = {total}. Unrecorded costs remain unknown. | English fallback; review needed | English fallback; review needed |
-| explainUnknownCash | Available cash is unknown. The gap calculation assumes R0; recorded net income and savings contributions are not an available balance. | English fallback; review needed | English fallback; review needed |
-| explainGapMath | Horizon gap: {costs} costs minus {income} estimated income minus {cash} assumed cash = {gap}, with negative results shown as zero. This does not establish when money will arrive or bills can be paid. | English fallback; review needed | English fallback; review needed |
-| explainWeeklyMath | Weekly amount: {total} gap divided by {days} days, multiplied by 7 and rounded up to cents = {weekly}. This is a planning pace, not money already saved or proof it is affordable. | English fallback; review needed | English fallback; review needed |
-| explainOverlap | A recommendation is unavailable because upcoming costs may overlap the everyday spending estimate. Check which costs are already covered before relying on the combined total. | English fallback; review needed | English fallback; review needed |
-| explainIncomeHistory | A set-aside recommendation needs at least six completed weeks of recorded income history. Keep recording payouts and check that missing weeks are complete. | English fallback; review needed | English fallback; review needed |
-| explainCostHistory | A recommendation needs dated upcoming costs or spending records spanning at least 14 recent calendar days. Add the bills you know about; a past recurring flag does not create a due date. | English fallback; review needed | English fallback; review needed |
-| explainPlanningGap | Estimated costs exceed estimated income and assumed cash over this horizon. The difference is a conditional planning gap, not a predicted shortfall date. | English fallback; review needed | English fallback; review needed |
-| explainNoGap | These inputs show no gap over the whole horizon. This does not establish that every bill can be paid on time; check upcoming dates and available cash. | English fallback; review needed | English fallback; review needed |
-| explainUnavailable | A recommendation is unavailable from these inputs. Check your recorded income, upcoming costs and available cash. | English fallback; review needed | English fallback; review needed |
-| editNamedEntry | Edit {label}, {amount}, {date} | English fallback; review needed | English fallback; review needed |
-| deleteNamedEntry | Delete {label}, {amount}, {date} | English fallback; review needed | English fallback; review needed |
-| confirmDelete | Delete {label}, {amount}, dated {date}? This cannot be undone. | English fallback; review needed | English fallback; review needed |
-| entryCorrected | Entry corrected. | English fallback; review needed | English fallback; review needed |
-| entryDeleted | Entry deleted. | English fallback; review needed | English fallback; review needed |
-| entryChangeFailed | Could not change the entry. Your existing record is unchanged. Check your connection and try again. | English fallback; review needed | English fallback; review needed |
-| sampleRecommendation | Fictional reference estimate | English fallback; review needed | English fallback; review needed |
-| sampleReference | Sample recommendation, unchanged by preview edits | English fallback; review needed | English fallback; review needed |
-| sampleForecastStatic | This fictional recommendation does not recalculate when you add, edit or delete preview entries. Only recorded totals change. It is not a recommendation for your finances. | English fallback; review needed | English fallback; review needed |
-| planningEstimate | A conditional planning estimate | English fallback; review needed | English fallback; review needed |
-| conditionalGap | Check this planning gap. | English fallback; review needed | English fallback; review needed |
-| checkInputs | Check your upcoming costs and cash. | English fallback; review needed | English fallback; review needed |
-| cashAssumption | Available cash is unknown. This planning estimate assumes no cash is available. Recorded net income is not your bank balance. | English fallback; review needed | English fallback; review needed |
-| forecastMethod | The income estimate uses {weeks} completed weeks (up to eight), including weeks with no recorded earnings. Spending records span {days} days. At least two completed weeks are needed for an income estimate, and six plus an expense basis for a planning gap. | English fallback; review needed | English fallback; review needed |
-| recurringAssumption | Enter upcoming bills with their due dates. A recurring checkbox alone does not establish a repeat date; past recurring bills are not automatically repeated. | English fallback; review needed | English fallback; review needed |
-| forecastTiming | Weekly earnings do not tell us when your next payout will arrive. No exact shortfall date or probability is predicted. | English fallback; review needed | English fallback; review needed |
-| incompleteHistory | Missing entries can change this estimate. Confidence has not been validated. | English fallback; review needed | English fallback; review needed |
-| notEstablished | Not established | English fallback; review needed | English fallback; review needed |
-| unvalidated | Unvalidated | English fallback; review needed | English fallback; review needed |
-| conditionalSuggestion | A conditional allocation, not proof that money is available to save. | English fallback; review needed | English fallback; review needed |
-| recordedThisMonth | Recorded set-asides this month | English fallback; review needed | English fallback; review needed |
-| savingsNotCash | These records track money you put aside. They are not a verified savings balance or progress against a dated goal. | English fallback; review needed | English fallback; review needed |
-| chartAssumption | Seven-day planning blocks; the final block may be shorter. No calibrated confidence range is shown for account estimates. | English fallback; review needed | English fallback; review needed |
-| exportScope | This download contains only entries currently loaded in the app, not a complete account export. Keep it private on shared devices. Sample exports are marked fictional. | English fallback; review needed | English fallback; review needed |
-| deleteAccountDecision | Self-service account deletion is not available yet. Before launch, the team must define identity verification, deletion of stored records, backup retention and a published contact route. Removing entries or signing out does not delete your account. | English fallback; review needed | English fallback; review needed |
-| translationReview | Language draft: some text is shown in English. isiZulu and Sesotho wording, including financial terms and confirmations, needs fluent-speaker review. | English fallback; review needed | English fallback; review needed |
-| bolokaHome | Boloka home | English fallback; review needed | English fallback; review needed |
-| boloka | boloka | English fallback; review needed | English fallback; review needed |
-| weCouldNotLoadYourMoneyPictureTry | We could not load your money picture. Try again. | English fallback; review needed | English fallback; review needed |
-| weCouldNotCheckYourAccountCheckYour | We could not check your account. Check your connection and reload. | English fallback; review needed | English fallback; review needed |
-| addEntriesToSeeASetAsideSuggestion | Add entries to see a set-aside suggestion. | English fallback; review needed | English fallback; review needed |
-| addIncomeAndExpenseEntriesToBuildYour | Add income and expense entries to build your estimate. | English fallback; review needed | English fallback; review needed |
-| income | Income | English fallback; review needed | English fallback; review needed |
-| expense | Expense | English fallback; review needed | English fallback; review needed |
-| checkYourInboxToConfirmYourEmailThen | Check your inbox to confirm your email, then sign in. | English fallback; review needed | English fallback; review needed |
-| youReSignedInYourPrivateMoneyPicture | You’re signed in. Your private money picture is ready. | English fallback; review needed | English fallback; review needed |
-| weCouldNotReachSignInCheckYour | We could not reach sign-in. Check your connection and try again. | English fallback; review needed | English fallback; review needed |
-| youHaveBeenSignedOut | You have been signed out. | English fallback; review needed | English fallback; review needed |
-| enterAnAmountGreaterThanR000 | Enter an amount greater than R0.00. | English fallback; review needed | English fallback; review needed |
-| youAreOfflineReconnectBeforeSavingToYour | You are offline. Reconnect before saving to your account. | English fallback; review needed | English fallback; review needed |
-| entrySavedToYourAccount | Entry saved to your account. | English fallback; review needed | English fallback; review needed |
-| addedToThisSamplePreviewOnlySignIn | Added to this sample preview only. Sign in to save entries to your account. | English fallback; review needed | English fallback; review needed |
-| couldNotSaveThisEntryTryAgain | Could not save this entry. Try again. | English fallback; review needed | English fallback; review needed |
-| youAreOfflineReconnectBeforeSavingThisContribution | You are offline. Reconnect before saving this contribution. | English fallback; review needed | English fallback; review needed |
-| yourSetAsideWasAddedToThisMonth | Your set-aside was added to this month’s buffer progress. | English fallback; review needed | English fallback; review needed |
-| addedToThisSamplePreviewOnlySignIn2 | Added to this sample preview only. Sign in to keep the contribution in your account. | English fallback; review needed | English fallback; review needed |
-| couldNotSaveThatSetAsideTryAgain | Could not save that set-aside. Try again. | English fallback; review needed | English fallback; review needed |
-| youAreOfflineReconnectBeforeRemovingThisContribution | You are offline. Reconnect before removing this contribution. | English fallback; review needed | English fallback; review needed |
-| setAsideRemoved | Set-aside removed. | English fallback; review needed | English fallback; review needed |
-| couldNotRemoveThatSetAsideTryAgain | Could not remove that set-aside. Try again. | English fallback; review needed | English fallback; review needed |
-| signInAndChooseACsvFileTo | Sign in and choose a CSV file to import income. | English fallback; review needed | English fallback; review needed |
-| chooseACsvFileSmallerThan2Mb | Choose a CSV file smaller than 2 MB. | English fallback; review needed | English fallback; review needed |
-| youAreOfflineReconnectBeforeImportingToYour | You are offline. Reconnect before importing to your account. | English fallback; review needed | English fallback; review needed |
-| imported | Imported  | English fallback; review needed | English fallback; review needed |
-| couldNotImportThatFile | Could not import that file. | English fallback; review needed | English fallback; review needed |
-| skipToMainContent | Skip to main content | English fallback; review needed | English fallback; review needed |
-| gettingYourMoneyPictureReady | Getting your money picture ready. | English fallback; review needed | English fallback; review needed |
-| checkingYourAccountSecurely | Checking your account securely… | English fallback; review needed | English fallback; review needed |
-| openAccountSettings | Open account settings | English fallback; review needed | English fallback; review needed |
-| signInToYourAccount | Sign in to your account | English fallback; review needed | English fallback; review needed |
-| loadingDashboard | Loading dashboard | English fallback; review needed | English fallback; review needed |
-| loadingYourMoneyPicture | Loading your money picture… | English fallback; review needed | English fallback; review needed |
-| weCouldnTRefreshYourAccountData | We couldn’t refresh your account data. | English fallback; review needed | English fallback; review needed |
-| dismissMessage | Dismiss message | English fallback; review needed | English fallback; review needed |
-| updatingYourMoneyPicture | Updating your money picture… | English fallback; review needed | English fallback; review needed |
-| addIncomeOrABillToGetA | Add income or a bill to get a picture that’s yours. | English fallback; review needed | English fallback; review needed |
-| giveYourNextWeekAHeadStart | Give your next week a head start. | English fallback; review needed | English fallback; review needed |
-| setAsideALittleWhenAPayoutLands | Set aside a little when a payout lands. It can make a slower week feel less sudden. | English fallback; review needed | English fallback; review needed |
-| seeYourBuffer | See your buffer | English fallback; review needed | English fallback; review needed |
-| useRandsAndCentsForExample15000 | Use rands and cents, for example 150.00 | English fallback; review needed | English fallback; review needed |
-| deliveryShiftMarketOrder | Delivery shift, market order… | English fallback; review needed | English fallback; review needed |
-| transportRent | Transport, rent… | English fallback; review needed | English fallback; review needed |
-| forExampleRentOrAMonthlyPhoneBill | For example, rent or a monthly phone bill | English fallback; review needed | English fallback; review needed |
-| yourEntriesStayPrivateToYourAccountPreview | Your entries stay private to your account. Preview entries are not uploaded. | English fallback; review needed | English fallback; review needed |
-| importIncomeFromACsv | Import income from a CSV | English fallback; review needed | English fallback; review needed |
-| useColumns | Use columns | English fallback; review needed | English fallback; review needed |
-| source | source | English fallback; review needed | English fallback; review needed |
-| and | , and | English fallback; review needed | English fallback; review needed |
-| receivedOn | received_on | English fallback; review needed | English fallback; review needed |
-| datesMustUseYyyyMmDd | . Dates must use YYYY-MM-DD. | English fallback; review needed | English fallback; review needed |
-| signInToImportEntriesToYourAccount | Sign in to import entries to your account. | English fallback; review needed | English fallback; review needed |
-| aWeekCouldHelpBuildABuffer | a week could help build a buffer. | English fallback; review needed | English fallback; review needed |
-| thisIsAnEstimateFromTheEntriesYou | This is an estimate from the entries you’ve recorded. It is not financial advice and cannot guarantee what you’ll earn or spend. | English fallback; review needed | English fallback; review needed |
-| loadingForecastChart | Loading forecast chart… | English fallback; review needed | English fallback; review needed |
-| addIncomeEntriesToCreateAWeeklyOutlook | Add income entries to create a weekly outlook. | English fallback; review needed | English fallback; review needed |
-| weeklyForecastValues | Weekly forecast values | English fallback; review needed | English fallback; review needed |
-| aSmallCushionBuiltAtYourPace | A small cushion, built at your pace. | English fallback; review needed | English fallback; review needed |
-| bufferEmergencyFund | Buffer, emergency fund… | English fallback; review needed | English fallback; review needed |
-| removeSetAside | Remove set-aside  | English fallback; review needed | English fallback; review needed |
-| noSetAsidesRecordedYetYouCanStart | No set-asides recorded yet. You can start with any amount that feels manageable. | English fallback; review needed | English fallback; review needed |
-| useSmallerTextOnlyForecastVisualsAndAsk | Use smaller text-only forecast visuals and ask the API to reduce transfer when supported. | English fallback; review needed | English fallback; review needed |
-| createAnAccountToSaveYourEntriesPrivately | Create an account to save your entries privately. | English fallback; review needed | English fallback; review needed |
-| signInToSeeYourPrivateDashboard | Sign in to see your private dashboard. | English fallback; review needed | English fallback; review needed |
-| alreadyHaveAnAccountSignIn | Already have an account? Sign in | English fallback; review needed | English fallback; review needed |
-| newToBolokaCreateAnAccount | New to Boloka? Create an account | English fallback; review needed | English fallback; review needed |
-| accountSignInWillBeAvailableWhenThe | Account sign-in will be available when the team connects the Supabase project. | English fallback; review needed | English fallback; review needed |
-| bolokaNeverAsksForYourBankPasswordYour | Boloka never asks for your bank password. Your entries are protected by account sign-in and row-level security. | English fallback; review needed | English fallback; review needed |
-| week | Week  | English fallback; review needed | English fallback; review needed |
-| importResult | Imported {imported} entries. {skipped} rows were skipped. | English fallback; review needed | English fallback; review needed |
-| removeContributionLabel | Remove set-aside {amount}, dated {date} | English fallback; review needed | English fallback; review needed |
-| cashScenarioHelp | Enter money you can use for these costs. This value is not bank verified, saved or included in exports. | English fallback; review needed | English fallback; review needed |
-| cashScenarioUsed | This planning estimate uses the available cash you entered: {amount}. | English fallback; review needed | English fallback; review needed |
-| csvInstructions | Use CSV columns amount, source, received_on and optional note. Dates use YYYY-MM-DD. | English fallback; review needed | English fallback; review needed |
-| signInFailed | Sign-in could not be completed. Check the email, password and confirmation status, then try again. | English fallback; review needed | English fallback; review needed |
-| loadFailed | Could not refresh account records. Check your connection and try again. | English fallback; review needed | English fallback; review needed |
-| saveFailed | Could not save the record. Check the fields and your connection, then try again. | English fallback; review needed | English fallback; review needed |
-| savedReloadFailed | Saved, but the updated records could not be reloaded. Use Try again to refresh; do not submit the same record twice. | English fallback; review needed | English fallback; review needed |
-| signOutFailed | Could not sign out. Check your connection and try again. | English fallback; review needed | English fallback; review needed |
-| planningIntro | Record your earnings and upcoming costs. Inspect a planning estimate, the history it uses and the assumptions behind it. | English fallback; review needed | English fallback; review needed |
-| spendingAssumption | Everyday spending is estimated only when recent records span at least 14 days. Otherwise this total includes only explicit upcoming entries; other costs remain unknown. | English fallback; review needed | English fallback; review needed |
-| spendingOverlap | Some upcoming costs may already be included in the everyday spending estimate. The combined total is a conservative scenario. No gap or set-aside recommendation is available until these costs can be distinguished. | English fallback; review needed | English fallback; review needed |
-| csvImportLimits | Use UTF-8, at most 2 MB and 10,000 rows. Amounts use a dot and at most two decimal places. Reimporting a file adds duplicates; review existing entries first. | English fallback; review needed | English fallback; review needed |
-| csvErrors | First skipped-row errors (English diagnostics) | English fallback; review needed | English fallback; review needed |
-| csvRowError | Line {line}: {message} | English fallback; review needed | English fallback; review needed |
-
-## Existing translated keys
-
-Ticket #22 also adds `startNextSteps`, `startRecordIncome`, `startAddCosts`,
-`startReviewCosts`, `startCheckCash`. Both isiZulu and Sesotho deliberately use
-English fallback pending fluent review, especially the distinction between
-missing entries, actual zero-income weeks and available cash.
-
-Ticket #20 adds English fallback keys requiring fluent isiZulu/Sesotho review:
-`explainCalculation`, `explainHorizon`, `explainIncomeMath`, `explainUnknownIncome`,
-`explainCostsMath`, `explainUnknownCash`, `explainGapMath`, `explainWeeklyMath`,
-`explainOverlap`, `explainIncomeHistory`, `explainCostHistory`, `explainPlanningGap`,
-`explainNoGap`, `explainUnavailable`. Review the distinction between recorded
-income, estimated earnings, assumed cash, an aggregate gap and affordability.
-Preserve named placeholders and the meaning of rounding; do not imply timing or
-validated accuracy. No new translation has been guessed or approved.
-
-All existing translated keys require review too, particularly onboarding, privacy claims, recurring costs and scam warnings. Their presence is not evidence of language quality. Do not mark issue #28 complete until fluent reviewers approve the financial and destructive-action flows.
+Do not mark issue #28 complete until fluent reviewers approve the financial, safety, and destructive-action flows.
