@@ -25,6 +25,7 @@ class ParsedIncome:
     rows: list[dict[str, Any]]
     skipped: int
     errors: list[dict[str, Any]]
+    line_numbers: list[int]
 
 
 def parse_amount(value: str) -> int:
@@ -47,6 +48,7 @@ def parse_income_csv(raw: bytes, owner: str) -> ParsedIncome:
     reader = csv.reader(io.StringIO(text, newline=""), strict=True)
     rows: list[dict[str, Any]] = []
     errors: list[dict[str, Any]] = []
+    line_numbers: list[int] = []
     skipped = 0
     count = 0
     try:
@@ -81,6 +83,7 @@ def parse_income_csv(raw: bytes, owner: str) -> ParsedIncome:
                     note=(row.get("note") or "").strip() or None,
                 )
                 rows.append(body.model_dump(mode="json") | {"user_id": owner})
+                line_numbers.append(reader.line_num)
             except ValidationError:
                 skipped += 1
                 if len(errors) < MAX_ERRORS:
@@ -91,4 +94,4 @@ def parse_income_csv(raw: bytes, owner: str) -> ParsedIncome:
                     errors.append({"line": reader.line_num, "message": str(exc)})
     except csv.Error as exc:
         raise CsvImportError("Malformed CSV; check quoted fields and column lengths") from exc
-    return ParsedIncome(rows, skipped, errors)
+    return ParsedIncome(rows, skipped, errors, line_numbers)

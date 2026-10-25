@@ -1,6 +1,6 @@
 # Localization review inventory
 
-The React screens, accessible labels, charts, confirmations, and action errors have isiZulu and Sesotho draft copy. New home-screen copy deliberately falls back to English pending fluent review. All translations remain unapproved until fluent speakers review them; coverage does not establish language quality.
+The React screens, accessible labels, charts, confirmations, and action errors have isiZulu and Sesotho draft copy. New home-screen and import-review copy deliberately fall back to English pending fluent review. All translations remain unapproved until fluent speakers review them; coverage does not establish language quality.
 
 ## Fluent-speaker acceptance
 
@@ -272,3 +272,13 @@ homeUpcomingTitle, homeUpcomingHelp (preserve {count}), homeNoUpcoming,
 homeRecordedLabel, homeRecordedHelp. English fallback is intentional and tested;
 no new translations are guessed. Earlier owner review of #68 does not approve
 this new copy. The on-screen translation-draft notice remains visible.
+
+## Income import review follow-up (#76)
+
+New English fallback keys awaiting fluent isiZulu/Sesotho review:
+previewIncomeImport, reviewIncomeImport, importReviewHelp, importSelection
+(preserve {count}/{skipped}), importCsvLine ({line}), includeImportRow,
+importPrevious, importNext, importPage ({page}/{pages}), confirmIncomeImport
+({count}), importReviewInvalid and importSaveUncertain. Review the distinction
+between preview, explicit save, excluded/skipped rows and an uncertain write
+response. No new translations are guessed.

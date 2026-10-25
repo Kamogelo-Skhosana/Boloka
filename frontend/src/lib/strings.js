@@ -1,5 +1,17 @@
 // English source copy. Missing locale values deliberately fall back; see docs/localization-review.md.
 export const english = {
+  "previewIncomeImport": "Preview CSV without saving",
+  "reviewIncomeImport": "Review income from CSV",
+  "importReviewHelp": "Nothing has been saved. Review every page, correct fields or exclude rows, then confirm. Cancel discards this review. Reimporting adds duplicates.",
+  "importSelection": "{count} rows selected; {skipped} invalid file rows skipped.",
+  "importCsvLine": "CSV record ending on line {line}",
+  "includeImportRow": "Include this row",
+  "importPrevious": "Previous rows",
+  "importNext": "Next rows",
+  "importPage": "Page {page} of {pages}",
+  "confirmIncomeImport": "Save {count} selected rows",
+  "importReviewInvalid": "Check all selected rows on every page: use a positive amount with up to two decimal places, a valid date and bounded text. Select at least one row.",
+  "importSaveUncertain": "Saving failed or its response was lost. Check your account records before retrying; repeating a completed import adds duplicates.",
   "homeOverview": "Plan for your next costs.",
   "homeIntro": "Manually record cash, eWallet or bank payments, then add the costs you know are coming.",
   "homeUpcomingTitle": "Dated costs in the next 30 days",

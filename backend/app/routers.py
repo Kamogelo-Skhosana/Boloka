@@ -15,7 +15,7 @@ from fastapi import (
 from pydantic import BaseModel, Field, field_validator
 
 from .auth import get_current_access_token, get_current_user_claims, get_current_user_id
-from .csv_import import CsvImportError, parse_income_csv
+from .csv_import import CsvImportError, ParsedIncome, parse_income_csv
 from .database import request_table
 from .forecast_schema import ForecastResponse
 from .forecasting import build_forecast, local_today
@@ -127,21 +127,49 @@ def delete_income(entry_id: UUID, user_id: str = Depends(get_current_user_id), a
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.post("/income/import")
-async def import_income(file: UploadFile = File(...), user_id: str = Depends(get_current_user_id), access_token: str = Depends(get_current_access_token)):
+async def _parse_income_upload(file: UploadFile, owner: str) -> ParsedIncome:
     if not file.filename or not file.filename.lower().endswith(".csv"):
         raise HTTPException(status_code=400, detail={"error": {"code": "invalid_file", "message": "Upload a .csv file"}})
     raw = await file.read(2_000_001)
     if len(raw) > 2_000_000:
         raise HTTPException(status_code=413, detail={"error": {"code": "file_too_large", "message": "CSV files must be 2 MB or smaller"}})
-    owner = _user_uuid(user_id)
     try:
-        result = parse_income_csv(raw, owner)
+        return parse_income_csv(raw, owner)
     except CsvImportError as exc:
         raise HTTPException(status_code=400, detail={"error": {"code": "invalid_csv", "message": str(exc)}}) from exc
+
+
+@router.post("/income/import")
+async def import_income(file: UploadFile = File(...), user_id: str = Depends(get_current_user_id), access_token: str = Depends(get_current_access_token)):
+    owner = _user_uuid(user_id)
+    result = await _parse_income_upload(file, owner)
     if result.rows:
         request_table("POST", "income_events", access_token=access_token, user_id=owner, payload=result.rows, prefer="return=minimal")
     return {"imported": len(result.rows), "skipped": result.skipped, "errors": result.errors}
+
+
+@router.post("/income/import/preview")
+async def preview_income_import(file: UploadFile = File(...), user_id: str = Depends(get_current_user_id)) -> dict:
+    result = await _parse_income_upload(file, _user_uuid(user_id))
+    return {
+        "rows": [{**{key: value for key, value in row.items() if key != "user_id"}, "line": line}
+                 for row, line in zip(result.rows, result.line_numbers)],
+        "skipped": result.skipped,
+        "errors": result.errors,
+    }
+
+
+class IncomeImportConfirmation(BaseModel):
+    rows: list[IncomeCreate] = Field(min_length=1, max_length=10_000)
+
+
+@router.post("/income/import/confirm")
+def confirm_income_import(body: IncomeImportConfirmation, user_id: str = Depends(get_current_user_id), access_token: str = Depends(get_current_access_token)) -> dict:
+    owner = _user_uuid(user_id)
+    # Revalidate the whole edited batch before writing; never accept uploaded ownership.
+    rows = [row.model_dump(mode="json") | {"user_id": owner} for row in body.rows]
+    request_table("POST", "income_events", access_token=access_token, user_id=owner, payload=rows, prefer="return=minimal")
+    return {"imported": len(rows), "skipped": 0, "errors": []}
 
 
 @router.get("/expenses")

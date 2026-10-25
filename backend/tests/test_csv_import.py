@@ -79,12 +79,76 @@ def test_import_endpoint_does_not_write_a_malformed_file(monkeypatch):
     ("history.txt", b"amount,source,received_on\n10,Test,2026-10-24\n", 400),
     ("history.csv", b"x" * 2_000_001, 413),
 ], ids=["wrong-extension", "oversized-upload"])
-def test_file_boundaries_reject_before_database(monkeypatch, filename, raw, expected):
+@pytest.mark.parametrize("path", ["/income/import", "/income/import/preview"])
+def test_file_boundaries_reject_before_database(monkeypatch, filename, raw, expected, path):
     app.dependency_overrides[get_current_user_id] = lambda: OWNER
     app.dependency_overrides[get_current_access_token] = lambda: "test-token"
     monkeypatch.setattr(routers, "request_table", lambda *a, **k: pytest.fail("Rejected upload must not be saved"))
     try:
-        response = TestClient(app).post("/api/v1/income/import", files={"file": (filename, raw, "text/csv")})
+        response = TestClient(app).post("/api/v1" + path, files={"file": (filename, raw, "text/csv")})
         assert response.status_code == expected
     finally:
         app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def import_client():
+    app.dependency_overrides[get_current_user_id] = lambda: OWNER
+    app.dependency_overrides[get_current_access_token] = lambda: "test-token"
+    try:
+        yield TestClient(app)
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_preview_has_line_numbers_and_never_writes(import_client, monkeypatch):
+    monkeypatch.setattr(routers, "request_table", lambda *a, **k: pytest.fail("Preview cannot touch the database"))
+    raw = b'amount,source,received_on,note,user_id\n10,Good,2026-10-24,Hello,other\ninvalid,Bad,2026-10-24,,other\n\n20,Next,2026-10-23,,other\n'
+    response = import_client.post("/api/v1/income/import/preview", files={"file": ("history.csv", raw, "text/csv")})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["skipped"] == 1
+    assert [row["line"] for row in body["rows"]] == [2, 5]
+    assert [row["amount_cents"] for row in body["rows"]] == [1000, 2000]
+    assert all("user_id" not in row for row in body["rows"])
+
+
+def test_malformed_preview_cannot_write(import_client, monkeypatch):
+    monkeypatch.setattr(routers, "request_table", lambda *a, **k: pytest.fail("Preview cannot write"))
+    response = import_client.post("/api/v1/income/import/preview", files={"file": ("history.csv", b'amount,source,received_on\n10,Good,2026-10-24\n10,"unfinished', "text/csv")})
+    assert response.status_code == 400
+
+
+def test_confirmation_revalidates_and_owns_the_entire_batch(import_client, monkeypatch):
+    calls = []
+    monkeypatch.setattr(routers, "request_table", lambda *a, **k: calls.append((a, k)))
+    response = import_client.post("/api/v1/income/import/confirm", json={"rows": [
+        {"amount_cents": 1250, "source": "Corrected", "received_on": "2026-10-24", "note": "Reviewed", "user_id": "other"},
+    ]})
+    assert response.status_code == 200
+    assert response.json()["imported"] == 1
+    assert len(calls) == 1
+    assert calls[0][0] == ("POST", "income_events")
+    assert calls[0][1]["access_token"] == "test-token"
+    assert calls[0][1]["user_id"] == OWNER
+    assert calls[0][1]["payload"] == [{"amount_cents": 1250, "source": "Corrected", "received_on": "2026-10-24", "note": "Reviewed", "user_id": OWNER}]
+
+
+@pytest.mark.parametrize("rows", [[], [
+    {"amount_cents": 1000, "received_on": "2026-10-24"},
+    {"amount_cents": -1, "received_on": "2026-02-30"},
+]])
+def test_invalid_confirmation_writes_nothing(import_client, monkeypatch, rows):
+    monkeypatch.setattr(routers, "request_table", lambda *a, **k: pytest.fail("Invalid batch cannot write even its valid rows"))
+    assert import_client.post("/api/v1/income/import/confirm", json={"rows": rows}).status_code == 422
+
+
+@pytest.mark.parametrize("path", ["preview", "confirm"])
+def test_review_routes_require_auth(path):
+    assert TestClient(app).post("/api/v1/income/import/" + path).status_code == 401
+
+
+def test_oversized_confirmation_is_rejected_before_writes(import_client, monkeypatch):
+    monkeypatch.setattr(routers, "request_table", lambda *a, **k: pytest.fail("Oversized batch cannot write"))
+    row = {"amount_cents": 100, "received_on": "2026-10-24"}
+    assert import_client.post("/api/v1/income/import/confirm", json={"rows": [row] * 10001}).status_code == 422
