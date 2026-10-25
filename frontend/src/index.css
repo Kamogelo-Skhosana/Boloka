@@ -1691,7 +1691,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visibl
     min-height: 235px;
   }
   .metrics-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  html[data-text-size="large"] .metrics-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
   .metric-card:last-child {
     grid-column: 1 / -1;

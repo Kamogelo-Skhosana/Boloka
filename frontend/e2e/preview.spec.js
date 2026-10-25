@@ -71,7 +71,18 @@ test('judge preview keeps edits honest, reversible and outside the API', async (
   for (const width of [360, 414, 1120]) {
     await page.setViewportSize({ width, height: 812 })
     await page.getByRole('button', { name: 'Home', exact: true }).click()
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+    const overflow = await page.evaluate(() => ({
+      scrollWidth: document.documentElement.scrollWidth,
+      offenders: [...document.body.querySelectorAll('*')]
+        .map(element => ({
+          selector: `${element.tagName.toLowerCase()}${element.id ? `#${element.id}` : ''}${element.className && typeof element.className === 'string' ? `.${element.className.trim().replace(/\s+/g, '.')}` : ''}`,
+          left: Math.round(element.getBoundingClientRect().left),
+          right: Math.round(element.getBoundingClientRect().right),
+        }))
+        .filter(element => element.left < -1 || element.right > innerWidth + 1)
+        .slice(0, 8),
+    }))
+    expect(overflow.scrollWidth, `Horizontal overflow at ${width}px: ${JSON.stringify(overflow.offenders)}`).toBeLessThanOrEqual(width)
   }
   expect(apiRequests).toEqual([])
   expect(pageErrors).toEqual([])
