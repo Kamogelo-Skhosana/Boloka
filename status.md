@@ -57,9 +57,10 @@ missing deployed sign-in controls. The code branch adds compact mobile entry
 layout with keyboard scroll clearance and a hit-testing browser assertion. The
 deployment runbook now names the exact Vite Production variables and requires
 a new deployment after configuration. The Vercel connector lists no Boloka
-project. GitHub's Vercel integration created a PR preview, but Production
-settings and team ownership are not accessible through this connection;
-configuration and live sign-in verification remain open.
+project. GitHub's Vercel integration created a PR preview. The owner has since
+reported successful Production sign-in setup and closed #36 and #73; those
+Production settings are not independently visible through this connection.
+The account-backed release flow remains open under #35.
 
 ## Judge README preparation - 25 October 2026
 
