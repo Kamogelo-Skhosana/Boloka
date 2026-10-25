@@ -56,8 +56,10 @@ Tickets #72 and #73 document the mobile Save income/navigation overlap and the
 missing deployed sign-in controls. The code branch adds compact mobile entry
 layout with keyboard scroll clearance and a hit-testing browser assertion. The
 deployment runbook now names the exact Vite Production variables and requires
-a new deployment after configuration. The connected Vercel account has no
-Boloka project; team configuration and live sign-in verification remain open.
+a new deployment after configuration. The Vercel connector lists no Boloka
+project. GitHub's Vercel integration created a PR preview, but Production
+settings and team ownership are not accessible through this connection;
+configuration and live sign-in verification remain open.
 
 ## Judge README preparation - 25 October 2026
 
