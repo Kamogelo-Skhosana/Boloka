@@ -1,5 +1,22 @@
 ﻿# Project status: Boloka
 
+## Reproducible preview QA - 25 October 2026
+
+Ticket #35 now has repository-owned Chromium checks for the fictional preview
+journey, including edit/delete cancellation, exact totals, reference labels,
+JSON export, language fallback, widths and zero attempted backend calls. CI runs
+the browser checks without project credentials. The local frontend environment
+is configured with public values; the local API health/CORS/auth-denial checks
+pass. Hosted public Auth responds and finance tables deny anonymous probes.
+Actual signed-in ownership and hosted judge-flow checks remain unverified, so
+the ticket stays open.
+
+Local validation: the Chromium journey, seven frontend unit tests, ESLint and
+production build pass. npm audit reports three moderate advisories in the
+pre-existing Capacitor CLI/xcode/uuid development chain; these dependencies are
+unchanged by the browser runner addition and require a separate mobile tooling
+upgrade assessment.
+
 ## Hustle Pitch preparation - 25 October 2026
 
 Ticket #38's script now describes conditional planning and sparse-data guidance,

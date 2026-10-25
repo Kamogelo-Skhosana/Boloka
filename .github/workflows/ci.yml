@@ -78,6 +78,14 @@ jobs:
           npm run lint --if-present
           npm run test --if-present
           npm run build --if-present
+      - name: Install Chromium for browser checks
+        if: steps.fe.outputs.run == 'true'
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+      - name: Exercise fictional preview flow in Chromium
+        if: steps.fe.outputs.run == 'true'
+        working-directory: frontend
+        run: npm run test:e2e
 
   backend:
     name: Backend (FastAPI / Python)
