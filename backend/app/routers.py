@@ -232,6 +232,11 @@ def summary(user_id: str = Depends(get_current_user_id), access_token: str = Dep
     expenses = request_table("GET", "expenses", access_token=access_token, user_id=owner, params={"select": "amount_cents,spent_on,recurring,category"}) or []
     savings = request_table("GET", "savings_contributions", access_token=access_token, user_id=owner, params={"select": "amount_cents,saved_on"}) or []
     today = local_today()
+    model = build_forecast(incomes, expenses, today=today)
+    return _build_summary(incomes, expenses, savings, today=today, model=model)
+
+
+def _build_summary(incomes: list[dict], expenses: list[dict], savings: list[dict], *, today: date, model: dict) -> dict:
     week_start = today - timedelta(days=today.weekday())
     month_start = today.replace(day=1)
     week_income = sum(
@@ -248,7 +253,6 @@ def summary(user_id: str = Depends(get_current_user_id), access_token: str = Dep
         for item in expenses
         if date.fromisoformat(item["spent_on"]) <= today
     )
-    model = build_forecast(incomes, expenses, today=today)
     gap = model["shortfall"]
     return {
         "balance_cents": recorded_balance,
@@ -260,4 +264,29 @@ def summary(user_id: str = Depends(get_current_user_id), access_token: str = Dep
         ),
         "set_aside_target_cents": model["set_aside"]["total_cents"],
         "next_shortfall": {"date": gap["date"], "amount_cents": gap["amount_cents"]} if gap["likely"] else None,
+    }
+
+
+class DashboardResponse(BaseModel):
+    summary: dict[str, Any]
+    forecast: ForecastResponse
+    income: list[dict[str, Any]]
+    expenses: list[dict[str, Any]]
+    savings: list[dict[str, Any]]
+
+
+@router.get("/dashboard", response_model=DashboardResponse)
+def dashboard(user_id: str = Depends(get_current_user_id), access_token: str = Depends(get_current_access_token)) -> dict:
+    owner = _user_uuid(user_id)
+    incomes = _list_entries("income_events", "received_on", owner, None, None, access_token)["items"]
+    expenses = _list_entries("expenses", "spent_on", owner, None, None, access_token)["items"]
+    savings = _list_entries("savings_contributions", "saved_on", owner, None, None, access_token)["items"]
+    today = local_today()
+    model = build_forecast(incomes, expenses, today=today)
+    return {
+        "summary": _build_summary(incomes, expenses, savings, today=today, model=model),
+        "forecast": model,
+        "income": incomes,
+        "expenses": expenses,
+        "savings": savings,
     }
