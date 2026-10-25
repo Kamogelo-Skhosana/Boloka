@@ -19,6 +19,26 @@ const currentLanguage = () => {
   } catch { return 'en' }
 }
 
+const dashboardStepActions = {
+  record_income: { copyKey: 'nextRecordIncome', target: 'income' },
+  add_upcoming_costs: { copyKey: 'nextAddCosts', target: 'expense' },
+  review_overlapping_costs: { copyKey: 'nextReviewCosts', target: 'forecast' },
+  check_available_cash: { copyKey: 'nextCheckCash', target: 'forecast' },
+}
+
+function dashboardNextAction(forecast) {
+  const nextStep = forecast?.next_steps?.find(step => dashboardStepActions[step])
+  if (nextStep) return dashboardStepActions[nextStep]
+
+  if (forecast?.shortfall?.status === 'planning_gap') {
+    return { copyKey: 'nextReviewGap', target: 'forecast' }
+  }
+  if (forecast?.shortfall?.status === 'no_gap_in_estimate') {
+    return { copyKey: 'nextReviewEstimate', target: 'forecast' }
+  }
+  return { copyKey: 'nextRecordIncome', target: 'income' }
+}
+
 function Brand({ compact = false, language = 'en' }) {
   const tr = (key, vars) => t(language, key, vars)
   return (
@@ -103,6 +123,7 @@ function App() {
   const profileName = session?.user?.email?.split('@')[0] || 'friend'
   const shortfall = data.forecast?.shortfall
   const hasGap = !preview && shortfall?.status === 'planning_gap'
+  const homeAction = preview ? null : dashboardNextAction(data.forecast)
   const cashExplanation = data.forecast?.available_balance_cents != null ? tr('cashScenarioUsed', { amount: amount(data.forecast.available_balance_cents) }) : tr('cashAssumption')
 
   useEffect(() => {
@@ -544,9 +565,15 @@ function App() {
               <article className="panel nudge-panel">
                 <span className="nudge-icon" aria-hidden="true">✳</span>
                 <p className="eyebrow">{tr('oneSmallMove')}</p>
-                <h2>{tr('giveYourNextWeekAHeadStart')}</h2>
-                <p>{tr('setAsideALittleWhenAPayoutLands')}</p>
-                <button type="button" className="button button--outline" onClick={() => navigate('savings')}>{tr('seeYourBuffer')} <span aria-hidden="true">→</span></button>
+                <h2>{tr(homeAction ? 'startNextSteps' : 'giveYourNextWeekAHeadStart')}</h2>
+                <p>{tr(homeAction?.copyKey || 'setAsideALittleWhenAPayoutLands')}</p>
+                <button type="button" className="button button--outline" onClick={() => {
+                  if (homeAction?.target === 'income' || homeAction?.target === 'expense') {
+                    setEntryKind(homeAction.target)
+                    navigate('add')
+                  } else if (homeAction) navigate('forecast')
+                  else navigate('savings')
+                }}>{homeAction?.target === 'income' || homeAction?.target === 'expense' ? tr('addEntry') : homeAction ? tr('showForecast') : tr('seeYourBuffer')} <span aria-hidden="true">→</span></button>
               </article>
             </section>
           </>

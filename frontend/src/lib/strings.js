@@ -1,6 +1,12 @@
 // English source copy. Missing locale values deliberately fall back; see docs/localization-review.md.
 export const english = {
   "startNextSteps": "Build your planning picture",
+  "nextRecordIncome": "Record a payout you have received.",
+  "nextAddCosts": "Add a bill you know is coming.",
+  "nextReviewCosts": "Check for costs that may be counted twice.",
+  "nextCheckCash": "Add available cash if you know the amount.",
+  "nextReviewGap": "Review the costs and cash behind this planning gap.",
+  "nextReviewEstimate": "Review upcoming bills and available cash.",
   "startRecordIncome": "Record payouts you actually received, including earlier dates you can verify. A set-aside estimate needs six completed calendar weeks; check that weeks with no entries really are complete. Do not add invented earnings to fill gaps.",
   "startAddCosts": "Add the bills you know are coming with their actual due dates. You can plan around these without guessing future income. Past recurring flags do not add future bills automatically.",
   "startReviewCosts": "Check whether upcoming one-off costs are already covered by the everyday spending estimate. Until they can be distinguished, use the entries as a checklist rather than a set-aside recommendation.",

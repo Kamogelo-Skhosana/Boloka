@@ -3,12 +3,11 @@
 ## Two-account release-check command - 25 October 2026
 
 Ticket #35 adds an interactive, financial-record read-only check using two
-seeded demo accounts. Passwords are hidden terminal input, not arguments/files;
-caller JWTs verify API owners and direct foreign-row read denial. New QA
-sessions are signed out with local scope. Mock-service tests cover leaks,
-missing seeds, same-account input, service failure and unsafe targets. Actual
-hosted execution still requires the operator's private credentials and URL;
-no live two-account result is claimed and the release ticket remains open.
+seeded demo accounts. The owner reports its hosted read check passed and
+production sign-in and persistence work. This is operator-reported evidence;
+the command itself does not check writes/deletes or physical-device behavior.
+Cross-account mutation denial and accessible/network recovery acceptance remain
+open.
 
 ## Reproducible preview QA - 25 October 2026
 
@@ -44,11 +43,10 @@ and privacy decisions remain external; the ticket stays open.
 
 ## Presentation content review - 25 October 2026
 
-Ticket #39 now has a nine-slide deck with corrected forecast limits, an editable
-architecture and judge-access slide, and its original visual style retained.
-The complete deck was rendered and reviewed; structural validation passed.
-Hosted sign-in, seeded records, private credential handoff and team review still
-need confirmation, so the submission ticket remains open.
+PR #74 merged the nine-slide deck with corrected forecast limits, architecture
+and judge-access guidance. The PR review noted the slide 8 footer still reads
+7; the deck also needs team review and private judge-access handoff. The older
+#39 issue description must be synchronized with the merged work.
 
 ## New deployment and mobile navigation findings - 25 October 2026
 
@@ -177,12 +175,12 @@ External setup:
 
 ## Assigned submission and mobile work - 25 October 2026
 
-Issue #31: the current frontend builds successfully as an Android debug APK and
-installs/launches on the available Android SDK emulator (`Android SDK built for
-x86_64`). This verifies the wrapper's basic startup only. No physical phone is
-connected, and the team's release keystore is not available in this workspace;
-the signed release artifact and real-device acceptance remain open. The APK is
-generated locally and ignored by Git.
+Issue #31 records a signed release APK built from merged commit
+`03581af93e4fe6079b2e24936eb40c5126dfdbd7`, with a team-owned signing key
+stored outside the repository. The current workspace has the Android wrapper
+and a debug APK but not the recorded release artifact or signing variables;
+`adb devices` currently lists no connected device. Physical-phone install and
+acceptance remain open.
 
 Issue #41: `submission/ssdl-security.md` now records the reviewed `main`
 baseline, architecture and trust boundaries, data/session handling, controls,
@@ -194,9 +192,10 @@ read check, separate write/delete verification, retention/deletion and
 operational ownership decisions remain open; this is not a security
 certification.
 
-Issue #36: the connected Vercel account still has no Boloka project and exposes
-only the personal workspace. A team-owned project or team access is needed
-before deployment; no production URL is claimed.
+Issue #36 and #73 were closed by the owner after reporting production sign-in
+configuration. The public frontend returned HTTP 200 in this review. A direct
+Render health request timed out, while the owner reports the hosted two-account
+read check passed; recheck API availability before final release.
 
 Issue #28: PR #68 has merged. The project owner recorded fluent-speaker approval
 for both isiZulu and Sesotho, and the issue is closed.
@@ -204,3 +203,15 @@ for both isiZulu and Sesotho, and the issue is closed.
 Issue #43: this repository records today's progress. The private Sonke update
 has not been submitted or verified, so the submission requirement remains
 open.
+
+## Product discovery follow-up - 25 October 2026
+
+Issues #75–#79 capture the proposed product-improvement sequence. Discovery,
+pilot and AI-experiment guides now exist under `docs/user-research/`; they are
+preparation, not completed interviews, approved consent, a live pilot or an AI
+data-processing review. The dashboard card now chooses its primary next action
+from the signed-in account's forecast reasons and next-step codes (issue #77).
+The home-screen change still needs user usability feedback. Expense-import
+scope should be selected after observing participants (issue #76). Do not
+implement AI against real records until participant demand and privacy review
+are established (issue #79).
