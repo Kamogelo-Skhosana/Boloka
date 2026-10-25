@@ -127,12 +127,13 @@ test('home prioritizes dated costs and keeps preview planning separate', async (
   await page.locator('#high-contrast').check()
   await page.getByRole('button', { name: 'Home', exact: true }).click()
   await expect(page.locator('.upcoming-costs')).toContainText('No upcoming costs recorded')
-  const primaryVisible = await page.getByRole('button', { name: 'Add a bill you know is coming.', exact: true }).evaluate(button => {
+  // Navigation scrolls smoothly; assert the settled hit target, not an intermediate frame.
+  await expect.poll(() => page.getByRole('button', { name: 'Add a bill you know is coming.', exact: true }).evaluate(button => {
     const rect = button.getBoundingClientRect()
     const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2)
-    return (hit === button || button.contains(hit)) && rect.bottom <= document.querySelector('.bottom-nav').getBoundingClientRect().top
-  })
-  expect(primaryVisible).toBe(true)
+    const navTop = document.querySelector('.bottom-nav').getBoundingClientRect().top
+    return { hitIsButton: hit === button || button.contains(hit), aboveNav: rect.bottom <= navTop, buttonTop: rect.top, buttonBottom: rect.bottom, navTop }
+  })).toMatchObject({ hitIsButton: true, aboveNav: true })
   await expect(page.locator('.balance-card')).toContainText('not your available cash or bank balance')
   await expect(page.locator('.home-metrics')).not.toContainText('Set aside each week')
   await page.getByRole('button', { name: 'Add a bill you know is coming.', exact: true }).click()
