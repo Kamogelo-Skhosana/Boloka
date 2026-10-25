@@ -66,3 +66,10 @@ API contract for formulas, thresholds, limitations and exact rounding.
 ## Checks
 
 From `backend/`, run `pip install pytest ruff`, `ruff check .`, and `pytest -q`.
+
+The interactive `python -m app.release_check --api-url <API base>` checks two
+dedicated seeded accounts without financial writes by default. The explicit
+`--check-writes` flag adds temporary-record ownership probes and cleanup; see
+the [operator runbook](../docs/judge-demo.md#opt-in-two-account-writedelete-check)
+for scope, safe account selection and cleanup recovery. Mock tests are not
+evidence that the deployed project passes these checks.
