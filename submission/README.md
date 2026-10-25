@@ -6,11 +6,11 @@ The final Sonke upload and receipt are tracked in
 
 | Artifact | Status and next action |
 | --- | --- |
-| `Boloka-pitch.pptx` | Updated nine-slide deck with corrected forecast limits, architecture and judge-access guidance; hosted demo access and team review remain unverified. |
-| [Pitch speaker guide](pitch-content.md) | Speaker context and remaining live verification for #39. |
-| [Pitch script](hustle-pitch.md) | Script and shot list only; actual recording/upload remains #38. |
-| [Lean Canvas](../docs/lean-canvas.md) | Hypothesis draft; team review and transfer into Sonke remain #40. |
-| [Security lifecycle](ssdl-security.md) | Repository-grounded engineering assessment; security-owner approval and transfer into any required Sonke template remain. Not certification. |
+| `Boloka-pitch.pptx` | Nine-slide deck complete under #39. Verify the final uploaded copy opens correctly. |
+| [Pitch speaker guide](pitch-content.md) | Supporting speaker context; deck completion is recorded in #39. |
+| [Pitch script](hustle-pitch.md) | Preparation script. Owner confirmed video submission; #38 is complete. |
+| [Lean Canvas](../docs/lean-canvas.md) | Owner confirmed review and saving in Sonke; #40 is complete. Business and impact claims still require evidence. |
+| [Security lifecycle](ssdl-security.md) | Owner confirmed the Sonke SSDL was filled in. This is a recorded assessment, not security certification. |
 | [Judge runbook](../docs/judge-demo.md) | Owner confirmed the judge demo flow passed and #35 is closed. Final Sonke upload and receipt remain tracked separately in #44. |
 
 ## Final upload checklist
@@ -31,3 +31,27 @@ The final Sonke upload and receipt are tracked in
 
 Keep account passwords, signing material and private submission fields outside
 Git. Only record a successful upload after an actual Sonke confirmation (#44).
+
+## Owner handoff
+
+Use the [artifact handoff](release-handoff.md) for exact local filenames,
+source commit, checksums and signing verification of the prepared release.
+
+1. Open the latest signed APK from the local `output/apk/` directory on the
+   Galaxy A15. Confirm startup, sign-in and CSV review/cancel/save behavior on
+   this exact build before selecting it for upload. Earlier device acceptance
+   does not automatically establish acceptance of a rebuilt artifact.
+2. Upload the accepted APK and `submission/Boloka-pitch.pptx` through Sonke's
+   submission interface. Verify the resulting filenames and that the uploaded
+   presentation opens. Keep generated APKs out of Git.
+3. Verify the project overview includes <https://boloka.vercel.app> and
+   <https://github.com/Kamogelo-Skhosana/Boloka>. The owner already uploaded the
+   credential-filled judge guide and video through Sonke; check that both remain
+   available to the intended judges. Do not copy credentials into public text.
+4. Complete the final submission action and retain its confirmation. Report
+   the submission time, accepted artifact filename/checksum and receipt status
+   in #44, excluding credentials and private account information.
+
+A successful build or an uploaded video/guide alone does not establish that
+the repository, APK and slides have been submitted. Close #44 after the owner
+confirms the complete submission and its receipt.
