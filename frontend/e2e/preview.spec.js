@@ -116,3 +116,36 @@ test('entry save action stays above mobile navigation and can be keyboard reache
   expect(focused.buttonBottom).toBeLessThanOrEqual(focused.navTop)
   await expect(nav).toBeVisible()
 })
+
+
+test('home prioritizes dated costs and keeps preview planning separate', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Explore the sample dashboard', exact: true }).click()
+  await page.setViewportSize({ width: 360, height: 900 })
+  await page.getByRole('button', { name: 'Open account settings', exact: true }).click()
+  await page.locator('#larger-text').check()
+  await page.locator('#high-contrast').check()
+  await page.getByRole('button', { name: 'Home', exact: true }).click()
+  await expect(page.locator('.upcoming-costs')).toContainText('No upcoming costs recorded')
+  // Navigation scrolls smoothly; assert the settled hit target, not an intermediate frame.
+  await expect.poll(() => page.getByRole('button', { name: 'Add a bill you know is coming.', exact: true }).evaluate(button => {
+    const rect = button.getBoundingClientRect()
+    const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2)
+    const navTop = document.querySelector('.bottom-nav').getBoundingClientRect().top
+    return { hitIsButton: hit === button || button.contains(hit), aboveNav: rect.bottom <= navTop, buttonTop: rect.top, buttonBottom: rect.bottom, navTop }
+  })).toMatchObject({ hitIsButton: true, aboveNav: true })
+  await expect(page.locator('.balance-card')).toContainText('not your available cash or bank balance')
+  await expect(page.locator('.home-metrics')).not.toContainText('Set aside each week')
+  await page.getByRole('button', { name: 'Add a bill you know is coming.', exact: true }).click()
+  await page.getByLabel('Amount', { exact: true }).fill('125.00')
+  await page.getByLabel('What was it for?', { exact: true }).fill('Test upcoming electricity')
+  const date = page.getByLabel('Date paid or due', { exact: true })
+  const tomorrow = new Date((await date.inputValue()) + 'T00:00:00Z')
+  tomorrow.setUTCDate(tomorrow.getUTCDate() + 1)
+  await date.fill(tomorrow.toISOString().slice(0, 10))
+  await page.getByRole('button', { name: 'Save expense', exact: true }).click()
+  await page.getByRole('button', { name: 'Home', exact: true }).click()
+  await expect(page.locator('.upcoming-costs li')).toContainText('Test upcoming electricity')
+  await expect(page.locator('.upcoming-costs__total')).toContainText('125')
+  await expect(page.locator('.alert-card')).toContainText('does not recalculate')
+})

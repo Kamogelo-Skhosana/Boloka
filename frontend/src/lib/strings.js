@@ -1,5 +1,12 @@
 // English source copy. Missing locale values deliberately fall back; see docs/localization-review.md.
 export const english = {
+  "homeOverview": "Plan for your next costs.",
+  "homeIntro": "Manually record cash, eWallet or bank payments, then add the costs you know are coming.",
+  "homeUpcomingTitle": "Dated costs in the next 30 days",
+  "homeUpcomingHelp": "{count} recorded costs. Only entries after today through day 30 are included; unrecorded costs remain unknown. The earliest three are shown below.",
+  "homeNoUpcoming": "No upcoming costs recorded. Add bills with their due dates; this does not mean you have no costs.",
+  "homeRecordedLabel": "Income minus recorded expenses",
+  "homeRecordedHelp": "Recorded entries through today. This is not your available cash or bank balance.",
   "startNextSteps": "Build your planning picture",
   "nextRecordIncome": "Record a payout you have received.",
   "nextAddCosts": "Add a bill you know is coming.",

@@ -10,7 +10,10 @@ test('locale fallbacks and complete interpolation remain explicit', () => {
   assert.equal(translate('zu', 'navHome'), 'Ikhaya')
   assert.equal(translate('st', 'navHome'), 'Lehae')
   for (const language of ['zu', 'st']) {
-    assert.deepEqual(missingTranslations(language), [])
+    assert.deepEqual(missingTranslations(language).sort(), [
+      'homeOverview', 'homeIntro', 'homeUpcomingTitle', 'homeUpcomingHelp',
+      'homeNoUpcoming', 'homeRecordedLabel', 'homeRecordedHelp',
+    ].sort()) // Deliberate English fallback pending fluent review of new home copy.
     for (const key of translationKeys) {
       const englishPlaceholders = [...translate('en', key).matchAll(/\{(\w+)\}/g)].map((match) => match[1]).sort()
       const translatedPlaceholders = [...translate(language, key).matchAll(/\{(\w+)\}/g)].map((match) => match[1]).sort()

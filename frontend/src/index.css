@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --color-ink: #0c1512;
-  --color-surface: #15241f;
+  --color-ink: #12161c;
+  --color-surface: #1c222b;
   --color-accent: #32d6a6;
   --color-warn: #f6c14b;
   --color-fg: #f3f7f4;
@@ -15,18 +15,18 @@
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   font-weight: 400;
-  background: var(--pt-color-bg, #0c1512);
+  background: var(--pt-color-bg, #12161c);
   color: var(--pt-color-text, #f3f7f4);
-  --ground: var(--pt-color-bg, #0c1512);
-  --surface: var(--pt-color-card-bg, #15241f);
-  --surface-raised: var(--pt-color-bg-alt, #192a23);
-  --surface-soft: var(--pt-color-bg-alt, #1e3029);
+  --ground: var(--pt-color-bg, #12161c);
+  --surface: var(--pt-color-card-bg, #1c222b);
+  --surface-raised: var(--pt-color-bg-alt, #232932);
+  --surface-soft: var(--pt-color-bg-alt, #232932);
   --accent: var(--pt-color-accent, #32d6a6);
-  --accent-ink: var(--pt-color-accent-text, #0c1512);
+  --accent-ink: var(--pt-color-accent-text, #12161c);
   --amber: var(--pt-color-warning, #f6c14b);
   --text: var(--pt-color-text, #f3f7f4);
-  --muted: var(--pt-color-text-dim, #b0c0b8);
-  --line: var(--pt-color-border, #33463d);
+  --muted: var(--pt-color-text-dim, #b9c2cd);
+  --line: var(--pt-color-border, #414b59);
   --radius-control: var(--pt-shape-radius, 0.65rem);
   --radius-card: var(--pt-shape-radius-large, 1.1rem);
   --motion-duration: var(--pt-motion-duration, 140ms);
@@ -498,8 +498,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visibl
   min-height: 258px;
   overflow: hidden;
   padding: 1.4rem 1.5rem;
-  background: linear-gradient(135deg, #32d6a6 0%, #1ba984 100%);
-  color: #09231b;
+  background: var(--surface);
+  color: var(--text);
 }
 
 .balance-card__top {
@@ -511,7 +511,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visibl
 }
 
 .balance-card .eyebrow {
-  color: #164c3c;
+  color: var(--muted);
 }
 
 .balance-card__icon {
@@ -539,7 +539,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visibl
   position: relative;
   z-index: 1;
   margin: 0.45rem 0 1.1rem;
-  color: #174d3c;
+  color: var(--muted);
   font-size: 0.77rem;
 }
 
@@ -641,8 +641,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visibl
 }
 
 .alert-card--clear {
-  border-color: rgba(50, 214, 166, 0.42);
-  background: linear-gradient(155deg, rgba(50, 214, 166, 0.12), rgba(50, 214, 166, 0.025));
+  border-color: var(--line);
+  background: var(--surface);
 }
 
 .alert-card__top {
@@ -750,7 +750,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visibl
 
 .metric-card--accent {
   border-color: rgba(50, 214, 166, 0.35);
-  background: linear-gradient(135deg, rgba(50, 214, 166, 0.11), var(--surface));
+  background: var(--surface);
 }
 
 .metric-card--accent .metric-card__value {
@@ -894,7 +894,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visibl
   min-height: 255px;
   flex-direction: column;
   overflow: hidden;
-  background: #1d2b24;
+  background: #232932;
 }
 
 .nudge-panel::after {
@@ -961,7 +961,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visibl
   gap: 0.35rem;
   padding: 0.3rem;
   border-radius: 0.75rem;
-  background: #0d1713;
+  background: #171c23;
 }
 
 .segmented button {
@@ -1001,7 +1001,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visibl
   border: 1px solid #455a4e;
   border-radius: 0.62rem;
   padding: 0.75rem 0.85rem;
-  background: #0f1a15;
+  background: #171c23;
   color: var(--text);
   color-scheme: dark;
 }
@@ -1031,7 +1031,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visibl
   align-items: center;
   border: 1px solid #455a4e;
   border-radius: 0.62rem;
-  background: #0f1a15;
+  background: #171c23;
 }
 
 .amount-input > span {
@@ -1168,7 +1168,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visibl
   gap: 0.45rem;
   padding: 0.9rem;
   border-radius: 0.7rem;
-  background: #0f1a15;
+  background: #171c23;
 }
 
 .forecast-totals .eyebrow {
@@ -1386,7 +1386,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visibl
   padding: 1rem;
   border: 1px solid var(--line);
   border-radius: 0.8rem;
-  background: #0f1a15;
+  background: #171c23;
 }
 
 .buffer-progress > div:first-child {
@@ -1531,7 +1531,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visibl
   border: 1px solid #455a4e;
   border-radius: 0.62rem;
   padding: 0.7rem 0.85rem;
-  background: #0f1a15;
+  background: #171c23;
   color: var(--text);
 }
 
@@ -1639,7 +1639,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visibl
 }
 
 /* Keep keyboard-focused form controls clear of the persistent mobile navigation. */
-.app-shell--entry :is(input, button, select, textarea) {
+.app-shell :is(input, button, select, textarea) {
   scroll-margin-block-end: calc(6.5rem + env(safe-area-inset-bottom));
 }
 
@@ -1961,4 +1961,27 @@ html[data-contrast="high"] .button--light {
 
 html[data-contrast="high"] .alert-card {
   border: 2px solid #ffe36e;
+}
+
+/* The first decision is a known cost, not a forecast or a ledger balance. */
+.upcoming-costs { margin-bottom: 1rem; padding: 1.25rem 1.5rem; }
+.upcoming-costs .panel__heading { align-items: start; flex-wrap: wrap; gap: 1rem; }
+.upcoming-costs h2 { margin: 0 0 0.4rem; }
+.upcoming-costs p { color: var(--muted); max-width: 48rem; }
+.upcoming-costs__total { font-size: 1.8rem; font-weight: 750; color: var(--text); }
+.upcoming-costs ul { list-style: none; padding: 0; margin: 1rem 0 0; }
+.upcoming-costs li { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: space-between; padding: 0.65rem 0; border-top: 1px solid var(--line); }
+.upcoming-costs li span { overflow-wrap: anywhere; }
+.upcoming-costs time { color: var(--muted); margin-left: 0.6rem; }
+.home-metrics { grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); }
+
+.home-metrics .metric-card:last-child { grid-column: auto; }
+html[data-contrast="high"] .balance-card { background: #000; color: #fff; border-color: #fff; }
+html[data-contrast="high"] .balance-card :is(.eyebrow, .balance-card__caption) { color: #f2f2f2; }
+
+@media (max-width: 480px) {
+  .topbar { height: auto; min-height: 66px; flex-wrap: wrap; gap: 0.65rem; padding-block: 0.6rem; }
+  .brand, .topbar__right { flex-shrink: 0; }
+  html[data-text-size="large"] .upcoming-costs .panel__heading { flex-direction: column; }
+  html[data-text-size="large"] .upcoming-costs .button { order: -1; }
 }

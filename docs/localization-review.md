@@ -1,6 +1,6 @@
 # Localization review inventory
 
-The React screens, accessible labels, charts, confirmations, and action errors have isiZulu and Sesotho draft copy. The catalog has no known English fallback keys. All translations remain unapproved until fluent speakers review them; coverage does not establish language quality.
+The React screens, accessible labels, charts, confirmations, and action errors have isiZulu and Sesotho draft copy. New home-screen copy deliberately falls back to English pending fluent review. All translations remain unapproved until fluent speakers review them; coverage does not establish language quality.
 
 ## Fluent-speaker acceptance
 
@@ -264,3 +264,11 @@ Review financial meanings (recorded net versus available cash, conditional gap, 
 | csvRowError | Line {line}: {message} | Umugqa {line}: {message} | Mola {line}: {message} | Fluent review required |
 
 Do not mark issue #28 complete until fluent reviewers approve the financial, safety, and destructive-action flows.
+
+## Home clarity follow-up (#77)
+
+New keys awaiting isiZulu and Sesotho fluent review: homeOverview, homeIntro,
+homeUpcomingTitle, homeUpcomingHelp (preserve {count}), homeNoUpcoming,
+homeRecordedLabel, homeRecordedHelp. English fallback is intentional and tested;
+no new translations are guessed. Earlier owner review of #68 does not approve
+this new copy. The on-screen translation-draft notice remains visible.

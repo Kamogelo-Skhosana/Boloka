@@ -130,3 +130,20 @@ checked 360/375/414/1120 widths, no horizontal overflow, no preview API calls
 and no page errors. CSS was parsed before/after formatting: its original rule,
 selector, declaration and at-rule signature was identical. New styles are
 limited to the added correction controls and assumption/scenario sections.
+
+
+## Home-screen clarity follow-up (#77)
+
+The home screen now leads with explicitly dated expenses after today through
+30 days, not inferred recurrences or an available-cash claim. It shows the total,
+earliest three costs and an add-bill action; zero entries explicitly means
+unrecorded costs are unknown. Recorded net is labelled as income minus recorded
+expenses through today and distinguished from cash/bank balance. The preview's
+fixed weekly sample recommendation is no longer a featured metric; its static
+reference and no-upload labels remain.
+
+Charcoal surfaces replace the large mint hero and green-tinted cards, retaining
+mint for identity/actions/income. Responsive and high-contrast/larger-text
+checks are engineering evidence only. User comprehension and fluent review of
+the seven new English fallback keys remain required; do not close #77 as a
+validated usability outcome solely from CI or screenshots.

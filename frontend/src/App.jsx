@@ -6,6 +6,7 @@ import { updatePreview, changeTransaction, exportRecords } from './lib/transacti
 import TransactionList from './components/TransactionList'
 import ForecastExplanation from './components/ForecastExplanation'
 import TransactionEditor from './screens/TransactionEditor'
+import { upcomingCosts } from './lib/dashboard'
 import { emptyAccountData, loadAccountData } from './lib/account-data'
 import { formatMoney, formatDate, today } from './lib/format'
 
@@ -123,6 +124,7 @@ function App() {
   const profileName = session?.user?.email?.split('@')[0] || 'friend'
   const shortfall = data.forecast?.shortfall
   const hasGap = !preview && shortfall?.status === 'planning_gap'
+  const upcoming = upcomingCosts(data.expenses || [], today())
   const homeAction = preview ? null : dashboardNextAction(data.forecast)
   const cashExplanation = data.forecast?.available_balance_cents != null ? tr('cashScenarioUsed', { amount: amount(data.forecast.available_balance_cents) }) : tr('cashAssumption')
 
@@ -476,8 +478,8 @@ function App() {
         {page !== 'onboarding' ? <div className="page-heading">
           <div>
             <p className="eyebrow">{t(language, 'onboardingEyebrow')}</p>
-            <h1 ref={pageTitleRef} tabIndex="-1">{page === 'home' ? t(language, 'homeTitle') : page === 'add' ? t(language, 'addTitle') : page === 'forecast' ? t(language, 'forecastTitle') : page === 'savings' ? t(language, 'savingsTitle') : page === 'settings' ? t(language, 'settingsTitle') : t(language, 'onboardingTitle')}</h1>
-            <p className="page-heading__sub">{page === 'home' ? t(language, 'homeSubtitle') : page === 'add' ? t(language, 'addSubtitle') : page === 'forecast' ? t(language, 'forecastSubtitle') : page === 'savings' ? t(language, 'savingsSubtitle') : page === 'settings' ? t(language, 'settingsSubtitle') : ''}</p>
+            <h1 ref={pageTitleRef} tabIndex="-1">{page === 'home' ? tr('homeOverview') : page === 'add' ? t(language, 'addTitle') : page === 'forecast' ? t(language, 'forecastTitle') : page === 'savings' ? t(language, 'savingsTitle') : page === 'settings' ? t(language, 'settingsTitle') : t(language, 'onboardingTitle')}</h1>
+            <p className="page-heading__sub">{page === 'home' ? tr('homeIntro') : page === 'add' ? t(language, 'addSubtitle') : page === 'forecast' ? t(language, 'forecastSubtitle') : page === 'savings' ? t(language, 'savingsSubtitle') : page === 'settings' ? t(language, 'settingsSubtitle') : ''}</p>
           </div>
           <p className="date-chip"><span className="status-dot" aria-hidden="true" /> {tr('recordedDates')}</p>
         </div> : null}
@@ -507,14 +509,27 @@ function App() {
 
         {page === 'home' && !editingEntry ? (
           <>
+            <section className="panel upcoming-costs" aria-labelledby="upcoming-heading">
+              <div className="panel__heading">
+                <div><h2 id="upcoming-heading">{tr('homeUpcomingTitle')}</h2>
+                  <strong className="upcoming-costs__total">{amount(upcoming.totalCents)}</strong>
+                </div>
+                <button type="button" className="button button--primary" onClick={() => { setEntryKind('expense'); navigate('add') }}>{tr('nextAddCosts')}</button>
+              </div>
+              <p>{upcoming.entries.length ? tr('homeUpcomingHelp', { count: upcoming.entries.length }) : tr('homeNoUpcoming')}</p>
+              {upcoming.entries.length ? <ul>{upcoming.entries.slice(0, 3).map(item => <li key={item.id}>
+                <span>{item.category || tr('expense')}<time dateTime={item.spent_on}>{dateLabel(item.spent_on)}</time></span>
+                <strong>{amount(item.amount_cents)}</strong>
+              </li>)}</ul> : null}
+            </section>
             <section className="hero-grid" aria-label={tr('yourMoneyOverview')}>
               <article className="balance-card">
                 <div className="balance-card__top">
-                  <p className="eyebrow">{tr('recordedBalance')}</p>
+                  <p className="eyebrow">{tr('homeRecordedLabel')}</p>
                   <span className="balance-card__icon" aria-hidden="true">↗</span>
                 </div>
                 <p className="balance-card__value">{amount(data.summary?.balance_cents)}</p>
-                <p className="balance-card__caption">{tr('fromIncomeAndExpensesYouVeLogged')}</p>
+                <p className="balance-card__caption">{tr('homeRecordedHelp')}</p>
                 <button type="button" className="button button--light" onClick={() => navigate('add')}><Icon name="add" /> {t(language, 'addEntry')}</button>
                 <div className="balance-card__orb" aria-hidden="true" />
               </article>
@@ -530,9 +545,9 @@ function App() {
               </article>
             </section>
 
-            <section className="metrics-grid" aria-label={tr('recentMoney')}>
+            <section className="metrics-grid home-metrics" aria-label={tr('recentMoney')}>
               <Metric label={tr('thisWeek')} value={amount(data.summary?.this_week_income_cents)} hint={tr('incomeYouVeRecorded')} />
-              <Metric label={tr('setAsideEachWeek')} value={!preview && shortfall?.status === 'insufficient_data' ? tr('notEstablished') : amount(data.forecast?.set_aside?.weekly_cents)} hint={tr(preview ? 'sampleReference' : 'conditionalSuggestion')} tone="metric-card--accent" />
+              {!preview ? <Metric label={tr('setAsideEachWeek')} value={shortfall?.status === 'insufficient_data' ? tr('notEstablished') : amount(data.forecast?.set_aside?.weekly_cents)} hint={tr('conditionalSuggestion')} tone="metric-card--accent" /> : null}
               <Metric label={tr('forecastConfidence')} value={tr('unvalidated')} hint={tr('incompleteHistory')} />
             </section>
 

@@ -95,3 +95,19 @@ test('account refresh uses one request and only falls back for a missing route',
   assert.deepEqual(fallback.expenses, [{ id: '/expenses' }])
   assert.deepEqual(fallback.savings, [{ id: '/savings' }])
 })
+
+
+test('upcoming costs include day 30 once, exclude today and do not repeat recurring history', async () => {
+  const { upcomingCosts } = await import('../src/lib/dashboard.js')
+  const rows = [
+    { id: 'old', spent_on: '2026-10-01', amount_cents: 9000, recurring: true },
+    { id: 'today', spent_on: '2026-10-25', amount_cents: 5000 },
+    { id: 'last', spent_on: '2026-11-24', amount_cents: 2000, recurring: true },
+    { id: 'outside', spent_on: '2026-11-25', amount_cents: 7000 },
+    { id: 'next', spent_on: '2026-10-26', amount_cents: 1000 },
+  ]
+  const snapshot = structuredClone(rows)
+  assert.deepEqual(upcomingCosts(rows, '2026-10-25'), { entries: [rows[4], rows[2]], totalCents: 3000 })
+  assert.deepEqual(rows, snapshot)
+  assert.deepEqual(upcomingCosts([], '2026-10-25'), { entries: [], totalCents: 0 })
+})
