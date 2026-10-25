@@ -30,6 +30,21 @@ Until Supabase is configured, use the clearly labelled sample preview only to de
 
 ## Technical acceptance checklist
 
+### Reproducible preview browser checks
+
+From `frontend`, run `npm ci`, `npx playwright install chromium`, then
+`npm run test:e2e`. CI runs these checks in Chromium. They start an isolated
+local server with Supabase configuration disabled, use fictional preview only,
+and reject any attempted API/Supabase request. They cover create/edit/cancel/
+delete, confirmation, totals, static-reference labels, fictional JSON export,
+language fallback and responsive widths. Reports are ignored by Git.
+
+If Chromium is already installed elsewhere, optional
+`PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` selects its executable for a local run.
+These checks do not establish hosted Auth, database ownership between real
+accounts, Android behavior, or a successful live judge demo. Complete the
+account-backed checklist below before closing #35.
+
 - [ ] Only `/api/v1/health` is publicly readable.
 - [ ] A user cannot read, edit, or delete another user's rows.
 - [ ] Invalid amounts and malformed dates are rejected.
