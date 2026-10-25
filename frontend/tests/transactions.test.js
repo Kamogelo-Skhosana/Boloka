@@ -111,3 +111,21 @@ test('upcoming costs include day 30 once, exclude today and do not repeat recurr
   assert.deepEqual(rows, snapshot)
   assert.deepEqual(upcomingCosts([], '2026-10-25'), { entries: [], totalCents: 0 })
 })
+
+
+test('import review preserves input, applies edits, excludes rows and strips ownership', async () => {
+  const { draftImportRows, confirmedImportRows } = await import('../src/lib/import-review.js')
+  const original = [{ amount_cents: 1234, source: 'Original', received_on: '2026-10-24', note: 'Note', line: 2, user_id: 'untrusted' }]
+  const drafts = draftImportRows(original)
+  assert.equal(drafts[0].amount, '12.34')
+  drafts[0].amount = '0.01'
+  drafts[0].source = 'Corrected'
+  drafts.push({ included: false, amount: 'bad', received_on: 'bad' })
+  assert.deepEqual(confirmedImportRows(drafts), [{ amount_cents: 1, source: 'Corrected', received_on: '2026-10-24', note: 'Note' }])
+  assert.equal(original[0].amount_cents, 1234)
+  for (const amount of ['0', '-1', 'NaN', '1.001', '1e2', '20000000.01']) {
+    assert.throws(() => confirmedImportRows([{ ...drafts[0], amount }]))
+  }
+  assert.throws(() => confirmedImportRows([{ ...drafts[0], received_on: '2026-02-30' }]))
+  assert.throws(() => confirmedImportRows(drafts.map(row => ({ ...row, included: false }))))
+})

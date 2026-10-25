@@ -5,6 +5,7 @@ import { createPreview } from './lib/sample'
 import { updatePreview, changeTransaction, exportRecords } from './lib/transactions'
 import TransactionList from './components/TransactionList'
 import ForecastExplanation from './components/ForecastExplanation'
+import IncomeImport from './screens/IncomeImport'
 import TransactionEditor from './screens/TransactionEditor'
 import { upcomingCosts } from './lib/dashboard'
 import { emptyAccountData, loadAccountData } from './lib/account-data'
@@ -92,7 +93,6 @@ function App() {
   const [hasLoaded, setHasLoaded] = useState(false)
   const [loadError, setLoadError] = useState(false)
   const [message, setMessage] = useState('')
-  const [csvErrors, setCsvErrors] = useState([])
   const [online, setOnline] = useState(typeof navigator === 'undefined' ? true : navigator.onLine)
   const [language, setLanguage] = useState(currentLanguage)
   const [dataSaver, setDataSaver] = useState(() => {
@@ -349,38 +349,6 @@ function App() {
     }
   }
 
-  async function importCsv(event) {
-    event.preventDefault()
-    setCsvErrors([])
-    const formElement = event.currentTarget
-    const file = formElement.elements.csv.files?.[0]
-    if (!file || !session) {
-      setMessage(tr('signInAndChooseACsvFileTo'))
-      return
-    }
-    if (file.size > 2 * 1024 * 1024) {
-      setMessage(tr('chooseACsvFileSmallerThan2Mb'))
-      return
-    }
-    const form = new FormData()
-    form.append('file', file)
-    setLoading(true)
-    setMessage('')
-    try {
-      if (!online) throw new Error(tr('youAreOfflineReconnectBeforeImportingToYour'))
-      const result = await api('/income/import', { method: 'POST', body: form, accessToken: session.access_token })
-      if (activeUser.current !== session.user.id) return
-      await refresh()
-      setMessage(tr('importResult', result))
-      setCsvErrors(result.errors || [])
-      formElement.reset()
-    } catch {
-      setMessage(tr('couldNotImportThatFile'))
-    } finally {
-      setLoading(false)
-    }
-  }
-
   async function changeEntry(item, entry) {
     const resource = item.kind === 'income' ? 'income' : 'expenses'
     if (!entry && !window.confirm(tr('confirmDelete', { label: item.label, amount: amount(item.amount_cents), date: dateLabel(item.date) }))) return
@@ -604,8 +572,14 @@ function App() {
               <summary>{tr('importIncomeFromACsv')}</summary>
               <p>{tr('csvInstructions')}</p>
               <p>{tr('csvImportLimits')}</p>
-              {csvErrors.length ? <section aria-label={tr('csvErrors')}><h3>{tr('csvErrors')}</h3><ol lang="en">{csvErrors.map(error => <li key={error.line}>{t('en', 'csvRowError', error)}</li>)}</ol></section> : null}
-              {session ? <form onSubmit={importCsv} className="import-form"><label className="field"><span>{tr('chooseACsvFile')}</span><input required name="csv" type="file" accept=".csv,text/csv" /></label><button className="button button--outline" type="submit" disabled={loading}>{tr('importIncome')}</button></form> : <p className="muted-note">{tr('signInToImportEntriesToYourAccount')}</p>}
+              {session ? <IncomeImport key={session.user.id} tr={tr} disabled={loading || !online}
+                send={(path, options) => api(path, { ...options, accessToken: session.access_token })}
+                onImported={async result => {
+                  if (activeUser.current !== session.user.id) return
+                  const refreshed = await refresh()
+                  if (activeUser.current === session.user.id) setMessage(tr(refreshed ? 'importResult' : 'savedReloadFailed', result))
+                }} /> : <p className="muted-note">{tr('signInToImportEntriesToYourAccount')}</p>}
+
             </details>
           </section>
         ) : null}

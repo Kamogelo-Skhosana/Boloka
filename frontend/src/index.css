@@ -1985,3 +1985,9 @@ html[data-contrast="high"] .balance-card :is(.eyebrow, .balance-card__caption) {
   html[data-text-size="large"] .upcoming-costs .panel__heading { flex-direction: column; }
   html[data-text-size="large"] .upcoming-costs .button { order: -1; }
 }
+
+.import-review-rows { display: grid; gap: 1rem; margin: 1rem 0; }
+.import-review-rows fieldset { display: grid; gap: 0.7rem; min-width: 0; padding: 1rem; border: 1px solid var(--line); border-radius: var(--radius-control); }
+.import-include { display: flex; gap: 0.7rem; align-items: center; min-height: 44px; }
+.import-review-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.7rem; margin-top: 1rem; }
+.income-import p { overflow-wrap: anywhere; }

@@ -13,6 +13,9 @@ test('locale fallbacks and complete interpolation remain explicit', () => {
     assert.deepEqual(missingTranslations(language).sort(), [
       'homeOverview', 'homeIntro', 'homeUpcomingTitle', 'homeUpcomingHelp',
       'homeNoUpcoming', 'homeRecordedLabel', 'homeRecordedHelp',
+      'previewIncomeImport', 'reviewIncomeImport', 'importReviewHelp', 'importSelection',
+      'importCsvLine', 'includeImportRow', 'importPrevious', 'importNext', 'importPage',
+      'confirmIncomeImport', 'importReviewInvalid', 'importSaveUncertain',
     ].sort()) // Deliberate English fallback pending fluent review of new home copy.
     for (const key of translationKeys) {
       const englishPlaceholders = [...translate('en', key).matchAll(/\{(\w+)\}/g)].map((match) => match[1]).sort()
@@ -44,7 +47,7 @@ test('main screen JSX and accessible labels do not bypass the copy catalog', () 
       },
     }
   } }
-  for (const path of ['App.jsx', 'components/TransactionList.jsx', 'screens/TransactionEditor.jsx', 'components/ForecastChart.jsx']) {
+  for (const path of ['App.jsx', 'components/TransactionList.jsx', 'screens/TransactionEditor.jsx', 'screens/IncomeImport.jsx', 'components/ForecastChart.jsx']) {
     const source = readFileSync(new URL('../src/' + path, import.meta.url), 'utf8')
     const messages = linter.verify(source, [{ languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
       plugins: { copy: { rules: { keys: rule } } }, rules: { 'copy/keys': 'error' } }])

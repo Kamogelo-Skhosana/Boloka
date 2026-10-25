@@ -19,7 +19,7 @@ Until Supabase is configured, use the clearly labelled sample preview only to de
 3. Add a sample payout and verify it appears in the user's income history.
 4. Add a recurring expense and verify the recurring flag and amount.
 5. Open the forecast. Explain the exact horizon, conditional planning gap, unvalidated confidence and cash/history assumptions. State that no payout day or shortfall date is predicted. Enter upcoming costs explicitly: a past recurring flag does not create a due date.
-6. Import a CSV with one valid row and one invalid row; show the imported/skipped counts.
+6. Preview a CSV with valid and invalid rows; confirm that nothing is saved yet. Correct a valid row, exclude another, inspect each page and cancel once. Preview again, explicitly save the selected rows, then show the imported/skipped counts.
 7. Sign out, then sign back in and confirm the data remains.
 
 ## Recovery checks

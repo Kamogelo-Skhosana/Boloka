@@ -213,3 +213,28 @@ not been measured. Existing summary, forecast and list routes remain supported.
     }
 
 The summary balance is recorded net income less paid expenses, not available cash. `next_shortfall` remains null because no precise day/risk is established. Savings progress is the recorded current-month contribution sum, separate from the conditional horizon target; the UI does not present these as progress against a dated goal. Database reads paginate rather than silently truncating to one server page.
+
+
+## Review income imports before saving
+
+`POST /api/v1/income/import/preview` accepts the same authenticated multipart
+CSV as the legacy import route (UTF-8, 2,000,000 bytes, 10,000 data rows). It
+parses the entire file without database access and returns `rows`, `skipped`
+and bounded `errors`. Rows contain amount_cents/source/received_on/note and
+the ending CSV `line` number, never an uploaded owner. Quoted multiline records
+use their ending line. Invalid file structure aborts preview; invalid rows are
+skipped with diagnostics. No preview is stored server-side.
+
+`POST /api/v1/income/import/confirm` accepts `{ "rows": [...] }` with 1-10,000
+IncomeCreate records. The whole edited batch is validated before one insert;
+all owners come from the verified caller and RLS still applies. Preview fields
+such as line numbers and uploaded user IDs cannot set record ownership.
+The original `/income/import` route is retained for older API clients and still
+imports immediately; the new frontend never calls that route. A missing preview
+route fails closed rather than falling back to an immediate write.
+
+The frontend displays 20 editable rows per page, inclusion checkboxes and an
+explicit save count. Cancellation or leaving the screen discards local review.
+A confirmed write clears the review before refreshing; a reload failure cannot
+resubmit that batch. A lost write response is ambiguous: inspect account records
+before retrying, since imports are not idempotent and can add duplicates.

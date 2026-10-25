@@ -147,3 +147,20 @@ mint for identity/actions/income. Responsive and high-contrast/larger-text
 checks are engineering evidence only. User comprehension and fluent review of
 the seven new English fallback keys remain required; do not close #77 as a
 validated usability outcome solely from CI or screenshots.
+
+
+## Income import review implementation (#76)
+
+The frontend now previews CSV files without saving, displays ending source line
+numbers, allows corrections/exclusions across 20-row pages, and requires an
+explicit selected-row save. Cancel or leaving the screen discards local review.
+The server revalidates the edited batch and derives every owner from the caller.
+No file/preview is persisted by the server and no import is added to sample mode.
+Existing authenticated direct-import API clients retain their original route.
+
+Automated fixture checks are not user research. Observing the selected segment,
+comparing entry/import effort, deciding expense-import scope and physical-device
+screen-reader acceptance remain #76. New copy uses documented English fallback
+pending fluent review. Import confirmation is not idempotent: when the write
+response is lost, users must check records before retrying. A successful write
+followed by a refresh failure clears the review rather than resubmitting.
