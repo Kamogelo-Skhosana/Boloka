@@ -1,11 +1,9 @@
-# Pitch content for review (ticket #39)
+# Pitch speaker guide (ticket #39)
 
-This is corrected slide copy and speaker guidance, not a rendered or approved
-deck. The existing `Boloka-pitch.pptx` predates the responsible forecast review:
-its dated-warning and sparse-heuristic language must be replaced before use.
-Do not present that file as an up-to-date product specification. Preserve its
-visual direction when transferring this copy, then render and inspect every
-changed slide. The presentation authoring runtime is unavailable in this session.
+The editable `Boloka-pitch.pptx` now reflects the responsible forecast review,
+includes architecture and judge-access guidance, and retains the existing visual
+direction. This guide adds context for the presenter. It does not establish that
+the hosted account flow or private judge credentials have been verified.
 
 ## 1. Income comes in waves. Costs still arrive
 
@@ -83,9 +81,10 @@ Use the [judge runbook](../docs/judge-demo.md): sign in, add/correct an entry,
 enter an upcoming cost, inspect the explanation, import a bounded CSV, sign out
 and verify persistence after signing back in.
 
-Public frontend/API URLs and dedicated-account sign-in are not yet verified.
-Provide the actual URLs only after the release check. Share the demo email and
-password in the private Sonke field, never this public deck or repository.
+The expected frontend and API addresses are `https://boloka.vercel.app` and
+`https://boloka.onrender.com/api/v1`. Their live sign-in and seeded-record flow
+still need confirmation. Share the demo email and password in Sonke's private
+field, never in this public deck or repository.
 
 Speaker: Do not put a placeholder link on screen as working access. If hosting
 is unavailable, identify the fictional preview or backup recording honestly.
@@ -117,8 +116,7 @@ Source of implementation claims: [API contract](../docs/api.md),
 [database schema](../supabase/schema.sql), and
 [localization review](../docs/localization-review.md).
 
-- Transfer corrected text into the editable deck and preserve its visual style.
-- Add the architecture and judge-access content without crowding existing slides.
-- Render and visually inspect all changed slides, including font/text fit.
-- Verify public URLs and private judge credentials through the hosted runbook.
-- Obtain team review before final upload. Ticket #39 remains open.
+- [x] Transfer corrected content into the editable deck and retain its visual style.
+- [x] Add architecture and judge-access guidance; render and inspect the full deck.
+- [ ] Verify the public URLs, signed-in demo account and seeded records.
+- [ ] Obtain team review before final upload. Ticket #39 remains open.

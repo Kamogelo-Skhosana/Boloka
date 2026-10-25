@@ -87,3 +87,32 @@ test('judge preview keeps edits honest, reversible and outside the API', async (
   expect(apiRequests).toEqual([])
   expect(pageErrors).toEqual([])
 })
+
+test('entry save action stays above mobile navigation and can be keyboard reached', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 900 })
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Explore the sample dashboard', exact: true }).click()
+  await page.getByRole('button', { name: 'Add an entry', exact: true }).click()
+
+  const save = page.getByRole('button', { name: 'Save income', exact: true })
+  const nav = page.locator('.bottom-nav')
+  const initial = await page.evaluate(() => {
+    const button = [...document.querySelectorAll('button')].find(element => element.textContent.includes('Save income'))
+    const navigation = document.querySelector('.bottom-nav')
+    const rect = button.getBoundingClientRect()
+    const navRect = navigation.getBoundingClientRect()
+    const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2)
+    return { buttonBottom: rect.bottom, navTop: navRect.top, hitIsSave: hit === button || button.contains(hit) }
+  })
+  expect(initial.buttonBottom).toBeLessThanOrEqual(initial.navTop)
+  expect(initial.hitIsSave).toBe(true)
+
+  await save.focus()
+  const focused = await page.evaluate(() => {
+    const button = document.activeElement.getBoundingClientRect()
+    const navTop = document.querySelector('.bottom-nav').getBoundingClientRect().top
+    return { buttonBottom: button.bottom, navTop }
+  })
+  expect(focused.buttonBottom).toBeLessThanOrEqual(focused.navTop)
+  await expect(nav).toBeVisible()
+})

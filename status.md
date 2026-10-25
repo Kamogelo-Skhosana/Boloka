@@ -44,12 +44,20 @@ and privacy decisions remain external; the ticket stays open.
 
 ## Presentation content review - 25 October 2026
 
-Ticket #39 has corrected slide copy covering the user journey, actual forecast
-limits, architecture and private judge-access handoff. The existing PowerPoint
-still contains dated-warning and sparse-heuristic wording; submission/README.md
-flags it as outdated. The required presentation runtime/connected session is
-unavailable, so the deck was not edited, rendered or approved. Transferring the
-copy, visual review, live URLs and demo-access verification remain open.
+Ticket #39 now has a nine-slide deck with corrected forecast limits, an editable
+architecture and judge-access slide, and its original visual style retained.
+The complete deck was rendered and reviewed; structural validation passed.
+Hosted sign-in, seeded records, private credential handoff and team review still
+need confirmation, so the submission ticket remains open.
+
+## New deployment and mobile navigation findings - 25 October 2026
+
+Tickets #72 and #73 document the mobile Save income/navigation overlap and the
+missing deployed sign-in controls. The code branch adds compact mobile entry
+layout with keyboard scroll clearance and a hit-testing browser assertion. The
+deployment runbook now names the exact Vite Production variables and requires
+a new deployment after configuration. The connected Vercel account has no
+Boloka project; team configuration and live sign-in verification remain open.
 
 ## Judge README preparation - 25 October 2026
 
