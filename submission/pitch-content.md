@@ -118,5 +118,7 @@ Source of implementation claims: [API contract](../docs/api.md),
 
 - [x] Transfer corrected content into the editable deck and retain its visual style.
 - [x] Add architecture and judge-access guidance; render and inspect the full deck.
-- [ ] Verify the public URLs, signed-in demo account and seeded records.
-- [ ] Obtain team review before final upload. Ticket #39 remains open.
+- [x] Owner confirms the full judge demo flow passed (#35). Detailed independent
+  URL/account verification evidence is not included in the repository.
+- [x] Owner reports the reviewed nine-slide deck was uploaded through Sonke
+  with the APK; deck completion is recorded under #39 and upload under #44.

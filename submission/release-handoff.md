@@ -1,8 +1,10 @@
 # Submission artifact handoff — 25 October 2026
 
-This is preparation for #44, not a Sonke submission receipt. Generated APKs and
-the credential-filled judge guide remain outside Git. Do not upload signing
-keys or their password configuration.
+The owner confirmed testing the current APK and uploading it with the
+presentation to Sonke; #44 was closed on that report. The issue does not include
+a receipt identifier or exact submission time. Generated APKs and the
+credential-filled judge guide remain outside Git. Do not upload signing keys or
+their password configuration.
 
 ## Candidate Android artifact
 
@@ -17,11 +19,12 @@ team key, and Android `apksigner verify --print-certs` accepted the resulting
 APK. The certificate matches the earlier release identity. The source commit's
 backend, PostgreSQL RLS and frontend CI checks passed before packaging.
 
-The owner previously accepted earlier builds on Galaxy A15 SM-A155F/DSN,
-Android 16, and confirmed the full judge flow. This exact rebuilt artifact has
-not yet received owner device acceptance. Install it over the prior signed app
-and check startup, sign-in and CSV review/cancel/save before upload. Do not
-uninstall merely to test an update; keep account-backed records intact.
+The owner confirms testing this exact submission APK before upload (#44). The
+owner previously identified a Galaxy A15 SM-A155F/DSN on Android 16 for device
+acceptance (#31); #44 does not repeat the exact device or individual checks for
+this rebuild, so do not claim more detail than the owner reported. The APK uses
+the existing certificate and can update the earlier signed app without
+uninstalling it.
 
 ## Presentation and existing materials
 
@@ -34,6 +37,6 @@ uninstall merely to test an update; keep account-backed records intact.
 - Web app: <https://boloka.vercel.app>.
 - Repository: <https://github.com/Kamogelo-Skhosana/Boloka>.
 
-Follow the [final upload checklist](README.md#final-upload-checklist). After the
-accepted APK and slides are uploaded and the final submission action succeeds,
-record the actual receipt/time in #44. Keep #44 open until that confirmation.
+The owner reports that the APK and slides were uploaded and closed #44. No
+receipt identifier or exact time was supplied. Do not state those details as
+verified unless the team has a separate confirmation.
