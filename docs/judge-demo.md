@@ -55,8 +55,9 @@ aliases A/B. A successful run verifies these read checks, not write/delete
 isolation, re-login persistence, browser redirect/CORS behavior, physical-device
 acceptance or forecast accuracy. Empty accounts cannot establish a meaningful
 cross-account test. The owner later confirmed the end-to-end judge demo passed
-and closed #35. These command limitations are supplemental evidence boundaries;
-the outstanding Sonke upload and receipt are tracked separately in #44.
+and closed #35. These command limitations are supplemental evidence boundaries.
+The owner also reported uploading the tested APK and presentation to Sonke;
+#44 is closed on that report. No receipt identifier or exact time was recorded.
 The command's automated tests use mock services; they are not live evidence.
 
 ### Opt-in two-account write/delete check
@@ -97,8 +98,9 @@ use mock services and do not establish live isolation. This command does not
 verify browser redirects, re-login persistence, accessibility, network recovery,
 physical-device acceptance or forecast accuracy. The owner confirmed the full
 judge demo flow passed and closed #35; these are documented limits of this
-optional checker, not a request to reopen it. Final submission and receipt remain
-under #44.
+optional checker, not a request to reopen it. The owner separately reports the
+APK and presentation upload, and #44 is closed; no receipt identifier or exact
+time was recorded.
 
 ### Reproducible preview browser checks
 
@@ -114,8 +116,9 @@ If Chromium is already installed elsewhere, optional
 These checks do not establish hosted Auth, database ownership between real
 accounts or Android behavior. The owner confirmed the full judge demo flow and
 closed #35. The checklist below is a technical reference and its unchecked items
-are not represented as agent-verified. Final submission and receipt remain under
-#44.
+are not represented as agent-verified. The owner reports the APK and presentation
+were uploaded to Sonke and #44 is closed; no receipt identifier or exact time was
+recorded.
 
 - [ ] Only `/api/v1/health` is publicly readable.
 - [ ] A user cannot read, edit, or delete another user's rows.
